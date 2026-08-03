@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Widgets — Consistency & AI Optimization | Full Case Study</title>
+  <style>
+@font-face{font-family:'Archivo';src:url(fonts/archivo.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:'IBM Plex Sans';src:url(fonts/ibm-plex-sans.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:'IBM Plex Mono';src:url(fonts/ibm-plex-mono.woff2) format('woff2');font-weight:500;font-style:normal;font-display:swap;}
+
+:root{--ground:#F2F4F6; --ground-2:#EAEEF1; --heading:#141B23; --ink:#4a4a4a; --muted:#6F6F6F; --accent:#2DD4BF; --accent-text:#197A6E; --accent-soft:rgba(45,212,191,.1); --line:#D6DCE2; --line-soft:#E3E8EC; --panel:#FFFFFF; --panel-2:#EAEEF1; --ok:#197A6E; --bad:#e74c3c; --hatch:rgba(20,27,35,.045); --shot-scrim:0; --shot-border:#d8d8d8; --shot-shadow:none; --shadow:none;}
+@media(prefers-color-scheme:dark){:root{--ground:#06020E; --ground-2:#140d1b; --heading:#8d8195; --ink:#877891; --muted:#b8aec5; --accent:#51968D; --accent-text:#72B6AB; --accent-soft:rgba(114,182,171,.12); --line:#2a1f35; --line-soft:#1f1829; --panel:#140d1b; --panel-2:#0f0a17; --ok:#6FB3A6; --bad:#e74c3c; --hatch:#242424; --shot-scrim:.10; --shot-border:#333; --shot-shadow:0 2px 8px rgba(0,0,0,.4); --shadow:0 1px 3px rgba(0,0,0,.3);}}
+:root[data-theme="dark"]{--ground:#06020E; --ground-2:#140d1b; --heading:#8d8195; --ink:#877891; --muted:#b8aec5; --accent:#51968D; --accent-text:#72B6AB; --accent-soft:rgba(114,182,171,.12); --line:#2a1f35; --line-soft:#1f1829; --panel:#140d1b; --panel-2:#0f0a17; --ok:#6FB3A6; --bad:#e74c3c; --hatch:#242424; --shot-scrim:.10; --shot-border:#333; --shot-shadow:0 2px 8px rgba(0,0,0,.4); --shadow:0 1px 3px rgba(0,0,0,.3);}
+:root[data-theme="light"]{--ground:#F2F4F6; --ground-2:#EAEEF1; --heading:#141B23; --ink:#4a4a4a; --muted:#6F6F6F; --accent:#2DD4BF; --accent-text:#197A6E; --accent-soft:rgba(45,212,191,.1); --line:#D6DCE2; --line-soft:#E3E8EC; --panel:#FFFFFF; --panel-2:#EAEEF1; --ok:#197A6E; --bad:#e74c3c; --hatch:rgba(20,27,35,.045); --shot-scrim:0; --shot-border:#d8d8d8; --shot-shadow:none; --shadow:none;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale; scroll-behavior:smooth;}
+body{
+  background:var(--ground);
+  color:var(--ink);
+  padding-top:54px;            /* clears the fixed top bar */
+  font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+  font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+[id]{scroll-margin-top:12px;}  /* .cp's own 64px top padding clears the fixed header;
+                                 keeping this well under the scroll-spy's 72px threshold
+                                 is what stops the active tab landing one section behind */
+.prose{max-width:68ch;}
+h1,h2,h3{font-family:'Archivo','IBM Plex Sans',sans-serif; line-height:1.14; text-wrap:balance; margin:0; color:var(--heading);}
+h1{font-size:clamp(2.2rem,5.4vw,3.9rem); font-weight:700; letter-spacing:-.015em;}
+h2{font-size:clamp(1.4rem,2.6vw,1.85rem); font-weight:700; letter-spacing:-.01em;}
+h3{font-size:1.08rem; font-weight:650;}
+h3.subhead{font-size:clamp(1.4rem,2.6vw,1.85rem); font-weight:700; letter-spacing:-.01em;}
+p{margin:0 0 1em;}
+a{color:var(--accent-text); text-decoration-thickness:1px; text-underline-offset:3px;}
+b,strong{color:var(--heading);}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px;}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-weight:500;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace; font-weight:500;
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent-text); display:flex; align-items:center; gap:10px; margin-bottom:14px;
+}
+.eyebrow::after{content:""; height:1px; flex:0 0 42px; background:var(--accent); opacity:.5;}
+.muted{color:var(--muted);}
+
+/* ---------- fixed top bar ---------- */
+.topbar{
+  position:fixed; top:0; left:0; right:0; z-index:100; height:54px;
+  background:var(--ground); border-bottom:1px solid var(--line);
+}
+.topbar .bar{height:54px; display:flex; align-items:center; gap:28px; padding:0 24px; max-width:1120px; margin:0 auto;}
+.topbar .lead{display:flex; align-items:center; gap:12px; flex:0 0 auto;}
+.topbar .back{
+  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+  border-radius:7px; border:1px solid var(--line); color:var(--muted); text-decoration:none;
+  font-size:15px; line-height:1; transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+/* .back is inert for now - no link, so no hover/focus treatment */
+.topbar .name{font-family:'IBM Plex Mono',monospace; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); white-space:nowrap;}
+.topbar .tabs{display:flex; align-items:center; gap:2px; overflow-x:auto; scrollbar-width:none;}
+.topbar .tabs::-webkit-scrollbar{display:none;}
+.topbar .tabs a{
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); text-decoration:none; padding:6px 11px; border-radius:7px; white-space:nowrap;
+  transition:background .15s ease, color .15s ease;
+}
+.topbar .tabs a:hover{color:var(--heading);}
+.topbar .tabs a.active{color:var(--accent-text); background:var(--accent-soft);}
+.topbar .endgrp{margin-left:auto; flex:0 0 auto; display:flex; align-items:center; gap:12px;}
+.topbar .readtime{
+  flex:0 0 auto; font-family:'IBM Plex Mono',monospace; font-size:.66rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--accent-text);
+  display:flex; align-items:center; gap:7px; white-space:nowrap;
+}
+.topbar .readtime::before{content:"\25CF"; font-size:.5rem;}
+
+/* theme toggle - matches the back button on the left of the bar */
+.themetoggle{
+  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+  flex:0 0 auto; padding:0; border-radius:7px; border:1px solid var(--line);
+  background:transparent; color:var(--muted); cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.themetoggle:hover, .themetoggle:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.themetoggle svg{width:15px; height:15px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+.themetoggle .i-sun{display:none;}
+:root[data-theme="dark"] .themetoggle .i-sun{display:block;}
+:root[data-theme="dark"] .themetoggle .i-moon{display:none;}
+@media (max-width:560px){ .topbar .name{display:none;} .topbar .readtime{display:none;} }
+
+/* ---------- hero ---------- */
+.hero{padding:72px 0 40px;}
+.hero .sub{font-size:1.08rem; color:var(--muted); max-width:56ch; margin-top:18px;}
+.meta{
+  margin-top:44px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+}
+.meta div{padding:16px 18px 16px 0; border-right:1px solid var(--line-soft);}
+.meta div:last-child{border-right:none;}
+.meta dt{
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--muted); margin:0 0 6px;
+}
+.meta dd{margin:0; font-size:.92rem; font-weight:600; color:var(--heading);}
+
+/* ---------- before / after comparison slider ---------- */
+.ba{margin:40px 0 8px;}
+.ba-frame{
+  position:relative; overflow:hidden; border-radius:12px;
+  border:1px solid var(--shot-border); box-shadow:var(--shot-shadow);
+  background:
+    repeating-linear-gradient(45deg, var(--hatch) 0 1.5px, transparent 1.5px 14px),
+    var(--panel-2);
+  touch-action:pan-y; user-select:none; cursor:ew-resize;
+  --pos:50%;
+}
+.ba-side{position:absolute; inset:0; display:flex; align-items:center; justify-content:center;}
+.ba-side img{display:block; width:100%; height:100%; object-fit:cover;}
+.ba-after{position:relative;}                 /* sets the frame height */
+.ba-after img{display:block; position:relative; width:100%; height:auto;}
+                                              /* display:block kills the inline descender
+                                                 gap that knocked the two halves out of register */
+.ba-before{clip-path:inset(0 calc(100% - var(--pos)) 0 0);}
+.ba-ph{                                        /* shown until the images exist */
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted); text-align:center; padding:24px;
+}
+.ba-empty{min-height:clamp(240px,26vw,420px);}
+.ba-divider{
+  position:absolute; top:0; bottom:0; left:var(--pos); width:2px; margin-left:-1px;
+  background:var(--accent); pointer-events:none;
+}
+.ba-handle{
+  position:absolute; top:50%; left:var(--pos); transform:translate(-50%,-50%);
+  width:40px; height:40px; border-radius:50%; border:2px solid var(--accent);
+  background:var(--ground); color:var(--accent-text); cursor:ew-resize;
+  display:flex; align-items:center; justify-content:center; gap:3px; padding:0;
+  box-shadow:var(--shadow);
+}
+.ba-handle:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
+.ba-handle span{font-size:.8rem; line-height:1;}
+.ba-tag{                            /* rides the divider instead of sitting over the UI */
+  position:absolute; top:50%; left:var(--pos);
+  font-family:'IBM Plex Mono',monospace; font-size:.6rem;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+  background:var(--ground); border:1px solid var(--line); border-radius:4px; padding:3px 9px;
+  pointer-events:none; white-space:nowrap;
+}
+.ba-tag.l{transform:translate(calc(-100% - 28px), -50%);}   /* left of the handle  */
+.ba-tag.r{transform:translate(28px, -50%);}                 /* right of the handle */
+.ba-cap{
+  margin-top:14px; font-family:'IBM Plex Mono',monospace; font-size:.66rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted); text-align:center;
+}
+@media (prefers-reduced-motion:reduce){ .ba-frame{transition:none !important;} }
+
+/* ---------- checkpoint sections ---------- */
+main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
+                                    `main` selector, so this needs the class too */
+.cp{position:relative; padding:64px 0 8px 0;}
+.cp>h2{margin-bottom:24px; max-width:30ch;}
+.cp h3.phase{
+  margin-top:48px; padding-top:0;
+  font-size:1.3rem; position:relative; margin-bottom:24px;
+}
+
+/* ---------- cards & grids ---------- */
+.grid2{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); margin:26px 0;}
+.grid2.pair{grid-template-columns:repeat(2,1fr);}   /* even rows, no orphan card */
+@media (max-width:620px){ .grid2.pair{grid-template-columns:1fr;} }
+.grid3{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); margin:26px 0;}
+.card{
+  background:var(--panel); border:1px solid var(--line-soft); border-radius:10px;
+  padding:22px 22px 18px; box-shadow:var(--shadow);
+}
+.card .tag{
+  font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.12em;
+  text-transform:uppercase; color:var(--muted); display:inline-block; margin-bottom:12px;
+  border:1px solid var(--line); border-radius:4px; padding:2px 8px; background:var(--ground);
+}
+.card h3{margin-bottom:24px;}
+.card p{font-size:.95rem; color:var(--muted); margin-bottom:0;}
+.card ul{margin:10px 0 0; padding-left:0; list-style:none; font-size:.95rem;}
+.card ul li{padding:7px 0 7px 22px; position:relative; border-top:1px solid var(--line-soft);}
+.card ul li:first-child{border-top:none;}
+.card ul li::before{content:"—"; position:absolute; left:0; color:var(--accent); }
+
+.pain{list-style:none; padding:0; margin:22px 0;}
+.pain li{
+  position:relative; padding:12px 0 12px 34px; border-top:1px solid var(--line-soft);
+  max-width:68ch;
+}
+.pain.closed li:last-child{border-bottom:1px solid var(--line-soft);}
+.pain li::before{
+  content:"✕"; position:absolute; left:4px; top:12px; color:var(--bad);
+  font-family:'IBM Plex Mono',monospace; font-size:.85rem;
+}
+.pain li b{font-weight:600; color:var(--heading);}
+.pain.wins li::before{content:"✓"; color:var(--ok);}
+
+/* pull quote */
+.pull{
+  margin:40px 0; padding:6px 0 6px 26px; border-left:3px solid var(--accent);
+  font-family:'Archivo',sans-serif; font-size:clamp(1.3rem,2.6vw,1.7rem);
+  font-weight:650; line-height:1.3; letter-spacing:-.01em; max-width:none; color:var(--heading);
+}
+.pull small{
+  display:block; margin-top:12px; font-family:'IBM Plex Mono',monospace;
+  font-size:.68rem; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); font-weight:500;
+}
+
+/* ---------- stats ---------- */
+.stats{
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  border-top:1px solid var(--line-soft); border-bottom:1px solid var(--line-soft); margin:30px 0;
+}
+.stats div{padding:22px 20px 22px 0; border-right:1px solid var(--line-soft);}
+.stats div:last-child{border-right:none;}
+.stats .num{
+  font-family:'Archivo',sans-serif; font-weight:700; font-size:clamp(1.9rem,3.6vw,2.6rem);
+  letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums; color:var(--heading);
+}
+.stats .lbl{font-size:.8rem; color:var(--muted); margin-top:8px; line-height:1.4;}
+
+/* ---------- lessons ---------- */
+.lessons{counter-reset:les; list-style:none; margin:26px 0; padding:0; max-width:66ch;}
+.lessons li{
+  counter-increment:les; position:relative; padding:18px 0 18px 58px;
+  border-top:1px solid var(--line-soft); font-size:1.05rem;
+}
+.lessons li::before{
+  content:"0" counter(les); position:absolute; left:0; top:18px;
+  font-family:'IBM Plex Mono',monospace; font-size:.8rem; color:var(--accent-text); letter-spacing:.08em;
+}
+.lessons b{font-weight:650; color:var(--heading);}
+.lessons span{display:block; font-size:.92rem; color:var(--muted); margin-top:4px;}
+
+/* ---------- audience blocks ---------- */
+.aud{
+  margin:38px 0 0; padding-top:0;
+  display:grid; grid-template-columns:auto 1fr; column-gap:20px; align-items:start;
+}
+.aud .n{
+  width:34px; height:34px; display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); border-radius:9px; color:var(--muted);
+}
+.aud .n svg{width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.6;
+  stroke-linecap:round; stroke-linejoin:round;}
+.aud h3{font-size:1.3rem; margin:0 0 4px;}
+.aud .who{
+  grid-column:2; font-size:.78rem; color:var(--muted); margin-bottom:0;
+  letter-spacing:.02em;
+}
+.aud ul, .aud > p{grid-column:2;}
+@media (max-width:560px){ .aud{grid-template-columns:1fr;} .aud .who,.aud ul,.aud>p{grid-column:1;} }
+.aud ul{list-style:none; margin:12px 0 0; padding:0; font-size:.97rem; max-width:60ch;}
+.aud li{padding:9px 0 9px 24px; position:relative; border-top:1px solid var(--line-soft);}
+.aud li:first-child{border-top:none;}
+.aud li::before{content:"→"; position:absolute; left:0; color:var(--accent); font-family:'IBM Plex Mono',monospace; font-size:.8rem;}
+
+/* ---------- real screenshot figures ---------- */
+.shot{margin:34px 0 0; padding:0;}
+.shot .frame{
+  position:relative; line-height:0;
+  border-radius:12px; overflow:hidden;
+  box-shadow:var(--shot-shadow);
+}
+/* .bare - the export already carries its own rounded card and shadow, so the
+   frame adds none of its own. Avoids a double corner, and stays matched at
+   every width (the baked radius scales with the image, a CSS px value doesn't). */
+.shot.bare .frame{border:0; border-radius:0; overflow:visible; box-shadow:none;}
+.shot img{display:block; width:100%; height:auto;}
+.shot .frame::after{                        /* Sentinel's knock-back: 0 light, 10% dark */
+  content:""; position:absolute; inset:0; background:#000000;
+  opacity:var(--shot-scrim); pointer-events:none;
+}
+.shot figcaption{
+  margin-top:14px; text-align:center; line-height:1.5;
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+}
+
+/* ---------- slot (placeholder for screenshots) ---------- */
+.slot{
+  position:relative; margin:34px 0; border:1px solid var(--line-soft); border-radius:12px;
+  background:
+    repeating-linear-gradient(45deg, var(--hatch) 0 1.5px, transparent 1.5px 14px),
+    var(--panel-2);
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:24px; overflow:hidden;
+  min-height:240px;
+}
+.slot .in{max-width:44ch;}
+.slot .fig{
+  display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.64rem;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent-text);
+  border:1px solid var(--accent); border-radius:4px; padding:3px 9px; margin-bottom:12px;
+  background:var(--ground);
+}
+.slot h4{font-family:'Archivo',sans-serif; font-weight:650; font-size:1.05rem; margin:0 0 24px; color:var(--ink);}
+.slot p{font-size:.85rem; color:var(--muted); margin:0;}
+
+/* ---------- footer bar (in-flow, at end of page) ---------- */
+.botbar{height:54px; background:var(--ground); border-top:1px solid var(--line);}
+.botbar .bar{height:54px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 24px; max-width:1120px; margin:0 auto;}
+.botbar .nextproj{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); padding:7px 13px;
+}
+.botbar .nextproj .ar{font-size:1.05rem; line-height:1;}
+.botbar .cur{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+  </style>
+<script>
+/* Resolve the theme before first paint so data-theme is always set and the
+   toggle icon never disagrees with what is on screen. */
+(function(){
+  var t;
+  try{ t = localStorage.getItem('theme'); }catch(e){}
+  if(t !== 'light' && t !== 'dark'){
+    t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+  }
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="bar">
+      <span class="lead">
+        <span class="back" aria-hidden="true">&#8592;</span>
+        <span class="name">Code Widgets</span>
+      </span>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#overview">Overview</a>
+        <a href="#problem">Problem</a>
+        <a href="#process">Process</a>
+        <a href="#outcome">Outcome</a>
+        <a href="#impact">Impact</a>
+        <a href="#conclusion">Conclusion</a>
+      </nav>
+      <span class="endgrp">
+        <span class="readtime">5 min read</span>
+        <button type="button" class="themetoggle" id="themeToggle" aria-label="Switch theme" title="Switch theme">
+          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
+        </button>
+      </span>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="eyebrow">Widgets · Consistency · AI</div>
+      <h1>Bringing consistency to code widgets.</h1>
+      <p class="sub">A UI revamp across Educative's four core coding widgets (Sandpack, Code, Code Tab, and Code Test), unifying themes, actions, tabs, and file trees under one design language, and standardizing how AI assistance (AI Mentor, Code Feedback) surfaces inside every coding experience.</p>
+
+      <dl class="meta">
+        <div><dt>Role</dt><dd>Product Designer</dd></div>
+        <div><dt>Initiative</dt><dd>Code Widget Revamp</dd></div>
+        <div><dt>Scope</dt><dd>4 widgets</dd></div>
+        <div><dt>Platforms</dt><dd>Web, Mobile, Tablet</dd></div>
+      </dl>
+
+      <div class="ba" data-ba>
+        <div class="ba-frame" id="baFrame">
+          <div class="ba-after ba-empty">
+            <img src="After.png" alt="Sandpack after the revamp: header with language label and saved state, unified file tabs, and a consistent action row" data-baimg>
+          </div>
+          <div class="ba-side ba-before">
+            <img src="Before.png" alt="Sandpack before the revamp: dark editor with a detached file sidebar and a lone Run button" data-baimg>
+          </div>
+          <span class="ba-tag l">Before</span>
+          <span class="ba-tag r">After</span>
+          <div class="ba-divider" aria-hidden="true"></div>
+          <button type="button" class="ba-handle" id="baHandle" role="slider"
+                  aria-label="Reveal before or after" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+            <span aria-hidden="true">&#9664;</span><span aria-hidden="true">&#9654;</span>
+          </button>
+        </div>
+        <div class="ba-cap">Sandpack: drag to compare before and after</div>
+      </div>
+    </section>
+  </div>
+
+  <main class="wrap">
+
+    <!-- 01 · PROJECT OVERVIEW -->
+    <section class="cp" id="overview">
+      <div class="eyebrow">01 · Project overview</div>
+      <h2>The project at a glance</h2>
+      <p class="prose">Coding widgets are where developers spend most of their hands-on time on Educative. A learner working through a single course can move between Sandpack, Code, Code Tab, and Code Test inside one lesson.</p>
+      <p class="prose">Yet each widget looked and behaved like it belonged to a different product.</p>
+      <p class="prose">This initiative unified all four widgets under one shared anatomy. It also fixed where AI assistance lives: AI Mentor and Code Feedback now sit in the same place in every widget.</p>
+
+      <div class="stats">
+        <div>
+          <div class="num">4</div>
+          <div class="lbl">Coding widgets unified under one design language</div>
+        </div>
+        <div>
+          <div class="num">3</div>
+          <div class="lbl">Phases: Sandpack → Code Tab & Code → Code Test</div>
+        </div>
+        <div>
+          <div class="num">2</div>
+          <div class="lbl">AI touchpoints standardized across widgets</div>
+        </div>
+        <div>
+          <div class="num">1</div>
+          <div class="lbl">Shared anatomy: header, files, tabs, actions, output</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 · PROBLEM & GOAL -->
+    <section class="cp" id="problem">
+      <div class="eyebrow">02 · Problem &amp; goal</div>
+      <h2>Four widgets, four different products</h2>
+      <p class="prose">Consistency in developer interfaces isn't cosmetic. Every visual mismatch is a moment of re-orientation that pulls attention away from the code.</p>
+      <p class="prose">Developers hit these widgets constantly, so the fragmentation had real costs:</p>
+
+      <div class="pain closed">
+        <li><b>Constant context switching</b></li>
+        <li><b>Friction from inconsistency</b></li>
+        <li><b>No shared foundation</b></li>
+      </div>
+
+      <div class="pull">
+        A unified design = an intuitive experience
+      </div>
+
+      <figure class="shot">
+        <div class="frame">
+          <img src="Before-widgets.png" alt="The four coding widgets before the revamp, shown side by side: Sandpack, Code, Code Test, and Code Tabs, each with its own theme, button placement, tab style, and file tree.">
+        </div>
+        <figcaption>Before revamp: no defining UX guidelines</figcaption>
+      </figure>
+
+      <h3 class="subhead" style="margin-top:56px; margin-bottom:24px;">The visual inconsistencies, audited</h3>
+      <p class="prose">Placing the four widgets side by side made the fragmentation obvious. Each had drifted into its own theme and interaction dialect:</p>
+
+      <div class="pain">
+        <li><b>Varying themes:</b> background colour, corner rounding, strokes, and hierarchy of information differed per widget.</li>
+        <li><b>Button inconsistencies:</b> button styles, placement, and icon styles were all separate from one widget to the next.</li>
+        <li><b>Tabs UI:</b> Code Tab's solution tabs looked nothing like Sandpack's file tabs or Code Test's panel tabs</li>
+        <li><b>File tree behaviours:</b> Sandpack had an always-open dark sidebar, while CTW / Code had a collapsible "Files" panel</li>
+      </div>
+
+
+      <h3 class="subhead" style="margin-top:56px; margin-bottom:24px;">What we aimed for</h3>
+      <p class="prose">The aim was not to redesign four widgets four times. It was to define one visual and interaction system that all coding surfaces inherit.</p>
+      <p class="prose">That way any future widget, and any future AI capability, lands on a consistent foundation.</p>
+
+      <div class="grid2 pair">
+        <div class="card">
+          <div class="tag">Goal 1</div>
+          <h3>Clean, modern, minimal UI</h3>
+          <p>Strip visual noise so the learner's code is the focus of every widget.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Goal 2</div>
+          <h3>Shared design language</h3>
+          <p>One theme, one header anatomy, one tab style, one file tree across all code widgets.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Goal 3</div>
+          <h3>Clarity of action</h3>
+          <p>Every action gets a consistent placement and icon, so intent is never ambiguous.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Goal 4</div>
+          <h3>Design system token alignment</h3>
+          <p>Replace hardcoded styling with tokens, to stay in sync with the platform.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 03 · PROCESS & EXECUTION -->
+    <section class="cp" id="process">
+      <div class="eyebrow">03 · Process &amp; execution</div>
+      <h2>One widget at a time, each setting up the next</h2>
+      <p class="prose">Sandpack set the reference. Code Tab and Code adopted it. Code Test was then reconciled with it.</p>
+
+      <!-- Phase 1: Sandpack -->
+      <div>
+        <h3 class="phase">Starting point: Sandpack revamp</h3>
+        <p class="prose">We started with Sandpack, the widget developers interact with most.</p>
+      <p class="prose">Code Test (CTW) served as the benchmark, since it already followed our design language most closely.</p>
+        <p class="prose">The revamped Sandpack introduced the anatomy every other widget would adopt.</p>
+
+        <figure class="shot bare">
+          <div class="frame">
+            <img src="img/sp-after.png" alt="Sandpack before and after the revamp, side by side: a dark editor with a detached file sidebar and a lone Run button, replaced by a header bar with language label, a Files panel, saved state, and a unified action row.">
+          </div>
+          <figcaption>Sandpack: original vs. revamp</figcaption>
+        </figure>
+      </div>
+
+      <!-- Phase 2: Code Tab & Code -->
+      <div>
+        <h3 class="phase">Next steps: Code Tab &amp; Code revamp</h3>
+        <p class="prose">Code and Code Tab had nearly the same use cases, so they were handled simultaneously. The updated Sandpack widget was used as the reference point for visual hierarchy: the same header anatomy, Files panel, and action placement were carried over.</p>
+
+        <figure class="shot bare">
+          <div class="frame">
+            <img src="img/ct-after.png" alt="Code Tab before and after the revamp, side by side: mismatched solution tabs above a dark editor, replaced by a Files panel, unified tabs, an action row with Ask AI Mentor and Run, and an Output panel with runtime.">
+          </div>
+          <figcaption>Code Tab: original vs. revamp</figcaption>
+        </figure>
+      </div>
+
+      <!-- Phase 3: Code Test -->
+      <div>
+        <h3 class="phase">And lastly: Code Test revamp</h3>
+        <p class="prose">Code Test had been revamped before this initiative, which is exactly why it served as the original benchmark.</p>
+        <p class="prose">But some use cases still had to be sorted, such as PAL and fullscreen mode.</p>
+        <p class="prose">Here the direction reversed. Sandpack's designs were referenced and implemented back into Code Test.</p>
+
+        <figure class="shot bare">
+          <div class="frame">
+            <img src="img/ctw-after.png" alt="Code Test before and after the revamp, side by side: a separate Code Feedback strip below the editor, replaced by a fullscreen layout with Files, editor, and Test Cases / Results / Code Feedback panels.">
+          </div>
+          <figcaption>Code Test: original vs. revamp</figcaption>
+        </figure>
+      </div>
+    </section>
+
+
+
+    <!-- DEEP DIVE · AI OPTIMIZATION -->
+    <section class="cp" id="ai">
+      <div class="eyebrow">Deep dive · AI optimization</div>
+      <h2>Consistent, discoverable AI assistance</h2>
+      <p class="prose">The revamp wasn't only about visual parity. It prepared the widgets for AI.</p>
+      <p class="prose">Before, AI assistance appeared differently depending on the widget: an "Ask AI Mentor" button in one bottom bar, a Code Feedback tab elsewhere, with no shared placement or styling.</p>
+      <p class="prose">As part of the unification, AI touchpoints were treated as first-class citizens of the shared anatomy.</p>
+
+      <div class="pain wins" style="margin-top:20px;">
+        <li><b>AI Mentor, standardized:</b> the AI Mentor entry point now sits in the widget's action row with consistent styling and iconography. Same place, same look, in every widget where it's available</li>
+        <li><b>Code Feedback, integrated:</b> in Code Test, Code Feedback is a peer panel alongside Test Cases and Results. AI evaluation lives directly in the results flow instead of a detached surface</li>
+        <li><b>A foundation for what's next:</b> because AI entry points are now part of the shared anatomy, new AI capabilities can be added to any widget without inventing new UI each time</li>
+      </div>
+
+      <div class="slot">
+        <div class="in">
+          <div class="fig">AI Touchpoints</div>
+          <h4>AI Mentor &amp; Code Feedback across widgets</h4>
+          <p>Revamped widgets showing the standardized AI Mentor button in the action row and the Code Feedback panel in Code Test's results column.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- OUTCOME -->
+    <section class="cp" id="outcome">
+      <div class="eyebrow">Outcome &middot; shared anatomy</div>
+      <h2>One shared widget anatomy</h2>
+      <p class="prose">The core deliverable is a shared anatomy: a fixed set of regions and behaviours that every code widget composes from.</p>
+      <p class="prose">Once a learner has used one widget, every other widget is already familiar.</p>
+
+      <div class="grid2 pair" style="margin-top:24px;">
+        <div class="card">
+          <div class="tag">01</div>
+          <h3>Header bar</h3>
+          <p>Language identity (icon + name) on the left; state and utilities (Saved indicator, reset, fullscreen) on the right. Identical across Sandpack, Code, Code Tab, and Code Test.</p>
+        </div>
+        <div class="card">
+          <div class="tag">02</div>
+          <h3>Files panel</h3>
+          <p>One collapsible Files panel pattern replaces the two divergent file trees. The same expand/collapse behaviour and file-row styling in every widget.</p>
+        </div>
+        <div class="card">
+          <div class="tag">03</div>
+          <h3>Tabs</h3>
+          <p>File tabs and panel tabs share a single tab component style, ending Code Tab's separate design language.</p>
+        </div>
+        <div class="card">
+          <div class="tag">04</div>
+          <h3>Action row</h3>
+          <p>Run, Submit, download, and copy have fixed positions, consistent button hierarchy (primary vs. secondary), and one icon set, giving clarity of action by placement alone.</p>
+        </div>
+        <div class="card">
+          <div class="tag">05</div>
+          <h3>Output &amp; results</h3>
+          <p>A standard Output panel with runtime for Code and Code Tab; Test Cases / Results / Code Feedback panels for Code Test. Both are built from the same panel and tab primitives.</p>
+        </div>
+        <div class="card">
+          <div class="tag">06</div>
+          <h3>Theming on tokens</h3>
+          <p>All widgets are styled with design system tokens instead of hardcoded values, so widget UI evolves with the platform automatically.</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- 04 · IMPACT -->
+    <section class="cp" id="impact">
+      <div class="eyebrow">04 · Impact</div>
+
+
+      <h3 class="subhead" style="margin-top:8px; margin-bottom:24px;">Who benefited</h3>
+
+      <div class="aud">
+        <div class="n" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.5 8.5 5 12l3.5 3.5M15.5 8.5 19 12l-3.5 3.5M13.5 6l-3 12"/></svg></div>
+        <h3>Focus stays on the code</h3>
+        <div class="who">Learners &amp; developers</div>
+        <ul>
+          <li>Switching between widgets no longer requires re-orientation. The interface is now standard</li>
+          <li>Actions are predictable by placement and style alone</li>
+        </ul>
+      </div>
+
+      <div class="aud">
+        <div class="n" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7.5" width="18" height="12.5" rx="2"/><path d="M9 7.5V6a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v1.5M3 12h18"/></svg></div>
+        <h3>A polished, scalable product surface</h3>
+        <div class="who">Business</div>
+        <ul>
+          <li>The coding experience now reads as 1 single polished product</li>
+          <li>Token-aligned widgets sit in visual harmony with the rest of the platform</li>
+        </ul>
+      </div>
+
+      <div class="aud">
+        <div class="n" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4z"/><path d="M14 6l4 4"/></svg></div>
+        <h3>One anatomy to design and build against</h3>
+        <div class="who">Designers &amp; developers</div>
+        <ul>
+          <li>New widget features are now designed against the shared anatomy</li>
+          <li>Tokens replace hardcoded UI, so platform-level changes are automatic</li>
+          <li>The benchmark loop leaves every widget on the same source patterns</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 05 · LEARNINGS & NEXT STEPS -->
+    <section class="cp" id="conclusion">
+      <div class="eyebrow">05 · Learnings &amp; next steps</div>
+      <h2>What we took away, and where this goes</h2>
+
+      <div class="grid2">
+        <div class="card">
+          <div class="tag">Learning</div>
+          <h3>Benchmark, don't invent</h3>
+          <p>Anchoring the revamp to the widget that already fit our design language best (Code Test) made every later decision faster and more defensible than starting from a blank canvas.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Learning</div>
+          <h3>Sequence phases so they compound</h3>
+          <p>Starting with the highest-interaction widget meant each phase inherited proven patterns, and the final phase closed the loop back to the original benchmark.</p>
+        </div>
+        <div class="card">
+          <div class="tag">Learning</div>
+          <h3>Design AI in, not on</h3>
+          <p>Treating AI Mentor and Code Feedback as part of the widget anatomy rather than features stapled to it, made assistance consistent now and cheap to extend later.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="botbar" aria-label="Case study navigation">
+    <div class="bar">
+      <span class="cur">Code Widgets &bull; 2026</span>
+      <span class="nextproj">Next project <span class="ar">&#8594;</span></span>
+    </div>
+  </nav>
+
+  <script>
+  /* ---- section scroll-spy for the top bar ---- */
+  (function(){
+    var tabs = [].slice.call(document.querySelectorAll('.topbar .tabs a'));
+    var sections = tabs
+      .map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); })
+      .filter(Boolean);
+    function setActive(id){
+      tabs.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+    }
+    tabs.forEach(function(a){
+      a.addEventListener('click', function(){ setActive(a.getAttribute('href').slice(1)); });
+    });
+    var ticking = false;
+    function update(){
+      ticking = false;
+      var offset = 72;
+      var current = sections[0] && sections[0].id;
+      for (var i = 0; i < sections.length; i++){
+        if (sections[i].getBoundingClientRect().top <= offset) current = sections[i].id;
+      }
+      // the final section is too short to ever reach the top of the viewport,
+      // so claim it once the page is scrolled to the bottom
+      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
+      if (atBottom && sections.length) current = sections[sections.length - 1].id;
+      if (current) setActive(current);
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking){ ticking = true; requestAnimationFrame(update); }
+    }, {passive:true});
+    window.addEventListener('resize', update, {passive:true});
+    update();
+  })();
+
+  /* ---- light / dark toggle ---- */
+  (function(){
+    var root = document.documentElement;
+    var btn  = document.getElementById('themeToggle');
+    if (!btn) return;
+    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    var stored = null;
+    try{ stored = localStorage.getItem('theme'); }catch(e){}
+
+    function label(){
+      var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      btn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
+      btn.setAttribute('title', 'Switch to ' + next + ' theme');
+    }
+    function apply(theme, remember){
+      root.setAttribute('data-theme', theme);
+      if (remember){
+        stored = theme;
+        try{ localStorage.setItem('theme', theme); }catch(e){}
+      }
+      label();
+    }
+    btn.addEventListener('click', function(){
+      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+    });
+    if (mq && mq.addEventListener){
+      mq.addEventListener('change', function(e){
+        if (stored !== 'light' && stored !== 'dark') apply(e.matches ? 'dark' : 'light', false);
+      });
+    }
+    label();
+  })();
+
+  /* ---- before / after slider ---- */
+  (function(){
+    var frame = document.getElementById('baFrame');
+    if (!frame) return;
+    var handle = document.getElementById('baHandle');
+
+    // hide the placeholder for whichever image actually loads
+    [].slice.call(frame.querySelectorAll('[data-baimg]')).forEach(function(img){
+      function ok(){ var ph = img.parentNode.querySelector('[data-baph]'); if (ph) ph.remove();
+                     img.parentNode.classList.remove('ba-empty'); }
+      function fail(){ img.remove(); }
+      if (img.complete) { img.naturalWidth ? ok() : fail(); }
+      else { img.addEventListener('load', ok); img.addEventListener('error', fail); }
+    });
+
+    function set(pct){
+      pct = Math.max(0, Math.min(100, pct));
+      frame.style.setProperty('--pos', pct + '%');
+      handle.setAttribute('aria-valuenow', Math.round(pct));
+    }
+    function fromEvent(e){
+      var r = frame.getBoundingClientRect();
+      set(((e.clientX - r.left) / r.width) * 100);
+    }
+    var dragging = false;
+    frame.addEventListener('pointerdown', function(e){
+      dragging = true; frame.setPointerCapture(e.pointerId); fromEvent(e); e.preventDefault();
+    });
+    frame.addEventListener('pointermove', function(e){ if (dragging) fromEvent(e); });
+    ['pointerup','pointercancel'].forEach(function(t){
+      frame.addEventListener(t, function(){ dragging = false; });
+    });
+    handle.addEventListener('keydown', function(e){
+      var cur = parseFloat(handle.getAttribute('aria-valuenow')) || 50;
+      var step = e.shiftKey ? 10 : 2;
+      if (e.key === 'ArrowLeft'){ set(cur - step); e.preventDefault(); }
+      if (e.key === 'ArrowRight'){ set(cur + step); e.preventDefault(); }
+      if (e.key === 'Home'){ set(0); e.preventDefault(); }
+      if (e.key === 'End'){ set(100); e.preventDefault(); }
+    });
+
+    // one-time nudge when it first scrolls into view, so the affordance is obvious
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduce && 'IntersectionObserver' in window){
+      var done = false;
+      new IntersectionObserver(function(entries, obs){
+        entries.forEach(function(en){
+          if (!en.isIntersecting || done) return;
+          done = true; obs.disconnect();
+          var start = performance.now(), from = 66, to = 50, dur = 750;
+          (function step(now){
+            var t = Math.min(1, (now - start) / dur);
+            var e = 1 - Math.pow(1 - t, 3);
+            set(from + (to - from) * e);
+            if (t < 1) requestAnimationFrame(step);
+          })(start);
+        });
+      }, {threshold:.4}).observe(frame);
+    }
+    set(50);
+  })();
+  </script>
+</body>
+</html>
