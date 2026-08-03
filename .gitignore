@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# Full-resolution source exports (16384px, ~19MB). Anchored to the repo root so
+# the web-sized copies in img/ - which are what the pages load - stay tracked.
+/sp-after.png
+/ct-after.png
+/ctw-after.png
+
+# Source recording for the runsheet clip; assign-runsheet.mp4 is the encoded
+# version the page actually plays.
+/assign-runsheet.mov
