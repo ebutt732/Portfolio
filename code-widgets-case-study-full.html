@@ -238,6 +238,23 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
 .lessons b{font-weight:650; color:var(--heading);}
 .lessons span{display:block; font-size:.92rem; color:var(--muted); margin-top:4px;}
 
+/* ---------- anatomy list (compact, replaces the card grid) ---------- */
+.anatomylist{margin:26px 0 0;}
+.anatomylist .row{
+  display:grid; grid-template-columns:32px 1fr; gap:16px; align-items:baseline;
+  padding:15px 0; border-top:1px solid var(--line-soft);
+}
+.anatomylist .ix{
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.06em;
+  color:var(--muted);
+}
+.anatomylist b{
+  display:block; font-family:'Archivo',sans-serif; font-weight:650;
+  font-size:1rem; color:var(--heading); margin-bottom:3px;
+}
+.anatomylist .d{display:block; font-size:.93rem; color:var(--muted); max-width:88ch;}
+@media (max-width:560px){ .anatomylist .row{grid-template-columns:1fr; gap:2px;} }
+
 /* ---------- audience blocks ---------- */
 .aud{
   margin:38px 0 0; padding-top:0;
@@ -562,36 +579,30 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
       <p class="prose">The core deliverable is a shared anatomy: a fixed set of regions and behaviours that every code widget composes from.</p>
       <p class="prose">Once a learner has used one widget, every other widget is already familiar.</p>
 
-      <div class="grid2 pair" style="margin-top:24px;">
-        <div class="card">
-          <div class="tag">01</div>
-          <h3>Header bar</h3>
-          <p>Language identity (icon + name) on the left; state and utilities (Saved indicator, reset, fullscreen) on the right. Identical across Sandpack, Code, Code Tab, and Code Test.</p>
+      <div class="anatomylist">
+        <div class="row">
+          <span class="ix">01</span>
+          <div><b>Header bar</b><span class="d">Language identity on the left; state and utilities on the right. Identical across all 4 widgets.</span></div>
         </div>
-        <div class="card">
-          <div class="tag">02</div>
-          <h3>Files panel</h3>
-          <p>One collapsible Files panel pattern replaces the two divergent file trees. The same expand/collapse behaviour and file-row styling in every widget.</p>
+        <div class="row">
+          <span class="ix">02</span>
+          <div><b>Files panel</b><span class="d">One collapsible Files panel pattern replaces the two divergent file trees.</span></div>
         </div>
-        <div class="card">
-          <div class="tag">03</div>
-          <h3>Tabs</h3>
-          <p>File tabs and panel tabs share a single tab component style, ending Code Tab's separate design language.</p>
+        <div class="row">
+          <span class="ix">03</span>
+          <div><b>Tabs</b><span class="d">File and panel tabs share a single component style, ending Code Tab's separate design language.</span></div>
         </div>
-        <div class="card">
-          <div class="tag">04</div>
-          <h3>Action row</h3>
-          <p>Run, Submit, download, and copy have fixed positions, consistent button hierarchy (primary vs. secondary), and one icon set, giving clarity of action by placement alone.</p>
+        <div class="row">
+          <span class="ix">04</span>
+          <div><b>Action row</b><span class="d">Run, Submit, download, and copy have fixed positions, consistent button hierarchy, and uniform UI.</span></div>
         </div>
-        <div class="card">
-          <div class="tag">05</div>
-          <h3>Output &amp; results</h3>
-          <p>A standard Output panel with runtime for Code and Code Tab; Test Cases / Results / Code Feedback panels for Code Test. Both are built from the same panel and tab primitives.</p>
+        <div class="row">
+          <span class="ix">05</span>
+          <div><b>Output &amp; results</b><span class="d">Output panel standardized; Built from the same panel and tab primitives across widgets.</span></div>
         </div>
-        <div class="card">
-          <div class="tag">06</div>
-          <h3>Theming on tokens</h3>
-          <p>All widgets are styled with design system tokens instead of hardcoded values, so widget UI evolves with the platform automatically.</p>
+        <div class="row">
+          <span class="ix">06</span>
+          <div><b>Theming on tokens</b><span class="d">All widgets styled with DS tokens instead of hardcoded values, so UI evolves with the platform.</span></div>
         </div>
       </div>
 
