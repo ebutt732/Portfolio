@@ -238,22 +238,15 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
 .lessons b{font-weight:650; color:var(--heading);}
 .lessons span{display:block; font-size:.92rem; color:var(--muted); margin-top:4px;}
 
-/* ---------- anatomy list (compact, replaces the card grid) ---------- */
+/* ---------- anatomy list (one line per point) ---------- */
 .anatomylist{margin:26px 0 0;}
 .anatomylist .row{
-  display:grid; grid-template-columns:32px 1fr; gap:16px; align-items:baseline;
-  padding:15px 0; border-top:1px solid var(--line-soft);
+  padding:13px 0; border-top:1px solid var(--line-soft);
+  font-size:.93rem; color:var(--muted);
 }
-.anatomylist .ix{
-  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.06em;
-  color:var(--muted);
+.anatomylist .row b{
+  font-family:'Archivo',sans-serif; font-weight:650; color:var(--heading);
 }
-.anatomylist b{
-  display:block; font-family:'Archivo',sans-serif; font-weight:650;
-  font-size:1rem; color:var(--heading); margin-bottom:3px;
-}
-.anatomylist .d{display:block; font-size:.93rem; color:var(--muted); max-width:88ch;}
-@media (max-width:560px){ .anatomylist .row{grid-template-columns:1fr; gap:2px;} }
 
 /* ---------- audience blocks ---------- */
 .aud{
@@ -580,30 +573,12 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
       <p class="prose">Once a learner has used one widget, every other widget is already familiar.</p>
 
       <div class="anatomylist">
-        <div class="row">
-          <span class="ix">01</span>
-          <div><b>Header bar</b><span class="d">Language identity on the left; state and utilities on the right. Identical across all 4 widgets.</span></div>
-        </div>
-        <div class="row">
-          <span class="ix">02</span>
-          <div><b>Files panel</b><span class="d">One collapsible Files panel pattern replaces the two divergent file trees.</span></div>
-        </div>
-        <div class="row">
-          <span class="ix">03</span>
-          <div><b>Tabs</b><span class="d">File and panel tabs share a single component style, ending Code Tab's separate design language.</span></div>
-        </div>
-        <div class="row">
-          <span class="ix">04</span>
-          <div><b>Action row</b><span class="d">Run, Submit, download, and copy have fixed positions, consistent button hierarchy, and uniform UI.</span></div>
-        </div>
-        <div class="row">
-          <span class="ix">05</span>
-          <div><b>Output &amp; results</b><span class="d">Output panel standardized; Built from the same panel and tab primitives across widgets.</span></div>
-        </div>
-        <div class="row">
-          <span class="ix">06</span>
-          <div><b>Theming on tokens</b><span class="d">All widgets styled with DS tokens instead of hardcoded values, so UI evolves with the platform.</span></div>
-        </div>
+        <div class="row"><b>Header bar:</b> Language identity on the left; state and utilities on the right. Identical across all 4 widgets.</div>
+        <div class="row"><b>Files panel:</b> One collapsible Files panel pattern replaces the two divergent file trees.</div>
+        <div class="row"><b>Tabs:</b> File and panel tabs share a single component style, ending Code Tab's separate design language.</div>
+        <div class="row"><b>Action row:</b> Run, Submit, download, and copy have fixed positions, consistent button hierarchy, and uniform UI.</div>
+        <div class="row"><b>Output &amp; results:</b> Output panel standardized; Built from the same panel and tab primitives across widgets.</div>
+        <div class="row"><b>Theming on tokens:</b> All widgets styled with DS tokens instead of hardcoded values, so UI evolves with the platform.</div>
       </div>
 
     </section>
