@@ -9,10 +9,11 @@
 @font-face{font-family:'IBM Plex Sans';src:url(fonts/ibm-plex-sans.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap;}
 @font-face{font-family:'IBM Plex Mono';src:url(fonts/ibm-plex-mono.woff2) format('woff2');font-weight:500;font-style:normal;font-display:swap;}
 
-:root{--ground:#F2F4F6; --ground-2:#EAEEF1; --heading:#141B23; --ink:#4a4a4a; --muted:#6F6F6F; --accent:#2DD4BF; --accent-text:#197A6E; --accent-soft:rgba(45,212,191,.1); --line:#D6DCE2; --line-soft:#E3E8EC; --panel:#FFFFFF; --panel-2:#EAEEF1; --ok:#197A6E; --bad:#e74c3c; --hatch:rgba(20,27,35,.045); --shot-scrim:0; --shot-border:#d8d8d8; --shot-shadow:none; --shadow:none;}
-@media(prefers-color-scheme:dark){:root{--ground:#06020E; --ground-2:#140d1b; --heading:#8d8195; --ink:#877891; --muted:#b8aec5; --accent:#51968D; --accent-text:#72B6AB; --accent-soft:rgba(114,182,171,.12); --line:#2a1f35; --line-soft:#1f1829; --panel:#140d1b; --panel-2:#0f0a17; --ok:#6FB3A6; --bad:#e74c3c; --hatch:#242424; --shot-scrim:.10; --shot-border:#333; --shot-shadow:0 2px 8px rgba(0,0,0,.4); --shadow:0 1px 3px rgba(0,0,0,.3);}}
-:root[data-theme="dark"]{--ground:#06020E; --ground-2:#140d1b; --heading:#8d8195; --ink:#877891; --muted:#b8aec5; --accent:#51968D; --accent-text:#72B6AB; --accent-soft:rgba(114,182,171,.12); --line:#2a1f35; --line-soft:#1f1829; --panel:#140d1b; --panel-2:#0f0a17; --ok:#6FB3A6; --bad:#e74c3c; --hatch:#242424; --shot-scrim:.10; --shot-border:#333; --shot-shadow:0 2px 8px rgba(0,0,0,.4); --shadow:0 1px 3px rgba(0,0,0,.3);}
-:root[data-theme="light"]{--ground:#F2F4F6; --ground-2:#EAEEF1; --heading:#141B23; --ink:#4a4a4a; --muted:#6F6F6F; --accent:#2DD4BF; --accent-text:#197A6E; --accent-soft:rgba(45,212,191,.1); --line:#D6DCE2; --line-soft:#E3E8EC; --panel:#FFFFFF; --panel-2:#EAEEF1; --ok:#197A6E; --bad:#e74c3c; --hatch:rgba(20,27,35,.045); --shot-scrim:0; --shot-border:#d8d8d8; --shot-shadow:none; --shadow:none;}
+/* Dark is the default theme: the bare :root carries the dark tokens, so the page
+   opens dark whatever the OS is set to. Light only arrives via an explicit
+   data-theme="light", which the toggle sets and localStorage remembers. */
+:root, :root[data-theme="dark"]{color-scheme:dark; --ground:#06020E; --ground-2:#140d1b; --heading:#8d8195; --ink:#877891; --muted:#b8aec5; --accent:#51968D; --accent-text:#72B6AB; --accent-soft:rgba(114,182,171,.12); --line:#2a1f35; --line-soft:#1f1829; --panel:#140d1b; --panel-2:#0f0a17; --ok:#6FB3A6; --bad:#e74c3c; --hatch:#242424; --shot-scrim:.05; --shot-border:#333; --shot-shadow:0 2px 8px rgba(0,0,0,.4); --shadow:0 1px 3px rgba(0,0,0,.3);}
+:root[data-theme="light"]{color-scheme:light; --ground:#F2F4F6; --ground-2:#EAEEF1; --heading:#141B23; --ink:#4a4a4a; --muted:#6F6F6F; --accent:#2DD4BF; --accent-text:#197A6E; --accent-soft:rgba(45,212,191,.1); --line:#D6DCE2; --line-soft:#E3E8EC; --panel:#FFFFFF; --panel-2:#EAEEF1; --ok:#197A6E; --bad:#e74c3c; --hatch:rgba(20,27,35,.045); --shot-scrim:0; --shot-border:#d8d8d8; --shot-shadow:none; --shadow:none;}
 *{margin:0;padding:0;box-sizing:border-box;}
 html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale; scroll-behavior:smooth;}
 body{
@@ -55,12 +56,27 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-of
 .topbar .lead{display:flex; align-items:center; gap:12px; flex:0 0 auto;}
 .topbar .back{
   display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
-  border-radius:7px; border:1px solid var(--line); color:var(--muted); text-decoration:none;
-  font-size:15px; line-height:1; transition:background .15s ease, color .15s ease, border-color .15s ease;
+  flex:0 0 28px; padding:0; border-radius:7px; border:1px solid var(--line);
+  color:var(--muted); text-decoration:none; line-height:0;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+/* an SVG glyph centres on its own viewBox; the "←" character sat off-centre
+   because its ink box is not centred inside the em box */
+.topbar .back svg{
+  width:14px; height:14px; display:block;
+  fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
 }
 /* .back is inert for now - no link, so no hover/focus treatment */
 .topbar .name{font-family:'IBM Plex Mono',monospace; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); white-space:nowrap;}
-.topbar .tabs{display:flex; align-items:center; gap:2px; overflow-x:auto; scrollbar-width:none;}
+.topbar .tabs{
+  display:flex; align-items:center; gap:2px;
+  overflow-x:auto; scrollbar-width:none;
+  flex:0 1 auto; min-width:0;    /* min-width:0 is what lets the strip shrink and scroll */
+  position:relative;             /* makes the strip the tabs' offsetParent, so the
+                                    scroll-into-view maths below measures against it */
+  scroll-behavior:smooth;
+}
+@media (prefers-reduced-motion: reduce){ .topbar .tabs{scroll-behavior:auto;} }
 .topbar .tabs::-webkit-scrollbar{display:none;}
 .topbar .tabs a{
   font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
@@ -86,9 +102,12 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-of
 }
 .themetoggle:hover, .themetoggle:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
 .themetoggle svg{width:15px; height:15px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
-.themetoggle .i-sun{display:none;}
-:root[data-theme="dark"] .themetoggle .i-sun{display:block;}
-:root[data-theme="dark"] .themetoggle .i-moon{display:none;}
+/* show the icon for the theme the click will switch TO - dark is the default,
+   so the sun shows unless data-theme says otherwise */
+.themetoggle .i-sun{display:block;}
+.themetoggle .i-moon{display:none;}
+:root[data-theme="light"] .themetoggle .i-sun{display:none;}
+:root[data-theme="light"] .themetoggle .i-moon{display:block;}
 @media (max-width:560px){ .topbar .name{display:none;} .topbar .readtime{display:none;} }
 
 /* ---------- hero ---------- */
@@ -129,16 +148,22 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-of
   text-transform:uppercase; color:var(--muted); text-align:center; padding:24px;
 }
 .ba-empty{min-height:clamp(240px,26vw,420px);}
+/* the same 5% knock-back the still figures get, over both halves at once;
+   the divider, handle and tags sit above it on z-index 2 */
+.ba-frame::after{
+  content:""; position:absolute; inset:0; background:#000000;
+  opacity:var(--shot-scrim); pointer-events:none; z-index:1;
+}
 .ba-divider{
   position:absolute; top:0; bottom:0; left:var(--pos); width:2px; margin-left:-1px;
-  background:var(--accent); pointer-events:none;
+  background:var(--accent); pointer-events:none; z-index:2;
 }
 .ba-handle{
   position:absolute; top:50%; left:var(--pos); transform:translate(-50%,-50%);
   width:40px; height:40px; border-radius:50%; border:2px solid var(--accent);
   background:var(--ground); color:var(--accent-text); cursor:ew-resize;
   display:flex; align-items:center; justify-content:center; gap:3px; padding:0;
-  box-shadow:var(--shadow);
+  box-shadow:var(--shadow); z-index:2;
 }
 .ba-handle:focus-visible{outline:2px solid var(--accent); outline-offset:3px;}
 .ba-handle span{font-size:.8rem; line-height:1;}
@@ -147,7 +172,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-of
   font-family:'IBM Plex Mono',monospace; font-size:.6rem;
   letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
   background:var(--ground); border:1px solid var(--line); border-radius:4px; padding:3px 9px;
-  pointer-events:none; white-space:nowrap;
+  pointer-events:none; white-space:nowrap; z-index:2;
 }
 .ba-tag.l{transform:translate(calc(-100% - 28px), -50%);}   /* left of the handle  */
 .ba-tag.r{transform:translate(28px, -50%);}                 /* right of the handle */
@@ -319,9 +344,56 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
 .botbar .nextproj{
   display:inline-flex; align-items:center; gap:10px;
   font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--muted); padding:7px 13px;
+  color:var(--muted); padding:7px 13px; line-height:1;
 }
-.botbar .nextproj .ar{font-size:1.05rem; line-height:1;}
+/* SVG rather than "→": the glyph's ink sits above the text centre line, which
+   is what left the arrow riding high next to the uppercase label */
+.botbar .nextproj .ar{display:flex; align-items:center; flex:0 0 auto;}
+.botbar .nextproj .ar svg{
+  width:14px; height:14px; display:block;
+  fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
+}
+
+/* ---------- mobile: tap an image to open it fullscreen, then pinch to zoom ---------- */
+.zoombtn{
+  position:absolute; right:10px; bottom:10px; z-index:3;
+  width:28px; height:28px; display:none;      /* shown on small screens only */
+  align-items:center; justify-content:center; padding:0;
+  border:1px solid rgba(255,255,255,.3); border-radius:7px;
+  background:rgba(8,10,14,.62); color:#fff; cursor:zoom-in;
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
+.zoombtn svg{
+  width:16px; height:16px; display:block;      /* the 16x16 zoom glyph */
+  fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;
+}
+@media (max-width:768px){ .zoombtn{display:flex;} }
+
+.lightbox{
+  position:fixed; inset:0; z-index:1000; display:none; overflow:hidden;
+  background:#05070B; touch-action:none; overscroll-behavior:contain;
+}
+.lightbox.open{display:block;}
+.lightbox img{
+  position:absolute; top:0; left:0; max-width:none;
+  transform-origin:0 0; will-change:transform;
+  -webkit-user-select:none; user-select:none; -webkit-user-drag:none;
+}
+.lightbox .lb-close{
+  position:absolute; top:14px; right:14px; z-index:2;
+  width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+  padding:0; border:1px solid rgba(255,255,255,.28); border-radius:10px;
+  background:rgba(8,10,14,.7); color:#fff; cursor:pointer;
+}
+.lightbox .lb-close svg{width:16px; height:16px; display:block; fill:none; stroke:currentColor;
+  stroke-width:1.9; stroke-linecap:round;}
+.lightbox .lb-hint{
+  position:absolute; left:0; right:0; bottom:16px; text-align:center; pointer-events:none;
+  font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.12em;
+  text-transform:uppercase; color:rgba(255,255,255,.6);
+  transition:opacity .3s ease;
+}
+body.lb-open{overflow:hidden;}
 .botbar .cur{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
   </style>
 <script>
@@ -331,7 +403,7 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
   var t;
   try{ t = localStorage.getItem('theme'); }catch(e){}
   if(t !== 'light' && t !== 'dark'){
-    t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    t = 'dark';
   }
   document.documentElement.setAttribute('data-theme', t);
 })();
@@ -341,7 +413,7 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
   <header class="topbar">
     <div class="bar">
       <span class="lead">
-        <span class="back" aria-hidden="true">&#8592;</span>
+        <span class="back" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span>
         <span class="name">Code Widgets</span>
       </span>
       <nav class="tabs" aria-label="Sections">
@@ -379,10 +451,10 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
       <div class="ba" data-ba>
         <div class="ba-frame" id="baFrame">
           <div class="ba-after ba-empty">
-            <img src="After.png" alt="Sandpack after the revamp: header with language label and saved state, unified file tabs, and a consistent action row" data-baimg>
+            <img src="After.png" alt="Sandpack after the revamp: header with language label and saved state, unified file tabs, and a consistent action row" data-baimg data-nozoom>
           </div>
           <div class="ba-side ba-before">
-            <img src="Before.png" alt="Sandpack before the revamp: dark editor with a detached file sidebar and a lone Run button" data-baimg>
+            <img src="Before.png" alt="Sandpack before the revamp: dark editor with a detached file sidebar and a lone Run button" data-baimg data-nozoom>
           </div>
           <span class="ba-tag l">Before</span>
           <span class="ba-tag r">After</span>
@@ -665,19 +737,43 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
   <nav class="botbar" aria-label="Case study navigation">
     <div class="bar">
       <span class="cur">Code Widgets &bull; 2026</span>
-      <span class="nextproj">Next project <span class="ar">&#8594;</span></span>
+      <span class="nextproj">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></span>
     </div>
   </nav>
 
   <script>
   /* ---- section scroll-spy for the top bar ---- */
   (function(){
+    var strip = document.querySelector('.topbar .tabs');
     var tabs = [].slice.call(document.querySelectorAll('.topbar .tabs a'));
     var sections = tabs
       .map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); })
       .filter(Boolean);
+    var activeId = null;
+
+    // on narrow screens the tab strip overflows; carry the active tab into view
+    // so there is always a highlighted tab on screen, right through to Conclusion
+    // A plain scrollLeft assignment, animated by the strip's own CSS
+    // scroll-behavior. scrollTo({behavior:'smooth'}) is unreliable on an overflow
+    // container - where it is ignored it leaves the strip where it was, whereas
+    // this always ends on the right value whether or not it animates.
+    function reveal(el){
+      if (!el || !strip || strip.scrollWidth <= strip.clientWidth + 1) return;
+      var target = el.offsetLeft - (strip.clientWidth - el.offsetWidth) / 2;
+      target = Math.max(0, Math.min(strip.scrollWidth - strip.clientWidth, target));
+      if (Math.abs(target - strip.scrollLeft) < 2) return;
+      strip.scrollLeft = target;
+    }
     function setActive(id){
-      tabs.forEach(function(a){ a.classList.toggle('active', a.getAttribute('href') === '#' + id); });
+      if (id === activeId) return;
+      activeId = id;
+      var el = null;
+      tabs.forEach(function(a){
+        var on = a.getAttribute('href') === '#' + id;
+        a.classList.toggle('active', on);
+        if (on) el = a;
+      });
+      reveal(el);
     }
     tabs.forEach(function(a){
       a.addEventListener('click', function(){ setActive(a.getAttribute('href').slice(1)); });
@@ -685,15 +781,16 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
     var ticking = false;
     function update(){
       ticking = false;
-      var offset = 72;
+      // The reading line sits just below the 54px header. Through the final
+      // screenful the page runs out of scroll, so the line slides down instead -
+      // otherwise the last section never reaches the top and never lights up.
+      var max  = document.documentElement.scrollHeight - window.innerHeight;
+      var tail = window.scrollY - (max - window.innerHeight);
+      var line = 72 + Math.max(0, tail);
       var current = sections[0] && sections[0].id;
       for (var i = 0; i < sections.length; i++){
-        if (sections[i].getBoundingClientRect().top <= offset) current = sections[i].id;
+        if (sections[i].getBoundingClientRect().top <= line) current = sections[i].id;
       }
-      // the final section is too short to ever reach the top of the viewport,
-      // so claim it once the page is scrolled to the bottom
-      var atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
-      if (atBottom && sections.length) current = sections[sections.length - 1].id;
       if (current) setActive(current);
     }
     window.addEventListener('scroll', function(){
@@ -708,32 +805,176 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
     var root = document.documentElement;
     var btn  = document.getElementById('themeToggle');
     if (!btn) return;
-    var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
-    var stored = null;
-    try{ stored = localStorage.getItem('theme'); }catch(e){}
-
     function label(){
       var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
       btn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
       btn.setAttribute('title', 'Switch to ' + next + ' theme');
     }
-    function apply(theme, remember){
+    function apply(theme){
       root.setAttribute('data-theme', theme);
-      if (remember){
-        stored = theme;
-        try{ localStorage.setItem('theme', theme); }catch(e){}
-      }
+      try{ localStorage.setItem('theme', theme); }catch(e){}
       label();
     }
+    // dark is the default and the page never follows the OS on its own; the
+    // toggle is the only thing that moves it, and the choice is remembered
     btn.addEventListener('click', function(){
-      apply(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark', true);
+      apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
     });
-    if (mq && mq.addEventListener){
-      mq.addEventListener('change', function(e){
-        if (stored !== 'light' && stored !== 'dark') apply(e.matches ? 'dark' : 'light', false);
+    label();
+  })();
+
+  /* ---- mobile: fullscreen image viewer with pinch / double-tap zoom ---- */
+  (function(){
+    var imgs = [].slice.call(document.querySelectorAll('figure img'))
+                  .filter(function(img){ return !img.hasAttribute('data-nozoom'); });
+    if (!imgs.length) return;
+
+    var ZOOM_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true">'
+      + '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 21 21M10.5 7.6v5.8M7.6 10.5h5.8"/></svg>';
+
+    var box, stage, hint, cur, nat = {w:0, h:0};
+    var scale = 1, fit = 1, tx = 0, ty = 0;
+
+    function build(){
+      box = document.createElement('div');
+      box.className = 'lightbox';
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-modal', 'true');
+      box.setAttribute('aria-label', 'Image viewer');
+      box.innerHTML =
+        '<button type="button" class="lb-close" aria-label="Close image viewer">'
+        + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+        + '<img alt="">'
+        + '<div class="lb-hint">Pinch or double-tap to zoom</div>';
+      document.body.appendChild(box);
+      stage = box.querySelector('img');
+      hint  = box.querySelector('.lb-hint');
+      box.querySelector('.lb-close').addEventListener('click', close);
+      wire();
+    }
+
+    function draw(){
+      stage.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+    }
+    function clamp(){
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var w = nat.w * scale, h = nat.h * scale;
+      tx = w <= vw ? (vw - w) / 2 : Math.min(0, Math.max(vw - w, tx));
+      ty = h <= vh ? (vh - h) / 2 : Math.min(0, Math.max(vh - h, ty));
+    }
+    function reset(){
+      fit = Math.min(window.innerWidth / nat.w, window.innerHeight / nat.h);
+      scale = fit; clamp(); draw();
+    }
+    function zoomAt(next, px, py){
+      next = Math.max(fit, Math.min(fit * 8, next));
+      var k = next / scale;
+      tx = px - (px - tx) * k;
+      ty = py - (py - ty) * k;
+      scale = next; clamp(); draw();
+    }
+
+    function open(img){
+      if (!box) build();
+      cur = img;
+      stage.src = img.currentSrc || img.src;
+      stage.alt = img.alt || '';
+      nat.w = img.naturalWidth || img.offsetWidth || 1;
+      nat.h = img.naturalHeight || img.offsetHeight || 1;
+      if (!img.naturalWidth) stage.addEventListener('load', function once(){
+        stage.removeEventListener('load', once);
+        nat.w = stage.naturalWidth; nat.h = stage.naturalHeight; reset();
+      });
+      box.classList.add('open');
+      document.body.classList.add('lb-open');
+      reset();
+      hint.style.opacity = '1';
+      setTimeout(function(){ if (hint) hint.style.opacity = '0'; }, 2200);
+      box.querySelector('.lb-close').focus();
+    }
+    function close(){
+      box.classList.remove('open');
+      document.body.classList.remove('lb-open');
+      if (cur){ var b = cur.parentNode.querySelector('.zoombtn'); if (b) b.focus(); }
+    }
+
+    function wire(){
+      var pts = {}, n = 0, last = {x:0, y:0}, pinch = null, tapT = 0, tapX = 0, tapY = 0, moved = 0;
+
+      box.addEventListener('pointerdown', function(e){
+        if (e.target.closest('.lb-close')) return;
+        pts[e.pointerId] = {x:e.clientX, y:e.clientY};
+        n++;
+        box.setPointerCapture(e.pointerId);
+        if (n === 1){ last = {x:e.clientX, y:e.clientY}; moved = 0; }
+        if (n === 2){
+          var k = Object.keys(pts), a = pts[k[0]], b2 = pts[k[1]];
+          pinch = {d:Math.hypot(a.x - b2.x, a.y - b2.y), s:scale};
+        }
+        e.preventDefault();
+      });
+
+      box.addEventListener('pointermove', function(e){
+        if (!(e.pointerId in pts)) return;
+        pts[e.pointerId] = {x:e.clientX, y:e.clientY};
+        var k = Object.keys(pts);
+        if (n >= 2 && pinch){
+          var a = pts[k[0]], b2 = pts[k[1]];
+          var d = Math.hypot(a.x - b2.x, a.y - b2.y);
+          if (pinch.d > 0) zoomAt(pinch.s * (d / pinch.d), (a.x + b2.x) / 2, (a.y + b2.y) / 2);
+        } else if (n === 1){
+          var dx = e.clientX - last.x, dy = e.clientY - last.y;
+          moved += Math.abs(dx) + Math.abs(dy);
+          last = {x:e.clientX, y:e.clientY};
+          tx += dx; ty += dy; clamp(); draw();
+        }
+      });
+
+      function up(e){
+        if (!(e.pointerId in pts)) return;
+        delete pts[e.pointerId]; n = Math.max(0, n - 1);
+        if (n < 2) pinch = null;
+        if (n === 1){ var k = Object.keys(pts); last = {x:pts[k[0]].x, y:pts[k[0]].y}; }
+        if (n === 0 && moved < 10){
+          var now = Date.now();
+          if (now - tapT < 300 && Math.abs(e.clientX - tapX) < 30 && Math.abs(e.clientY - tapY) < 30){
+            zoomAt(scale > fit * 1.05 ? fit : fit * 3, e.clientX, e.clientY);
+            tapT = 0;
+          } else {
+            tapT = now; tapX = e.clientX; tapY = e.clientY;
+            if (scale <= fit * 1.05) setTimeout(function(){ if (tapT === now) close(); }, 300);
+          }
+        }
+      }
+      box.addEventListener('pointerup', up);
+      box.addEventListener('pointercancel', up);
+      box.addEventListener('dblclick', function(e){
+        zoomAt(scale > fit * 1.05 ? fit : fit * 3, e.clientX, e.clientY);
+      });
+      box.addEventListener('wheel', function(e){
+        e.preventDefault();
+        zoomAt(scale * (e.deltaY < 0 ? 1.12 : 1 / 1.12), e.clientX, e.clientY);
+      }, {passive:false});
+      window.addEventListener('resize', function(){ if (box.classList.contains('open')) reset(); });
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && box.classList.contains('open')) close();
       });
     }
-    label();
+
+    imgs.forEach(function(img){
+      var host = img.closest('.frame, .shot') || img.parentNode;
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'zoombtn';
+      btn.setAttribute('aria-label', 'View image fullscreen');
+      btn.innerHTML = ZOOM_ICON;
+      btn.addEventListener('click', function(e){ e.preventDefault(); open(img); });
+      host.appendChild(btn);
+      img.addEventListener('click', function(){
+        if (getComputedStyle(btn).display !== 'none') open(img);
+      });
+    });
   })();
 
   /* ---- before / after slider ---- */
