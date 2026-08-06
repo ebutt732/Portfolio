@@ -169,11 +169,14 @@
 
   /* ---------- hero ---------- */
   header.hero{position:relative;z-index:2;padding-top:32px}
-  .hero h1{font-family:var(--font-display);font-size:40px;font-weight:500;line-height:1.5;color:var(--heading)}
+  /* Set from the tagline below it - same face, size, weight and leading - and
+     carrying the tagline em's --muted rather than --heading, so the greeting
+     reads as the opening line of one statement instead of a label above it. */
+  .hero h1{font-family:var(--font-display);font-size:48px;font-weight:300;line-height:60px;color:var(--muted)}
   /* Avatar bubble sitting inline in the h1, between "I'm" and "Eeman".
-     80px box - twice the 40px type - with the bottom-right corner squared off
-     so the ring reads as a speech bubble. The portrait is a 72px circle
-     centred inside, which leaves the 4px ring and the corner wedge. */
+     A 68px box against the 48px type, with the bottom-right corner squared off
+     so the ring reads as a speech bubble. The portrait is a 60px circle centred
+     inside, which leaves the 4px ring and the corner wedge. */
   /* Avatar sits inline in the h1. It opens from zero width, so "Eeman" starts in
      its natural position hard against "Hey! I'm" and is pushed right as the gap
      appears - the portrait then fades in behind the widening window. */
