@@ -51,6 +51,18 @@
     --badge-line:rgba(184,174,197,.20);
     --badge-text:#585167;
     --badge-arrow:#675F7C;
+    /* The hero reads as one statement: the greeting and the emphasised run carry
+       --hero-em, the plain tagline lines sit a step back on --hero-body. Which
+       of the two is lighter has to flip with the theme - on the dark ground the
+       emphasis is the brighter colour, on the light ground the darker one. */
+    --hero-body:#8d8195;
+    --hero-em:#b8aec5;
+    /* The five client logos are flat #5B4F6C artwork, so a plain brightness
+       multiplier lands them on an exact known colour - and --cred-ink is set to
+       that colour, which is how the caption above them matches by construction
+       rather than by eye. 1.5 x #5B4F6C = #8876A2. */
+    --logo-row-filter:brightness(1.5);
+    --cred-ink:#8876A2;
     --font-ui:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
     --font-display:'Archivo','IBM Plex Sans',sans-serif;
     --font-mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -80,9 +92,18 @@
        filter, so the ring and the "Portfolio" letters share a colour */
     --avatar-frame:#BDB7D1;
     --avatar-stroke:#FFFFFF;
-    --badge-line:rgba(94,86,118,.28);
-    --badge-text:#6E6880;
-    --badge-arrow:#6E6880;
+    /* the badge sits behind the wordmark as a hint, not a control - lightened
+       so it stops competing with the light ground. It is aria-hidden, so the
+       drop from 4.8:1 to 3.9:1 is not taking anything from assistive tech. */
+    --badge-line:rgba(94,86,118,.22);
+    --badge-text:#7E7889;
+    --badge-arrow:#7E7889;
+    /* flipped against dark: here the emphasis is the darker of the two */
+    --hero-body:#736E85;
+    --hero-em:#3E3A4E;
+    /* 1.27 x #5B4F6C = #746489, which holds 4.85:1 on this ground */
+    --logo-row-filter:brightness(1.27);
+    --cred-ink:#746489;
     /* Inverted so the artwork's dark tail becomes the light one and the fade
        runs into the light ground instead of into black; the hue-rotate undoes
        the purple -> olive swing that a bare invert leaves behind. */
@@ -172,7 +193,7 @@
   /* Set from the tagline below it - same face, size, weight and leading - and
      carrying the tagline em's --muted rather than --heading, so the greeting
      reads as the opening line of one statement instead of a label above it. */
-  .hero h1{font-family:var(--font-display);font-size:48px;font-weight:300;line-height:60px;color:var(--muted)}
+  .hero h1{font-family:var(--font-display);font-size:48px;font-weight:300;line-height:60px;color:var(--hero-em)}
   /* Avatar bubble sitting inline in the h1, between "I'm" and "Eeman".
      A 68px box against the 48px type, with the bottom-right corner squared off
      so the ring reads as a speech bubble. The portrait is a 60px circle centred
@@ -211,13 +232,15 @@
   }
   .hero .tagline{
     margin-top:24px;font-family:var(--font-display);
-    font-size:48px;font-weight:300;line-height:60px;color:var(--heading);
+    font-size:48px;font-weight:300;line-height:60px;color:var(--hero-body);
   }
-  .hero .tagline em{font-style:italic;color:var(--muted)}
+  .hero .tagline em{font-style:italic;color:var(--hero-em)}
   .cred{margin-top:70px}
-  .cred p{font-family:var(--font-ui);font-size:20px;letter-spacing:.04em;color:var(--ink);margin-bottom:22px}
+  .cred p{font-family:var(--font-ui);font-size:20px;letter-spacing:.02em;color:var(--cred-ink);margin-bottom:22px}
   .logo-row{display:flex;align-items:center;gap:44px;flex-wrap:wrap}
-  .logo-row img{display:block;width:auto}
+  /* the artwork is a single flat #5B4F6C, so the multiplier lands it exactly on
+     --cred-ink and the caption above reads as the same ink */
+  .logo-row img{display:block;width:auto;filter:var(--logo-row-filter)}
 
   /* ---------- portfolio marquee title ---------- */
   /* Full-bleed as before, but the right padding reproduces where .container's
