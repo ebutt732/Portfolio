@@ -250,9 +250,7 @@ footer{position:relative; overflow:hidden; margin-top:40px; padding:140px 0 56px
 }
 .contact-copy{max-width:620px;}
 .contact-side{display:flex; flex-direction:column; align-items:flex-start; gap:26px; padding-bottom:8px;}
-/* the column is bottom-anchored inside .contact, so space added under the email
-   row lifts the address rather than pushing the socials down */
-.email-row{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
+.email-row{display:flex; align-items:center; gap:12px;}
 .email-row .email{font-size:20px; color:var(--muted); text-decoration:none; transition:color .2s;}
 .email-row .email:hover{color:var(--bright);}
 /* sits outside the anchor and takes no hover, so it reads as a mark against the
@@ -281,19 +279,21 @@ footer{position:relative; overflow:hidden; margin-top:40px; padding:140px 0 56px
   display:inline-flex; flex-direction:column; align-items:center; gap:9px;
   color:var(--ink); text-decoration:none;
 }
+/* 15px keeps the corner at the same quarter-of-the-box ratio the 40px original
+   had, so growing the container does not square it off */
 .socials .box{
-  width:46px; height:46px; display:inline-flex; align-items:center; justify-content:center;
-  border:1px solid var(--line); border-radius:12px;
+  width:60px; height:60px; display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); border-radius:15px;
   transition:background .15s ease, color .15s ease, border-color .15s ease;
 }
 .socials .cap{
-  font-family:'IBM Plex Mono',ui-monospace,monospace;
-  font-size:11px; line-height:1; letter-spacing:.08em; color:var(--ink);
+  font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+  font-size:11px; line-height:1; letter-spacing:0; color:var(--ink);
   transition:color .15s ease;
 }
 .socials a:hover .box, .socials a:focus-visible .box{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
 .socials a:hover .cap, .socials a:focus-visible .cap{color:var(--accent-text);}
-.socials svg{width:22px; height:22px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+.socials svg{width:28px; height:28px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
 
 /* ---------- responsive ---------- */
 @media (max-width:980px){
