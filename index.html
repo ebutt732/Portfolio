@@ -235,9 +235,11 @@
   .scroll-badge > svg{width:100%;height:100%;display:block}
   .scroll-badge .ring{transform-origin:69.5px 69.5px;animation:spin 16s linear infinite}
   /* Only the blank runs either side of the asterisks are tracked out, sized so
-     the string closes the 304.84 circumference. The words themselves stay at a
-     true letter-spacing:0. */
-  .scroll-badge .sep{letter-spacing:3.38px}
+     the string closes the 304.73 circumference. The words themselves stay at a
+     true letter-spacing:0. Measured, not guessed: at the asterisk's 26px the run
+     comes to 304.9 here, against 318.7 if the old 3.38px tracking were kept -
+     14px of overrun, which would lap the start of the first "Scroll". */
+  .scroll-badge .sep{letter-spacing:2.745px}
   /* colours live in tokens rather than on the SVG attributes, so the badge can
      sit back in dark mode instead of reading as a solid control */
   .scroll-badge circle{stroke:var(--badge-line)}
@@ -590,7 +592,10 @@
 </style>
 </head>
 <body>
-<div class="wrap">
+<!-- #work is the whole page, not the project list: the nav's "Work" tab is the
+     current page, so it returns to the top rather than jumping past the hero to
+     the wordmark. about.html links here as index.html#work and lands the same. -->
+<div class="wrap" id="work">
   <div class="grid-bg"></div>
 
   <nav>
@@ -625,7 +630,7 @@
       </div>
     </div>
 
-    <div class="portfolio-title" id="work">
+    <div class="portfolio-title">
       <div class="scroll-badge" aria-hidden="true">
         <svg viewBox="0 0 139 139">
           <!-- Baseline radius 48.5, not the ring's mid-radius: glyphs grow outward
@@ -642,7 +647,7 @@
                  is sized to the 304.84 circumference with the separator padding
                  instead, so the tracking stays a true zero. -->
             <text fill="#8b7f9e" font-size="13" letter-spacing="0" font-family="'IBM Plex Sans',sans-serif">
-              <textPath href="#circ">Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan>Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan></textPath>
+              <textPath href="#circ">Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300" font-size="26">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan>Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300" font-size="26">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan></textPath>
             </text>
           </g>
           <!-- center arrow: one path whose shaft ends exactly on the chevron's
@@ -796,7 +801,7 @@
           </a>
           <a href="https://www.instagram.com/_allaboutart__" target="_blank" rel="noopener noreferrer" title="Instagram">
             <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.02"/></svg></span>
-            <span class="cap">Insta</span>
+            <span class="cap">Instagram</span>
           </a>
         </div>
       </div>
