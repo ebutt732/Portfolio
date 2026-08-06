@@ -250,9 +250,15 @@ footer{position:relative; overflow:hidden; margin-top:40px; padding:140px 0 56px
 }
 .contact-copy{max-width:620px;}
 .contact-side{display:flex; flex-direction:column; align-items:flex-start; gap:26px; padding-bottom:8px;}
-.email-row{display:flex; align-items:center; gap:12px;}
+/* the column is bottom-anchored inside .contact, so space added under the email
+   row lifts the address rather than pushing the socials down */
+.email-row{display:flex; align-items:center; gap:12px; margin-bottom:16px;}
 .email-row .email{font-size:20px; color:var(--muted); text-decoration:none; transition:color .2s;}
 .email-row .email:hover{color:var(--bright);}
+/* sits outside the anchor and takes no hover, so it reads as a mark against the
+   address rather than a second control next to the copy button */
+.email-row .email-ico{display:inline-flex; align-items:center; flex:0 0 auto; color:var(--muted);}
+.email-row .email-ico svg{width:19px; height:19px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
 /* same 28px stroked button as the header's theme toggle */
 .copybtn{
   display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
@@ -268,14 +274,26 @@ footer{position:relative; overflow:hidden; margin-top:40px; padding:140px 0 56px
 .copybtn.copied .i-check{display:block;}
 .copied-note{font-size:13px; color:var(--accent-text); opacity:0; transition:opacity .2s;}
 .copybtn.copied ~ .copied-note{opacity:1;}
-.socials{display:flex; align-items:center; gap:14px;}
+/* each link is now a stack - stroked icon box over its caption - so the box
+   keeps the chrome and the anchor itself is only the layout column */
+.socials{display:flex; align-items:flex-start; gap:20px;}
 .socials a{
-  width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
-  border:1px solid var(--line); border-radius:10px; color:var(--ink);
+  display:inline-flex; flex-direction:column; align-items:center; gap:9px;
+  color:var(--ink); text-decoration:none;
+}
+.socials .box{
+  width:46px; height:46px; display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); border-radius:12px;
   transition:background .15s ease, color .15s ease, border-color .15s ease;
 }
-.socials a:hover, .socials a:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
-.socials svg{width:19px; height:19px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+.socials .cap{
+  font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:11px; line-height:1; letter-spacing:.08em; color:var(--ink);
+  transition:color .15s ease;
+}
+.socials a:hover .box, .socials a:focus-visible .box{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.socials a:hover .cap, .socials a:focus-visible .cap{color:var(--accent-text);}
+.socials svg{width:22px; height:22px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
 
 /* ---------- responsive ---------- */
 @media (max-width:980px){
@@ -468,6 +486,9 @@ footer{position:relative; overflow:hidden; margin-top:40px; padding:140px 0 56px
     </div>
     <div class="contact-side">
       <div class="email-row">
+        <span class="email-ico" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3.6 7.2l7.3 5.1a2 2 0 0 0 2.2 0l7.3-5.1"/></svg>
+        </span>
         <a class="email" href="mailto:ebutt732@gmail.com">ebutt732@gmail.com</a>
         <button type="button" class="copybtn" data-copy="ebutt732@gmail.com" aria-label="Copy email address" title="Copy email address">
           <svg class="i-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 5.8V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7a2.5 2.5 0 0 0 2.5 2.5h.2"/></svg>
@@ -476,14 +497,20 @@ footer{position:relative; overflow:hidden; margin-top:40px; padding:140px 0 56px
         <span class="copied-note" role="status" aria-live="polite">Copied</span>
       </div>
       <div class="socials">
-        <a href="https://www.linkedin.com/in/eeman-butt" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.3 10.7V17M7.3 7.5v.02M11.3 17v-6.3M11.3 13.6a2.6 2.6 0 0 1 5.2 0V17"/></svg>
+        <a href="https://www.linkedin.com/in/eeman-butt" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+          <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.3 10.7V17M7.3 7.5v.02M11.3 17v-6.3M11.3 13.6a2.6 2.6 0 0 1 5.2 0V17"/></svg></span>
+          <span class="cap">LinkedIn</span>
         </a>
-        <a href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer" aria-label="Topmate" title="Topmate">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3.4v3.2M16 3.4v3.2M3.5 10.2h17M9.4 14.6l1.9 1.9 3.5-3.5"/></svg>
+        <a href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer" title="Topmate">
+          <!-- Topmate's mark abstracted to the page's stroke language: the outer
+               ring, and inside it the disc with a right-facing wedge notched in
+               to the centre. -->
+          <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M16.36 14.83A5.2 5.2 0 1 1 16.36 9.17L12 12Z"/></svg></span>
+          <span class="cap">Topmate</span>
         </a>
-        <a href="https://www.instagram.com/_allaboutart__" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.02"/></svg>
+        <a href="https://www.instagram.com/_allaboutart__" target="_blank" rel="noopener noreferrer" title="Instagram">
+          <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.02"/></svg></span>
+          <span class="cap">Insta</span>
         </a>
       </div>
     </div>
