@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About – Eeman</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+/* Dark is the default theme: the bare :root carries the dark tokens, so the page
+   opens dark whatever the OS is set to. Light only arrives via an explicit
+   data-theme="light", which the toggle sets and localStorage remembers.
+   Token names and values are carried over from the Sentinel case study page. */
+:root, :root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#06020E; --panel:#151C24; --panel-2:#1B242E;
+  --ink:#877891; --heading:#8d8195; --muted:#b8aec5; --line:#28323D; --line-soft:#1F2933;
+  /* --bright is the "on top of everything else" text colour: active nav item,
+     role titles, bold runs. It has to invert between themes independently of
+     --ink/--muted, whose relative lightness flips. */
+  --bright:#E7ECF1;
+  --toolkit-stroke:#3A3A3A;
+  --accent:#688DCA; --accent-text:#688DCA; --accent-soft:rgba(104,141,202,.10);
+  /* timeline rail markers: the current role is blue, the past ones green. Each
+     theme carries its own pair so both stay legible on their own ground. */
+  --dot-blue:#7CA4FF; --dot-green:#45D492;
+  --grid-line:rgba(231,236,241,.05);
+  --glow-a:rgba(80,105,255,.16); --glow-b:rgba(120,80,255,.10);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
+  --logo-filter:none;
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --ground:#F2F4F6; --panel:#FFFFFF; --panel-2:#EAEEF1;
+  /* kept in step with index.html's light palette: low-saturation lilac (~260deg)
+     rather than blue-grey, so the type matches the wordmark and avatar ring */
+  --ink:#635E75; --heading:#3E3A4E; --muted:#736E85; --line:#D6DCE2; --line-soft:#E3E8EC;
+  --bright:#2A2636;
+  /* the dark stroke reads as a hard outline on the light ground; drop it to the
+     page's own line colour so it just separates icon from background */
+  --toolkit-stroke:#D6DCE2;
+  --accent:#688DCA; --accent-text:#3E69B0; --accent-soft:rgba(104,141,202,.10);
+  /* darkened against the light ground - the dark-theme pair would sit at roughly
+     2:1 here, well under the 4.5:1 these need as small, thin-stroked marks */
+  --dot-blue:#2C5FD0; --dot-green:#17784A;
+  --grid-line:rgba(20,27,35,.055);
+  --glow-a:rgba(80,105,255,.07); --glow-b:rgba(120,80,255,.05);
+  --shadow:none;
+  /* the wordmark ships as light purple for dark backgrounds; darken rather than
+     invert it, which would swing the hue to yellow-green */
+  --logo-filter:brightness(.42) saturate(1.3);
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; overflow-x:clip;}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;}}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+  font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:clip;
+}
+.wrap{max-width:1200px; margin:0 auto; padding:0 24px; position:relative; z-index:2;}
+h1,h2,h3{font-family:'Archivo','IBM Plex Sans',sans-serif; line-height:1.2; margin:0; color:var(--heading);}
+p{margin:0;}
+a{color:var(--accent-text); text-decoration-thickness:1px; text-underline-offset:3px;}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px;}
+b,strong{color:var(--bright); font-weight:600;}
+
+/* ---------- decorative grid + glow behind the top of the page ---------- */
+.grid-bg{
+  position:absolute; inset:0 0 auto 0; height:760px; pointer-events:none; overflow:hidden; z-index:0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-size:120.5px 120.5px;
+  background-position:0 -30px;
+  -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
+          mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
+}
+.grid-bg::after{
+  content:""; position:absolute; inset:0;
+  background:
+    radial-gradient(720px 560px at 88% 6%,var(--glow-a),transparent 65%),
+    radial-gradient(900px 700px at 105% 55%,var(--glow-b),transparent 70%);
+}
+
+/* ---------- header: logo left, nav right, theme toggle at the end ----------
+   No bar background and no bottom stroke - the header sits directly on the page. */
+.topbar{position:relative; z-index:5;}
+.topbar .bar{
+  max-width:1200px; margin:0 auto; padding:0 24px;
+  height:82px; display:flex; align-items:center; justify-content:space-between; gap:24px;
+}
+.topbar .logo{display:inline-flex; align-items:center; flex:0 0 auto;}
+.topbar .logo img{height:40px; width:auto; display:block; filter:var(--logo-filter);}
+.topbar .endgrp{display:flex; align-items:center; gap:28px;}
+.topbar .tabs{display:flex; align-items:center; gap:40px;}
+.topbar .tabs a{
+  color:var(--ink); text-decoration:none; font-size:20px; font-weight:300;
+  transition:color .2s ease;
+}
+.topbar .tabs a:hover{color:var(--bright);}
+.topbar .tabs a.active{color:var(--bright); font-weight:400;}
+
+/* theme toggle - same button as the case study pages: 28px box, 1px stroke,
+   15px icon, sitting at the end of the bar. */
+.themetoggle{
+  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+  flex:0 0 auto; padding:0; border:1px solid var(--line); border-radius:7px;
+  background:transparent; color:var(--ink); cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.themetoggle:hover, .themetoggle:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.themetoggle svg{width:15px; height:15px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+/* show the icon for the theme the click will switch TO - dark is the default,
+   so the sun shows unless data-theme says otherwise */
+.themetoggle .i-sun{display:block;}
+.themetoggle .i-moon{display:none;}
+:root[data-theme="light"] .themetoggle .i-sun{display:none;}
+:root[data-theme="light"] .themetoggle .i-moon{display:block;}
+
+/* ---------- section rhythm ---------- */
+section{padding:0 0 78px;}
+main > section:first-child{padding-top:56px;}   /* gap from the header to the first title */
+.eyebrow{
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-weight:500;
+  font-size:14px; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--muted); margin:0 0 26px;
+}
+
+/* ---------- empty frames, ready for images ----------
+   Each .frame is a placeholder: drop an <img> straight inside it and it will
+   fill the box. Nothing else needs to change. */
+.frame{
+  background:var(--panel); border:1px solid var(--line-soft); border-radius:12px;
+  overflow:hidden; box-shadow:var(--shadow);
+}
+.frame > img{display:block; width:100%; height:100%; object-fit:cover;}
+
+/* ---------- me in a nutshell ----------
+   The portrait column is sized with the same expression the skills grid uses
+   for one card, so the two boxes stay identical at every width. Keep the two
+   in step if the skills column count or gap ever changes. */
+.nutshell{display:grid; grid-template-columns:calc((100% - 88px) / 5) 1fr; gap:44px; align-items:start;}
+/* the photo is the frame here - no chrome of its own, just the same box.
+   about-dp.png carries its own rounded corners, measured at a 26px radius on a
+   340px square = 7.6%. The frame's 12px clip was tighter than that, so the
+   image's transparent corners showed as notches inside a squarer box; as a
+   percentage the two curves now track each other at any rendered size. */
+.nutshell .portrait{aspect-ratio:1/1; border:0; background:none; box-shadow:none; border-radius:7.6%;}
+.nutshell p{font-size:20px; line-height:1.62; color:var(--ink); max-width:62ch;}
+
+/* ---------- skills ---------- */
+.skills{display:grid; grid-template-columns:repeat(5,1fr); gap:22px;}
+.skills .card{
+  aspect-ratio:1/1; position:relative;
+  display:flex; align-items:flex-end; justify-content:center; padding-bottom:22px;
+}
+.skills .card .lbl{
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:calc(.68rem + 2px); font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--muted); text-align:center;
+}
+/* an image dropped into a skill card sits behind its label */
+.skills .card > img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+
+/* ---------- experience ---------- */
+.job{display:grid; grid-template-columns:260px 34px 1fr; column-gap:24px; padding-bottom:46px;}
+.job:last-child{padding-bottom:0;}
+.job .org{font-family:'Archivo','IBM Plex Sans',sans-serif; font-size:1.18rem; font-weight:600; color:var(--bright); line-height:1.35;}
+.job .when{font-size:1rem; color:var(--ink); margin-top:2px;}
+/* the rail: a dot on the row's first line, a dashed line running to the next role */
+.job .rail{position:relative; display:flex; justify-content:center;}
+.job .rail .dot{
+  position:relative; z-index:1; margin-top:6px; width:20px; height:20px; flex:0 0 20px;
+  border-radius:50%; border:1px solid var(--muted); color:var(--muted);
+  display:flex; align-items:center; justify-content:center; background:var(--ground);
+}
+.job .rail .dot svg{width:11px; height:11px; display:block; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round;}
+/* the ring and its mark share one colour via currentColor, so each marker reads
+   as a single object: blue for the role in progress, green for the completed
+   ones below it */
+.job .rail .dot.now{border-color:var(--dot-blue); color:var(--dot-blue);}
+.job .rail .dot:not(.now){border-color:var(--dot-green); color:var(--dot-green);}
+.job .rail .dot.now::after{content:""; width:7px; height:7px; border-radius:50%; background:currentColor;}
+.job .rail .dot.now svg{display:none;}
+.job .rail::after{
+  content:""; position:absolute; top:14px; bottom:-46px; left:50%; width:0;
+  border-left:1px dashed var(--line);
+}
+.job:last-child .rail::after{bottom:8px;}
+.job h3{font-size:1.12rem; font-weight:700; color:var(--bright); margin-bottom:10px;}
+.job ul{list-style:none; margin:0; padding:0;}
+.job li{position:relative; padding:0 0 6px 22px; font-size:1rem; line-height:1.55; color:var(--ink);}
+.job li::before{content:"•"; position:absolute; left:4px; color:var(--ink);}
+
+/* ---------- toolkit ---------- */
+.toolkit{display:flex; flex-wrap:wrap; gap:24px;}
+/* box-sizing:border-box means the 1px sits inside the 64px box rather than
+   growing it - an inside stroke, and the frames keep their current size */
+/* box-sizing:border-box means the 1px sits inside the 64px box rather than
+   growing it - an inside stroke, and the frames keep their current size.
+   14.5px is the icon artwork's own corner measured where it crosses the 45deg
+   diagonal, which is the part of the curve the eye reads; matching it there
+   stops the stroke cutting square across the icons' rounder corners. */
+.toolkit .frame{width:64px; height:64px; flex:0 0 64px; border-radius:14.5px; border-color:var(--toolkit-stroke);}
+
+/* ---------- certification / education rows ---------- */
+.record{
+  display:grid; grid-template-columns:280px 1fr auto; column-gap:24px; align-items:baseline;
+}
+.record .what{font-family:'Archivo','IBM Plex Sans',sans-serif; font-size:1.12rem; font-weight:600; color:var(--bright);}
+.record .detail{font-size:1rem; color:var(--ink);}
+.record .when{font-size:1rem; color:var(--ink); white-space:nowrap;}
+
+/* ---------- footer + contact banner ---------- */
+footer{position:relative; overflow:hidden; margin-top:40px; padding:140px 0 56px;}
+/* bottom-anchored variant of the hero's decorative grid, so the banner sits on
+   the same ground as the top of the page */
+.grid-bg.bottom{
+  inset:auto 0 0 0; height:760px;
+  -webkit-mask-image:linear-gradient(0deg,#000 0%,#000 62%,transparent 100%);
+          mask-image:linear-gradient(0deg,#000 0%,#000 62%,transparent 100%);
+}
+.grid-bg.bottom::after{
+  background:
+    radial-gradient(820px 620px at 92% 95%,var(--glow-a),transparent 65%),
+    radial-gradient(700px 560px at 70% 110%,var(--glow-b),transparent 70%);
+}
+.contact{
+  position:relative; z-index:2;
+  display:flex; align-items:flex-end; justify-content:space-between; gap:56px; flex-wrap:wrap;
+  /* clears the whole row - title/lead column and the email + socials column
+     alike - rather than trailing off any one of them */
+  padding-bottom:60px;
+}
+.contact-title{
+  font-family:'Archivo','IBM Plex Sans',sans-serif;
+  font-size:clamp(38px,5.2vw,64px);
+  font-weight:500; line-height:1.1; letter-spacing:-.02em;
+  color:var(--heading); margin:0;
+}
+.contact-lead{
+  font-size:17px; line-height:1.6; color:var(--ink);
+  max-width:44ch; margin:16px 0 0;
+}
+.contact-copy{max-width:620px;}
+.contact-side{display:flex; flex-direction:column; align-items:flex-start; gap:26px; padding-bottom:8px;}
+.email-row{display:flex; align-items:center; gap:12px;}
+.email-row .email{font-size:20px; color:var(--muted); text-decoration:none; transition:color .2s;}
+.email-row .email:hover{color:var(--bright);}
+/* same 28px stroked button as the header's theme toggle */
+.copybtn{
+  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+  flex:0 0 auto; padding:0; border:1px solid var(--line); border-radius:7px;
+  background:transparent; color:var(--ink); cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.copybtn:hover, .copybtn:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.copybtn svg{width:15px; height:15px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+.copybtn .i-check{display:none;}
+.copybtn.copied{color:var(--accent-text); border-color:var(--accent);}
+.copybtn.copied .i-copy{display:none;}
+.copybtn.copied .i-check{display:block;}
+.copied-note{font-size:13px; color:var(--accent-text); opacity:0; transition:opacity .2s;}
+.copybtn.copied ~ .copied-note{opacity:1;}
+.socials{display:flex; align-items:center; gap:14px;}
+.socials a{
+  width:40px; height:40px; display:inline-flex; align-items:center; justify-content:center;
+  border:1px solid var(--line); border-radius:10px; color:var(--ink);
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.socials a:hover, .socials a:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.socials svg{width:19px; height:19px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+
+/* ---------- responsive ---------- */
+@media (max-width:980px){
+  .skills{grid-template-columns:repeat(3,1fr);}
+  .nutshell{grid-template-columns:calc((100% - 44px) / 3) 1fr;}
+  .job{grid-template-columns:200px 30px 1fr;}
+  .record{grid-template-columns:1fr auto;}
+  .record .detail{grid-column:1 / -1; margin-top:4px;}
+}
+@media (max-width:820px){
+  footer{padding:100px 0 90px;}
+  .contact{gap:36px;}
+  .contact-side{padding-bottom:0;}
+}
+@media (max-width:680px){
+  body{font-size:16px;}
+  .topbar .bar{height:76px; gap:16px;}
+  .topbar .endgrp{gap:16px;}
+  .topbar .tabs{gap:22px;}
+  .topbar .logo img{height:28px;}   /* the type stays 20px; the wordmark gives way instead */
+  .nutshell{grid-template-columns:1fr; gap:26px;}
+  .nutshell .portrait{width:calc((100% - 22px) / 2);}
+  .skills{grid-template-columns:repeat(2,1fr);}
+  .job{grid-template-columns:1fr; row-gap:14px;}
+  .job .rail{display:none;}
+  section{padding-bottom:56px;}
+}
+</style>
+
+<script>
+/* Resolve the theme before first paint so data-theme is always set and the
+   toggle icon never disagrees with what is on screen. Dark is the default:
+   only a remembered explicit choice of "light" moves it. */
+(function(){
+  var t;
+  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+})();
+</script>
+</head>
+<body>
+
+<div class="grid-bg" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="bar">
+    <a class="logo" href="index.html" aria-label="Eeman – home"><img src="assets/logo-eeman.png" alt="eeman"></a>
+    <span class="endgrp">
+      <nav class="tabs" aria-label="Primary">
+        <a href="index.html#work">Work</a>
+        <a href="about.html" class="active" aria-current="page">About</a>
+      </nav>
+      <button type="button" class="themetoggle" id="themeToggle" aria-label="Switch to light theme" title="Switch theme">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
+      </button>
+    </span>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- ================= ME IN A NUTSHELL ================= -->
+  <section id="nutshell">
+    <p class="eyebrow">Me; In a Nutshell</p>
+    <div class="nutshell">
+      <div class="frame portrait"><img src="assets/about-dp.png" alt="Eeman"></div>
+      <p>I&rsquo;m Eeman, a product designer with <strong>4+ yrs experience</strong>. I specialize in design
+      systems, usability audits, and analyzing data trends to craft end-to-end UXD
+      for web, mobile, and SaaS platforms. With a background in architecture and
+      <strong>UX certifications</strong>, I bring a strong blend of creative, analytical, and cross-functional
+      collaboration skills.</p>
+    </div>
+  </section>
+
+  <!-- ================= SKILLS ================= -->
+  <section id="skills">
+    <p class="eyebrow">Skills</p>
+    <!-- IMAGE SLOTS: one per skill card. Drop <img src="..." alt=""> inside each .card. -->
+    <div class="skills">
+      <div class="frame card"><span class="lbl">Design system</span></div>
+      <div class="frame card"><span class="lbl">Interactions</span></div>
+      <div class="frame card"><span class="lbl">Dark mode</span></div>
+      <div class="frame card"><span class="lbl">UI audits</span></div>
+      <div class="frame card"><span class="lbl">Trends analysis</span></div>
+    </div>
+  </section>
+
+  <!-- ================= EXPERIENCE ================= -->
+  <section id="experience">
+    <p class="eyebrow">Experience</p>
+
+    <div class="job">
+      <div>
+        <div class="org">Educative</div>
+        <div class="when">Nov&rsquo;24 - Present</div>
+      </div>
+      <div class="rail"><span class="dot now" aria-hidden="true"></span></div>
+      <div>
+        <h3>Product Designer &bull; Full-time</h3>
+        <ul>
+          <li>Refined design system components, widgets, colours &amp; typography across all media platforms.</li>
+          <li>Utilized user feedback and testing to define crucial KRs</li>
+          <li>Improved signup rate by 2.5% and purchase rate by 9%, through product audits and UI tweaks.</li>
+          <li>Worked in an agile system with PMs and devs to ensure seamless delivery and live updates.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="job">
+      <div>
+        <div class="org">Tkxel</div>
+        <div class="when">Jul&rsquo;23 - Oct&rsquo;24</div>
+      </div>
+      <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+      <div>
+        <h3>UX Associate &bull; Full-time</h3>
+        <ul>
+          <li>Designed web apps, mobile apps, websites, and responsive mobile websites for 5+ projects.</li>
+          <li>Created web &amp; mobile apps which resulted in a 72% improvement in performance, and 95% user satisfaction.</li>
+          <li>Explored various aspects of UX, such as research, audits, usability testing, UX assurance, competitive analysis, affinity mapping, user personas, user journeys, interactive prototyping, etc.</li>
+          <li>Gained experience in different business softwares, including ERP, CRM, LMS &amp; HRM systems.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="job">
+      <div>
+        <div class="org">AIPixel</div>
+        <div class="when">Feb&rsquo;23 - Jul&rsquo;23</div>
+      </div>
+      <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+      <div>
+        <h3>UX Designer &bull; Full-time</h3>
+        <ul>
+          <li>Led a team of 2 to create entire app / web design from wireframes to interactive mockups.</li>
+          <li>Redesigned the company website and successfully completed 5 client projects, with positive feedback.</li>
+          <li>Collaborated closely with frontend &amp; backend developers, project managers, stakeholders, and clients to ensure seamless workflow.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TOOLKIT ================= -->
+  <section id="toolkit">
+    <p class="eyebrow">Toolkit</p>
+    <div class="toolkit">
+      <div class="frame"><img src="assets/toolkit-1.png" alt="Figma"></div>
+      <div class="frame"><img src="assets/toolkit-2.png" alt="Claude"></div>
+      <div class="frame"><img src="assets/toolkit-3.png" alt="Miro"></div>
+      <div class="frame"><img src="assets/toolkit-4.png" alt="GitHub"></div>
+      <div class="frame"><img src="assets/toolkit-5.png" alt="ChatGPT"></div>
+      <div class="frame"><img src="assets/toolkit-6.png" alt="Spline"></div>
+      <div class="frame"><img src="assets/toolkit-7.png" alt="Framer"></div>
+      <div class="frame"><img src="assets/toolkit-8.png" alt="Gemini"></div>
+      <div class="frame"><img src="assets/toolkit-9.png" alt="Canva"></div>
+      <div class="frame"><img src="assets/toolkit-10.png" alt="Pinterest"></div>
+      <div class="frame"><img src="assets/toolkit-11.png" alt="Maze"></div>
+    </div>
+  </section>
+
+  <!-- ================= CERTIFICATION ================= -->
+  <section id="certification">
+    <p class="eyebrow">Certification</p>
+    <div class="record">
+      <div class="what">Google UX Design</div>
+      <div class="detail">7 course certification offered by coursera</div>
+      <div class="when">Sep&rsquo;22 - Jan&rsquo;23</div>
+    </div>
+  </section>
+
+  <!-- ================= EDUCATION ================= -->
+  <section id="education">
+    <p class="eyebrow">Education</p>
+    <div class="record">
+      <div class="what">Bilkent University</div>
+      <div class="detail">Bachelors in Architecture (B.Arch)</div>
+      <div class="when">Sep&rsquo;17 - Jan&rsquo;22</div>
+    </div>
+  </section>
+
+</main>
+
+<footer id="contact">
+  <div class="grid-bg bottom" aria-hidden="true"></div>
+  <div class="contact wrap">
+    <div class="contact-copy">
+      <h2 class="contact-title">Contact Me</h2>
+      <p class="contact-lead">If you&rsquo;re looking for a collab on your next big project, drop me a message. I&rsquo;d love to chat or meet up over coffee!</p>
+    </div>
+    <div class="contact-side">
+      <div class="email-row">
+        <a class="email" href="mailto:ebutt732@gmail.com">ebutt732@gmail.com</a>
+        <button type="button" class="copybtn" data-copy="ebutt732@gmail.com" aria-label="Copy email address" title="Copy email address">
+          <svg class="i-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 5.8V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7a2.5 2.5 0 0 0 2.5 2.5h.2"/></svg>
+          <svg class="i-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
+        </button>
+        <span class="copied-note" role="status" aria-live="polite">Copied</span>
+      </div>
+      <div class="socials">
+        <a href="https://www.linkedin.com/in/eeman-butt" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.3 10.7V17M7.3 7.5v.02M11.3 17v-6.3M11.3 13.6a2.6 2.6 0 0 1 5.2 0V17"/></svg>
+        </a>
+        <a href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer" aria-label="Topmate" title="Topmate">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3.4v3.2M16 3.4v3.2M3.5 10.2h17M9.4 14.6l1.9 1.9 3.5-3.5"/></svg>
+        </a>
+        <a href="https://www.instagram.com/_allaboutart__" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.02"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---- copy the email to the clipboard ----
+   navigator.clipboard needs a secure context, which a page opened over file://
+   is not, so there is a textarea + execCommand fallback behind it. */
+(function(){
+  document.querySelectorAll('[data-copy]').forEach(function(btn){
+    var label = btn.getAttribute('aria-label');
+    function flash(){
+      btn.classList.add('copied');
+      btn.setAttribute('aria-label', 'Email address copied');
+      setTimeout(function(){
+        btn.classList.remove('copied');
+        btn.setAttribute('aria-label', label);
+      }, 1800);
+    }
+    function legacy(text){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); flash(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    btn.addEventListener('click', function(){
+      var text = btn.getAttribute('data-copy');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(flash, function(){ legacy(text); });
+      } else {
+        legacy(text);
+      }
+    });
+  });
+})();
+</script>
+
+<script>
+/* ---- light / dark toggle ---- */
+(function(){
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  if (!btn) return;
+  function label(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    btn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
+    btn.setAttribute('title', 'Switch to ' + next + ' theme');
+  }
+  function apply(theme){
+    root.setAttribute('data-theme', theme);
+    try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+    label();
+  }
+  // dark is the default and the page never follows the OS on its own; the
+  // toggle is the only thing that moves it, and the choice is remembered
+  btn.addEventListener('click', function(){
+    apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  });
+  label();
+})();
+</script>
+</body>
+</html>

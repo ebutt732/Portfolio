@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eeman — Portfolio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script>
+/* Resolve the theme before first paint so data-theme is always set and the
+   toggle icon never disagrees with what is on screen. Dark is the default:
+   only a remembered explicit choice of "light" moves it. Same key as
+   about.html, so the choice carries between pages. */
+(function(){
+  var t;
+  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+})();
+</script>
+<style>
+  :root, :root[data-theme="dark"]{
+    /* palette from sentinel-case-study-full.html (dark theme) */
+    color-scheme:dark;
+    --bg:#06020E;
+    --panel:#151C24;
+    --ink:#877891;
+    --heading:#8d8195;
+    --text:#8d8195;
+    --muted:#b8aec5;
+    --line:#28323D;
+    --line-soft:#1F2933;
+    --accent:#99E1FF;
+    --grid-line:rgba(231,236,241,.05);
+    --blue:#3763e4;
+    --orange:#e8860d;
+    --green:#22a55a;
+    /* --bright is the "on top of everything else" text colour: active nav item,
+       bold runs. It inverts between themes independently of --ink/--muted,
+       whose relative lightness flips. */
+    --bright:#E7ECF1;
+    --accent-soft:rgba(153,225,255,.12);
+    --logo-filter:none;
+    --card-shadow:0 40px 120px -30px rgba(0,0,0,.7);
+    /* The wordmark artwork fades #4A445E -> #040005 top to bottom. In dark that
+       tail already matches the ground, so it only needs the top pulled back. */
+    --wordmark-filter:brightness(.7);
+    --avatar-frame:#5E5676;
+    --avatar-stroke:#000;
+    /* the badge sits behind the wordmark, so it stays well under it in weight */
+    --badge-line:rgba(184,174,197,.20);
+    --badge-text:#585167;
+    --badge-arrow:#675F7C;
+    --font-ui:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+    --font-display:'Archivo','IBM Plex Sans',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,monospace;
+  }
+  /* Light theme for the page chrome, driven by the header toggle. The embedded
+     product mockups further down carry their own fixed colours and do not flip. */
+  :root[data-theme="light"]{
+    color-scheme:light;
+    --bg:#F2F4F6;
+    --panel:#FFFFFF;
+    /* Softened off the near-black end: at 40-48px the display type read as
+       heavy slabs against the light ground. Still 9:1+ on --bg. The hue is a
+       low-saturation lilac (~260deg) rather than the blue-grey it was, so the
+       type sits in the same family as the wordmark and avatar ring. */
+    --ink:#635E75;
+    --heading:#3E3A4E;
+    --text:#3E3A4E;
+    --muted:#736E85;
+    --line:#D6DCE2;
+    --line-soft:#E3E8EC;
+    --accent:#3E69B0;
+    --grid-line:rgba(20,27,35,.055);
+    --bright:#2A2636;
+    --accent-soft:rgba(104,141,202,.10);
+    --card-shadow:none;
+    /* sampled off the top of the wordmark as it renders under the light-mode
+       filter, so the ring and the "Portfolio" letters share a colour */
+    --avatar-frame:#BDB7D1;
+    --avatar-stroke:#FFFFFF;
+    --badge-line:rgba(94,86,118,.28);
+    --badge-text:#6E6880;
+    --badge-arrow:#6E6880;
+    /* Inverted so the artwork's dark tail becomes the light one and the fade
+       runs into the light ground instead of into black; the hue-rotate undoes
+       the purple -> olive swing that a bare invert leaves behind. */
+    --wordmark-filter:invert(1) hue-rotate(180deg);
+    /* the wordmark ships as light purple for dark backgrounds; darken rather
+       than invert it, which would swing the hue to yellow-green */
+    --logo-filter:brightness(.42) saturate(1.3);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-ui);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{width:100%;margin:0 auto;position:relative}
+  .container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+  /* ---------- decorative grid + glow backgrounds ---------- */
+  .grid-bg{
+    position:absolute;inset:0;height:904px;pointer-events:none;overflow:hidden;
+    background-image:
+      linear-gradient(var(--grid-line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+    background-size:120.5px 120.5px;
+    background-position:0 -30px;
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
+            mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
+  }
+  .grid-bg::after{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(720px 560px at 88% 6%,rgba(80,105,255,.16),transparent 65%),
+      radial-gradient(900px 700px at 105% 55%,rgba(120,80,255,.10),transparent 70%);
+  }
+  /* Matches about.html: opaque at the bottom edge, fading upward. A second rule
+     further down used to override this with a mask that faded out at the bottom
+     too, which is what stopped the grid short of the footer's edge here. */
+  .grid-bg.bottom{
+    top:auto;bottom:0;height:760px;
+    -webkit-mask-image:linear-gradient(0deg,#000 0%,#000 62%,transparent 100%);
+            mask-image:linear-gradient(0deg,#000 0%,#000 62%,transparent 100%);
+  }
+  .grid-bg.bottom::after{
+    background:
+      radial-gradient(820px 620px at 92% 95%,rgba(80,105,255,.14),transparent 65%),
+      radial-gradient(700px 560px at 70% 110%,rgba(120,80,255,.08),transparent 70%);
+  }
+
+  /* ---------- nav ----------
+     Same header component as about.html: 82px bar, 40px wordmark, 20px links
+     (light / regular for the current page), theme toggle at the end. */
+  nav{position:relative;z-index:5;height:82px;display:flex;align-items:center}
+  nav .container{width:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
+  .logo{display:inline-flex;align-items:center;flex:0 0 auto}
+  .logo img{height:40px;width:auto;display:block;filter:var(--logo-filter)}
+  .nav-end{display:flex;align-items:center;gap:28px}
+  .nav-links{display:flex;align-items:center;gap:40px}
+  .nav-links a{color:var(--ink);text-decoration:none;font-size:20px;font-weight:300;transition:color .2s}
+  .nav-links a:hover{color:var(--bright)}
+  .nav-links a.active{color:var(--bright);font-weight:400}
+
+  /* theme toggle - same button as the case study pages: 28px box, 1px stroke, 15px icon */
+  .themetoggle{
+    display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+    flex:0 0 auto;padding:0;border:1px solid var(--line);border-radius:7px;
+    background:transparent;color:var(--ink);cursor:pointer;
+    transition:background .15s ease,color .15s ease,border-color .15s ease;
+  }
+  .themetoggle:hover,.themetoggle:focus-visible{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .themetoggle svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  /* show the icon for the theme the click will switch TO */
+  .themetoggle .i-sun{display:block}
+  .themetoggle .i-moon{display:none}
+  :root[data-theme="light"] .themetoggle .i-sun{display:none}
+  :root[data-theme="light"] .themetoggle .i-moon{display:block}
+  @media (max-width:680px){
+    .nav-end{gap:16px}
+    .nav-links{gap:22px}
+    .logo img{height:28px}
+  }
+
+  /* ---------- hero ---------- */
+  header.hero{position:relative;z-index:2;padding-top:32px}
+  .hero h1{font-family:var(--font-display);font-size:40px;font-weight:500;line-height:1.5;color:var(--heading)}
+  /* Avatar bubble sitting inline in the h1, between "I'm" and "Eeman".
+     80px box - twice the 40px type - with the bottom-right corner squared off
+     so the ring reads as a speech bubble. The portrait is a 72px circle
+     centred inside, which leaves the 4px ring and the corner wedge. */
+  /* Avatar sits inline in the h1. It opens from zero width, so "Eeman" starts in
+     its natural position hard against "Hey! I'm" and is pushed right as the gap
+     appears - the portrait then fades in behind the widening window. */
+  .hero .avatar{
+    display:inline-flex;align-items:center;
+    width:0;margin:0;overflow:hidden;
+    vertical-align:middle;
+    animation:avatarOpen .55s cubic-bezier(.22,1,.36,1) 1.2s forwards;
+  }
+  /* The bubble is drawn in CSS rather than baked into the artwork, so its ring
+     can follow the theme; .shot carries the photo and its own stroke. */
+  .hero .avatar .bubble{
+    flex:0 0 68px;width:68px;height:68px;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:50% 50% 0 50%;
+    background:var(--avatar-frame);
+    opacity:0;
+    /* starts while the gap is ~75% open, so the move still reads as leading the
+       reveal but the space never sits visibly empty */
+    animation:avatarIn .45s ease 1.4s forwards;
+  }
+  .hero .avatar .shot{
+    width:60px;height:60px;border-radius:50%;overflow:hidden;
+    border:1px solid var(--avatar-stroke);
+  }
+  .hero .avatar img{display:block;width:100%;height:100%;object-fit:cover}
+  @keyframes avatarOpen{to{width:68px;margin:0 6px}}
+  @keyframes avatarIn{to{opacity:1}}
+  @media (prefers-reduced-motion: reduce){
+    .hero .avatar{animation:none;width:68px;margin:0 6px}
+    .hero .avatar .bubble{animation:none;opacity:1}
+  }
+  .hero .tagline{
+    margin-top:24px;font-family:var(--font-display);
+    font-size:48px;font-weight:300;line-height:60px;color:var(--heading);
+  }
+  .hero .tagline em{font-style:italic;color:var(--muted)}
+  .cred{margin-top:70px}
+  .cred p{font-family:var(--font-ui);font-size:20px;letter-spacing:.04em;color:var(--ink);margin-bottom:22px}
+  .logo-row{display:flex;align-items:center;gap:44px;flex-wrap:wrap}
+  .logo-row img{display:block;width:auto}
+
+  /* ---------- portfolio marquee title ---------- */
+  /* Full-bleed as before, but the right padding reproduces where .container's
+     right gutter falls, so the wordmark ends on the same line as the theme
+     toggle. The 50% is of the parent's content width rather than 100vw, so a
+     visible scrollbar doesn't throw the alignment off by its own width. */
+  .portfolio-title{
+    position:relative;z-index:2;margin-top:88px;
+    /* flex-end keeps the badge tucked against the left of the wordmark as one
+       group; on very wide screens the pair travels right with it rather than
+       the badge staying pinned to the left gutter */
+    --badge-size:139px;
+    display:flex;align-items:center;justify-content:flex-end;gap:56px;
+    padding-left:24px;
+    padding-right:max(24px,calc(50% - 600px + 24px));
+  }
+  .scroll-badge{position:relative;width:var(--badge-size);height:var(--badge-size);flex:0 0 auto}
+  .scroll-badge > svg{width:100%;height:100%;display:block}
+  .scroll-badge .ring{transform-origin:69.5px 69.5px;animation:spin 16s linear infinite}
+  /* Only the blank runs either side of the asterisks are tracked out, sized so
+     the string closes the 304.84 circumference. The words themselves stay at a
+     true letter-spacing:0. */
+  .scroll-badge .sep{letter-spacing:3.38px}
+  /* colours live in tokens rather than on the SVG attributes, so the badge can
+     sit back in dark mode instead of reading as a solid control */
+  .scroll-badge circle{stroke:var(--badge-line)}
+  .scroll-badge text{fill:var(--badge-text)}
+  .scroll-badge .arrow{stroke:var(--badge-arrow)}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion: reduce){.scroll-badge .ring{animation:none}}
+  /* the floor tracks --badge-size, so the wordmark can never end up the smaller
+     of the two however narrow the screen gets */
+  .big-title{flex:0 1 auto;min-width:var(--badge-size);user-select:none;display:flex;justify-content:flex-end}
+  /* The original artwork, with its own top-to-bottom fade baked in. Only the
+     overall strength is theme-tuned - see --wordmark-filter. */
+  .big-title img{
+    display:block;width:min(100%,830px);height:auto;
+    filter:var(--wordmark-filter);
+  }
+
+  /* ---------- project cards ---------- */
+  .projects{position:relative;z-index:2;padding-top:40px;display:flex;flex-direction:column;gap:112px;padding-bottom:96px}
+  .card{
+    border-radius:28px;overflow:hidden;position:relative;
+    box-shadow:var(--card-shadow);
+  }
+  .card .stage{padding:73px 73px 30px;position:relative}
+  .card.blue  {background:linear-gradient(175deg,#3e6ceb 0%,#2d55d0 60%,#2447b4 100%)}
+  .card.orange{background:linear-gradient(175deg,#f0920f 0%,#dd7f08 60%,#c76f05 100%)}
+  .card.green {background:linear-gradient(175deg,#27b664 0%,#1d9e54 60%,#158947 100%)}
+  .app-shot{
+    background:#fff;border-radius:10px;overflow:hidden;
+    box-shadow:0 30px 60px -20px rgba(0,0,0,.45);
+    height:599px;position:relative;
+  }
+  .caption{
+    position:relative;height:146px;display:flex;align-items:center;
+    padding:0 74px;background:rgba(5,6,18,.55);backdrop-filter:blur(6px);
+  }
+  .card.blue   .caption{background:linear-gradient(90deg,rgba(8,12,40,.72),rgba(10,16,52,.6))}
+  .card.orange .caption{background:linear-gradient(90deg,rgba(46,26,2,.72),rgba(58,33,3,.6))}
+  .card.green  .caption{background:linear-gradient(90deg,rgba(3,32,16,.72),rgba(5,42,21,.6))}
+  .caption::before{
+    content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(420px 200px at 8% 120%,rgba(255,255,255,.10),transparent 70%);
+  }
+  .caption .proj-name{
+    width:296px;flex:0 0 auto;
+    font-family:var(--font-mono);font-size:19px;font-weight:500;
+    letter-spacing:.24em;color:#fff;
+  }
+  .caption .proj-desc{
+    flex:1;font-size:26px;line-height:35px;font-weight:400;color:#fff;max-width:590px;
+  }
+  .caption .go{
+    margin-left:auto;flex:0 0 auto;width:48px;height:48px;border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.55);display:grid;place-items:center;
+    color:#fff;font-size:18px;text-decoration:none;transition:.25s;
+  }
+  .caption .go:hover{background:#fff;color:#111;transform:translateX(4px)}
+
+  /* =======================================================
+     Sentinel ERP schedule screen (CSS recreation)
+     ======================================================= */
+  .erp{display:flex;height:100%;font-size:9px;color:#3d4354;overflow:hidden}
+  .erp .side{
+    width:42px;flex:0 0 auto;border-right:1px solid #eceef3;
+    display:flex;flex-direction:column;align-items:center;padding:10px 0;gap:9px;
+  }
+  .erp .side .s-logo{
+    width:22px;height:22px;border-radius:6px;background:#f97316;color:#fff;
+    display:grid;place-items:center;font-weight:700;font-size:12px;margin-bottom:6px;
+    font-family:var(--font-display);
+  }
+  .erp .side i{
+    width:22px;height:22px;border-radius:5px;display:block;position:relative;opacity:.75;
+    background:
+      linear-gradient(#c2c7d4,#c2c7d4) 50% 35%/10px 2px no-repeat,
+      linear-gradient(#c2c7d4,#c2c7d4) 50% 55%/10px 2px no-repeat,
+      linear-gradient(#c2c7d4,#c2c7d4) 50% 75%/6px 2px no-repeat;
+  }
+  .erp .side i.on{background-color:#eef2ff;outline:1px solid #c7d2fe}
+  .erp .main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .erp .topbar{
+    height:38px;flex:0 0 auto;display:flex;align-items:center;gap:10px;
+    padding:0 12px;border-bottom:1px solid #eceef3;
+  }
+  .erp .topbar .title{font-size:12px;font-weight:600;color:#1d2333}
+  .erp .topbar .spacer{flex:1}
+  .erp .chip{
+    border:1px solid #e2e5ec;border-radius:20px;padding:3px 9px;color:#5b6274;
+    display:inline-flex;align-items:center;gap:5px;background:#fff;white-space:nowrap;
+  }
+  .erp .chip.site::before{content:"";width:6px;height:6px;border-radius:2px;background:#3763e4}
+  .erp .ico{width:16px;height:16px;border-radius:50%;background:#eef0f5;position:relative}
+  .erp .avatar{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#f4b26a,#c07430)}
+  .erp .who b{display:block;font-size:8.5px;color:#1d2333}
+  .erp .who span{color:#8d93a5;font-size:7.5px}
+  .erp .filters{
+    display:flex;align-items:center;gap:6px;padding:7px 12px;flex:0 0 auto;
+    border-bottom:1px solid #f1f2f6;
+  }
+  .erp .pill{
+    border:1px solid #e2e5ec;border-radius:6px;padding:4px 8px;color:#454c5e;background:#fff;
+    display:inline-flex;align-items:center;gap:4px;white-space:nowrap;
+  }
+  .erp .pill .x{color:#9aa0b0}
+  .erp .pill .v{color:#9aa0b0;font-size:7px}
+  .erp .dst{
+    margin-left:auto;background:#fff7ea;border:1px solid #f5d9a8;color:#a05f00;
+    border-radius:6px;padding:4px 9px;display:inline-flex;gap:5px;align-items:center;white-space:nowrap;
+  }
+  .erp .dst::before{content:"⚠";font-size:8px}
+  .erp .btn-ghost{border:1px solid #dfe3ea;border-radius:6px;padding:4px 9px;color:#454c5e;background:#fff;white-space:nowrap}
+  .erp .btn-blue{background:#2f5fe0;color:#fff;border-radius:6px;padding:4px 9px;font-weight:600;white-space:nowrap}
+  .erp .datebar{
+    display:flex;align-items:center;gap:8px;padding:7px 12px;flex:0 0 auto;
+    border-bottom:1px solid #f1f2f6;
+  }
+  .erp .datebar .nav-arrow{color:#8d93a5;font-size:10px}
+  .erp .datebar .range{font-weight:600;color:#1d2333;font-size:10px}
+  .erp .missed{
+    margin-left:auto;background:#fdecec;color:#c0392b;border-radius:6px;
+    padding:4px 8px;font-weight:600;white-space:nowrap;
+  }
+  .erp .seg{display:inline-flex;border:1px solid #e2e5ec;border-radius:6px;overflow:hidden}
+  .erp .seg span{padding:4px 10px;background:#fff;color:#454c5e}
+  .erp .seg span.on{background:#2f5fe0;color:#fff;font-weight:600}
+  .erp .dayhead{display:flex;align-items:center;gap:7px;padding:8px 12px 2px;flex:0 0 auto}
+  .erp .dayhead .d{color:#8d93a5;font-weight:600;font-size:8px}
+  .erp .dayhead .n{
+    width:20px;height:20px;border-radius:50%;background:#2f5fe0;color:#fff;
+    display:grid;place-items:center;font-weight:700;font-size:9px;
+  }
+  .erp .board{flex:1;overflow:hidden;padding:4px 12px 10px}
+  .erp .group-label{
+    font-size:8px;font-weight:700;color:#6a7183;text-transform:uppercase;
+    letter-spacing:.06em;margin:7px 0 4px;display:flex;align-items:center;gap:4px;
+  }
+  .erp .group-label::before{content:"▸";color:#aab0bf;font-size:7px}
+  .erp .row{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-bottom:5px}
+  .erp .shift{
+    border:1px solid #e8eaf0;border-left-width:3px;border-radius:5px;background:#fff;
+    padding:4px 6px;min-width:0;
+  }
+  .erp .shift .t{display:flex;justify-content:space-between;align-items:center;font-weight:700;color:#1d2333;font-size:8px}
+  .erp .shift .t .dot{width:6px;height:6px;border-radius:50%;flex:0 0 auto}
+  .erp .shift .sub{color:#8d93a5;font-size:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0}
+  .erp .shift .off{display:flex;align-items:center;gap:4px;color:#454c5e;font-size:7.5px;white-space:nowrap;overflow:hidden}
+  .erp .shift .off::before{content:"";width:8px;height:8px;border-radius:50%;background:#d6d9e2;flex:0 0 auto}
+  .erp .shift .tag{display:inline-block;border-radius:4px;padding:1px 5px;font-size:7px;font-weight:600;margin-top:1px}
+  .erp .shift.ok{border-left-color:#27ae60}   .erp .shift.ok .dot{background:#27ae60}
+  .erp .shift.warn{border-left-color:#f2994a} .erp .shift.warn .dot{background:#f2994a}
+  .erp .shift.bad{border-left-color:#eb5757}  .erp .shift.bad .dot{background:#eb5757}
+  .erp .shift.info{border-left-color:#2f80ed} .erp .shift.info .dot{background:#2f80ed}
+  .erp .tag.warn{background:#fff3e6;color:#c2690a}
+  .erp .tag.bad{background:#fdecec;color:#c0392b}
+  .erp .tag.ok{background:#e9f9f0;color:#1e874b}
+
+  /* =======================================================
+     EduStream LMS course page (CSS recreation)
+     ======================================================= */
+  .lms{height:100%;display:flex;flex-direction:column;font-size:9px;color:#3d4354;overflow:hidden}
+  .lms .top{
+    height:40px;flex:0 0 auto;display:flex;align-items:center;gap:12px;
+    padding:0 16px;border-bottom:1px solid #eef0f4;
+  }
+  .lms .brand{font-family:var(--font-display);font-weight:700;font-size:14px;color:#111827}
+  .lms .brand em{color:var(--green);font-style:normal}
+  .lms .search{
+    flex:0 1 300px;border:1px solid #e5e7ee;border-radius:20px;padding:5px 12px;
+    color:#9aa0b0;display:flex;align-items:center;gap:6px;
+  }
+  .lms .search::after{content:"🔍";margin-left:auto;font-size:8px;filter:grayscale(1)}
+  .lms .top .r{margin-left:auto;display:flex;align-items:center;gap:12px;color:#5b6274;white-space:nowrap}
+  .lms .top .r .av{width:18px;height:18px;border-radius:50%;background:linear-gradient(135deg,#7cc3f2,#3a7fc2)}
+  .lms .cats{
+    display:flex;gap:16px;justify-content:space-between;padding:8px 16px;flex:0 0 auto;
+    border-bottom:1px solid #f2f3f7;color:#6a7183;white-space:nowrap;overflow:hidden;
+  }
+  .lms .cats span.on{color:#111827;font-weight:600}
+  .lms .body{flex:1;display:flex;gap:16px;padding:12px 16px;min-height:0}
+  .lms .left{flex:1;min-width:0;display:flex;flex-direction:column}
+  .lms h2{font-size:17px;line-height:1.25;color:#111827;font-weight:700;margin-bottom:4px}
+  .lms .sub{color:#6a7183;font-size:8.5px;margin-bottom:5px}
+  .lms .meta{display:flex;gap:10px;color:#6a7183;margin-bottom:8px;white-space:nowrap}
+  .lms .meta b{color:#111827}
+  .lms .star{color:#f2b01e}
+  .lms .player{
+    flex:1;min-height:0;border-radius:8px;position:relative;overflow:hidden;
+    background:
+      radial-gradient(340px 200px at 30% 35%,rgba(120,170,255,.25),transparent 70%),
+      radial-gradient(300px 200px at 75% 70%,rgba(60,220,150,.14),transparent 70%),
+      linear-gradient(160deg,#1b2438 0%,#0f1524 55%,#0a0f1c 100%);
+  }
+  .lms .player .laptop{
+    position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    width:56%;aspect-ratio:16/9.6;border-radius:6px 6px 0 0;
+    background:linear-gradient(180deg,#2a3550,#151d31);
+    border:2px solid #3a4460;border-bottom:none;
+    box-shadow:0 24px 40px -18px rgba(0,0,0,.8);
+  }
+  .lms .player .laptop::before{
+    content:"";position:absolute;inset:4px;border-radius:3px;
+    background:
+      linear-gradient(90deg,rgba(110,231,183,.7) 0 30%,transparent 30%) 12% 78%/56% 5px no-repeat,
+      linear-gradient(90deg,#3f4f78 0 100%) 12% 30%/70% 4px no-repeat,
+      linear-gradient(90deg,#324067 0 100%) 12% 42%/52% 4px no-repeat,
+      linear-gradient(90deg,#324067 0 100%) 12% 54%/60% 4px no-repeat,
+      linear-gradient(140deg,#233052,#111a2f);
+  }
+  .lms .player .laptop::after{
+    content:"";position:absolute;left:-8%;right:-8%;bottom:-7px;height:7px;border-radius:0 0 8px 8px;
+    background:linear-gradient(180deg,#454f6b,#232b41);
+  }
+  .lms .player .play{
+    position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);
+    width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.95);
+    display:grid;place-items:center;color:#111;font-size:11px;
+    box-shadow:0 8px 24px rgba(0,0,0,.5);
+  }
+  .lms .player .bar{
+    position:absolute;left:10px;right:10px;bottom:8px;display:flex;align-items:center;gap:8px;
+    color:#dfe4f2;font-size:7.5px;
+  }
+  .lms .player .bar .line{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.25);position:relative}
+  .lms .player .bar .line::before{content:"";position:absolute;left:0;top:0;bottom:0;width:12%;border-radius:2px;background:#fff}
+  .lms .under{display:flex;align-items:center;gap:10px;padding:7px 2px;color:#5b6274;white-space:nowrap;flex:0 0 auto}
+  .lms .under .fright{margin-left:auto;display:flex;gap:10px;color:#1e874b;font-weight:600}
+  .lms .inst{display:flex;align-items:center;gap:7px;padding:6px 2px;color:#6a7183;border-top:1px solid #f2f3f7;white-space:nowrap;flex:0 0 auto}
+  .lms .inst .av{width:16px;height:16px;border-radius:50%;background:linear-gradient(135deg,#f2a7c3,#b45a82)}
+  .lms .inst b{color:#111827}
+  .lms .tabs{display:flex;gap:6px;padding-top:7px;border-top:1px solid #f2f3f7;flex:0 0 auto}
+  .lms .tabs span{padding:5px 11px;border-radius:16px;color:#5b6274;border:1px solid transparent}
+  .lms .tabs span.on{background:var(--green);color:#fff;font-weight:600}
+  .lms .tabs span:not(.on){border-color:#e8eaf0}
+  .lms .right{width:230px;flex:0 0 auto;border:1px solid #eceef3;border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;overflow:hidden}
+  .lms .plans{display:flex;background:#f1f3f7;border-radius:6px;padding:2px;margin-bottom:8px}
+  .lms .plans span{flex:1;text-align:center;padding:4px 0;border-radius:5px;color:#5b6274}
+  .lms .plans span.on{background:var(--green);color:#fff;font-weight:600}
+  .lms .price{font-size:18px;font-weight:800;color:#111827;margin-bottom:6px}
+  .lms .right h4{font-size:9px;color:#111827;margin-bottom:4px}
+  .lms .feat{list-style:none;display:flex;flex-direction:column;gap:3.5px;color:#5b6274;margin-bottom:8px}
+  .lms .feat li{display:flex;gap:5px;align-items:baseline}
+  .lms .feat li::before{content:"✓";color:var(--green);font-weight:700;font-size:8px}
+  .lms .buy{background:var(--green);color:#fff;border-radius:16px;text-align:center;padding:6px 0;font-weight:700;margin-bottom:5px}
+  .lms .ghostlink{text-align:center;color:#1e874b;font-weight:600;padding:3px 0}
+  .lms .hr{border-top:1px solid #f0f1f5;margin:6px 0}
+  .lms .fine{color:#8d93a5;font-size:7.5px;line-height:1.5}
+  .lms .fine b{color:#5b6274}
+
+  /* ---------- footer ---------- */
+  /* was a fixed 904px of empty decorative space; the contact banner now lives
+     in it, so it sizes to its content with the grid still running behind */
+  footer{position:relative;margin-top:80px;overflow:hidden;padding:140px 0 56px}
+  .end-space{height:0}
+
+  /* ---------- contact banner ----------
+     Kept identical to about.html's footer: same title scale, same lead
+     paragraph, same 60px clearance under the row. Edit the two together. */
+  .contact{
+    position:relative;z-index:2;
+    display:flex;align-items:flex-end;justify-content:space-between;gap:56px;flex-wrap:wrap;
+    /* clears the whole row - title/lead column and the email + socials column
+       alike - rather than trailing off any one of them */
+    padding-bottom:60px;
+  }
+  .contact-title{
+    font-family:var(--font-display);
+    font-size:clamp(38px,5.2vw,64px);
+    font-weight:500;line-height:1.1;letter-spacing:-.02em;
+    color:var(--heading);margin:0;
+  }
+  .contact-lead{
+    font-size:17px;line-height:1.6;color:var(--ink);
+    max-width:44ch;margin:16px 0 0;
+  }
+  .contact-copy{max-width:620px}
+  .contact-side{display:flex;flex-direction:column;align-items:flex-start;gap:26px;padding-bottom:8px}
+  .email-row{display:flex;align-items:center;gap:12px}
+  .email-row .email{
+    font-family:var(--font-ui);font-size:20px;color:var(--muted);
+    text-decoration:none;transition:color .2s;
+  }
+  .email-row .email:hover{color:var(--bright)}
+  /* same 28px stroked button as the header's theme toggle */
+  .copybtn{
+    display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+    flex:0 0 auto;padding:0;border:1px solid var(--line);border-radius:7px;
+    background:transparent;color:var(--ink);cursor:pointer;
+    transition:background .15s ease,color .15s ease,border-color .15s ease;
+  }
+  .copybtn:hover,.copybtn:focus-visible{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .copybtn svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .copybtn .i-check{display:none}
+  .copybtn.copied{color:var(--accent);border-color:var(--accent)}
+  .copybtn.copied .i-copy{display:none}
+  .copybtn.copied .i-check{display:block}
+  .copied-note{
+    font-family:var(--font-ui);font-size:13px;color:var(--accent);
+    opacity:0;transition:opacity .2s;
+  }
+  .copybtn.copied ~ .copied-note{opacity:1}
+  .socials{display:flex;align-items:center;gap:14px}
+  .socials a{
+    width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);border-radius:10px;color:var(--ink);
+    transition:background .15s ease,color .15s ease,border-color .15s ease;
+  }
+  .socials a:hover,.socials a:focus-visible{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .socials svg{width:19px;height:19px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  @media (max-width:820px){
+    footer{padding:100px 0 90px}
+    .contact{gap:36px}
+    .contact-side{padding-bottom:0}
+  }
+  /* ---------- responsive ---------- */
+  @media (max-width:1100px){
+    .caption .proj-desc{font-size:20px;line-height:28px}
+    .caption .proj-name{width:200px;letter-spacing:.2em}
+    .card .stage{padding:40px 40px 20px}
+    .portfolio-title{gap:36px}
+  }
+  @media (max-width:480px){
+    /* badge and wordmark together would overrun the gutters at their full size */
+    .portfolio-title{--badge-size:104px;gap:20px}
+  }
+  @media (max-width:820px){
+    .hero .tagline{font-size:34px;line-height:44px}
+    .app-shot{height:420px}
+    .caption{flex-wrap:wrap;height:auto;padding:22px 32px;gap:10px}
+    .erp .row{grid-template-columns:repeat(4,1fr)}
+    .lms .right{display:none}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="grid-bg"></div>
+
+  <nav>
+    <div class="container">
+      <a class="logo" href="index.html" aria-label="Eeman – home"><img src="assets/logo-eeman.png" alt="eeman"></a>
+      <span class="nav-end">
+        <div class="nav-links">
+          <a href="#work" class="active" aria-current="page">Work</a>
+          <a href="about.html">About</a>
+        </div>
+        <button type="button" class="themetoggle" id="themeToggle" aria-label="Switch to light theme" title="Switch theme">
+          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
+        </button>
+      </span>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container">
+      <h1>Hey! I&rsquo;m <span class="avatar"><span class="bubble"><span class="shot"><img src="assets/dp-photo.png" alt="Eeman" width="60" height="60"></span></span></span> Eeman</h1>
+      <p class="tagline">UX fundamentalist with <em>great designs</em><br>And the metrics to prove it.</p>
+      <div class="cred">
+        <p>4 years experience across industries</p>
+        <div class="logo-row">
+          <img src="assets/logo-fenzo.png" alt="fenzo" style="height:20px">
+          <img src="assets/logo-educative.png" alt="educative" style="height:26px">
+          <img src="assets/logo-fixel.png" alt="fixel" style="height:22px">
+          <img src="assets/logo-reloadux.png" alt="reloadux" style="height:17px">
+          <img src="assets/logo-aipixel.png" alt="AIPIXEL" style="height:27px">
+        </div>
+      </div>
+    </div>
+
+    <div class="portfolio-title" id="work">
+      <div class="scroll-badge" aria-hidden="true">
+        <svg viewBox="0 0 139 139">
+          <!-- Baseline radius 48.5, not the ring's mid-radius: glyphs grow outward
+               from the baseline, so the type only sits centred in the 38.75-67.75
+               band once the baseline is dropped by half a cap height. -->
+          <defs><path id="circ" d="M69.5,69.5 m-48.5,0 a48.5,48.5 0 1,1 97,0 a48.5,48.5 0 1,1 -97,0"/></defs>
+          <!-- outer + inner circles -->
+          <circle cx="69.5" cy="69.5" r="68.5" fill="none" stroke="rgba(184,174,197,.35)" stroke-width="1.5"/>
+          <circle cx="69.5" cy="69.5" r="38" fill="none" stroke="rgba(184,174,197,.35)" stroke-width="1.5"/>
+          <!-- rotating text ring -->
+          <g class="ring">
+            <!-- No textLength here: forcing one makes lengthAdjust pad the gaps
+                 between glyphs, which is letter-spacing by another name. The run
+                 is sized to the 304.84 circumference with the separator padding
+                 instead, so the tracking stays a true zero. -->
+            <text fill="#8b7f9e" font-size="13" letter-spacing="0" font-family="'IBM Plex Sans',sans-serif">
+              <textPath href="#circ">Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan>Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan></textPath>
+            </text>
+          </g>
+          <!-- center arrow: one path whose shaft ends exactly on the chevron's
+               apex, so the round cap and the round join land on the same point
+               and the tip reads as a point rather than a blob -->
+          <g class="arrow" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+            <path d="M69.5 50V89M60.5 78.5 69.5 89 78.5 78.5"/>
+          </g>
+        </svg>
+      </div>
+      <div class="big-title" role="heading" aria-level="2">
+        <img src="assets/portfolio.svg" alt="Portfolio">
+      </div>
+    </div>
+  </header>
+
+  <main class="projects container">
+
+    <!-- ============ Card 1 — Sentinel ERP (blue) ============ -->
+    <section class="card blue">
+      <div class="stage">
+        <div class="app-shot"><div class="erp" data-erp></div></div>
+      </div>
+      <div class="caption">
+        <div class="proj-name">SENTINEL ERP</div>
+        <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
+        <a class="go" href="#" aria-label="Open Sentinel ERP case study">→</a>
+      </div>
+    </section>
+
+    <!-- ============ Card 2 — Sentinel ERP (orange) ============ -->
+    <section class="card orange">
+      <div class="stage">
+        <div class="app-shot"><div class="erp" data-erp></div></div>
+      </div>
+      <div class="caption">
+        <div class="proj-name">SENTINEL ERP</div>
+        <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
+        <a class="go" href="#" aria-label="Open Sentinel ERP case study">→</a>
+      </div>
+    </section>
+
+    <!-- ============ Card 3 — EduStream LMS (green) ============ -->
+    <section class="card green">
+      <div class="stage">
+        <div class="app-shot">
+          <div class="lms">
+            <div class="top">
+              <div class="brand">in<em>C</em>ours</div>
+              <div class="search">What course are you looking for today?</div>
+              <div class="r"><span>♡ My Learning</span><span>Following</span><span>🔔</span><span class="av"></span></div>
+            </div>
+            <div class="cats">
+              <span class="on">Development</span><span>Business</span><span>Finance</span><span>Software</span>
+              <span>Growth</span><span>Productivity</span><span>Design</span><span>Marketing</span>
+              <span>Health</span><span>Music</span>
+            </div>
+            <div class="body">
+              <div class="left">
+                <h2>Conversion Rate Optimization: Convert Visitors Into Buyers</h2>
+                <p class="sub">Learn the science and art behind successful conversion rate optimization with this professional course for all levels.</p>
+                <div class="meta">
+                  <span><b>4.5</b> <span class="star">★★★★</span>☆ (2.1K)</span>
+                  <span><b>39</b> videos</span><span><b>15 hrs</b></span>
+                  <span><b>13,505</b> enrolled on this course</span>
+                </div>
+                <div class="player">
+                  <div class="laptop"></div>
+                  <div class="play">▶</div>
+                  <div class="bar"><span>▶</span><span>0:15 / 3:44</span><div class="line"></div><span>⛶</span></div>
+                </div>
+                <div class="under">
+                  <span>◔ Introductory Level</span><span>🏅 Digital certificate when eligible</span>
+                  <div class="fright"><span>+ Follow</span><span>Add to Calendar</span></div>
+                </div>
+                <div class="inst">
+                  <span class="av"></span><b>Mia Crane</b>
+                  <span>• 4.8 instructor rating</span><span>• 7,768 reviews</span>
+                  <span>• 41 courses</span><span>• 132,307 learners</span>
+                </div>
+                <div class="tabs">
+                  <span class="on">Overview</span><span>Content</span><span>Compare Plans</span>
+                  <span>Discussions</span><span>About creator</span><span>More courses</span>
+                </div>
+              </div>
+              <aside class="right">
+                <div class="plans"><span class="on">Basic</span><span>Standard</span><span>Premium</span></div>
+                <div class="price">$75.00</div>
+                <h4>Description</h4>
+                <ul class="feat">
+                  <li>4 thematic weeks</li>
+                  <li>29 comprehensive video lessons</li>
+                  <li>Interactive tests, assignments</li>
+                  <li>Hands-on projects</li>
+                  <li>Downloadable resources</li>
+                  <li>Community forum</li>
+                  <li>24/7 customer support</li>
+                  <li>Money-back guarantee</li>
+                </ul>
+                <div class="buy">Buy Course</div>
+                <div class="ghostlink">Preview</div>
+                <div class="ghostlink" style="color:#5b6274">Compare Plans</div>
+                <div class="hr"></div>
+                <p class="fine"><b>∞ Unlimited access</b>, anywhere, anytime<br>
+                ✦ Learn from hand-vetted creators, experts in their field</p>
+                <div class="hr"></div>
+                <p class="fine" style="text-align:center"><b>Gift Course</b> &nbsp;·&nbsp; <b>Apply Coupon</b><br>Try Personal Plan for Free</p>
+              </aside>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="caption">
+        <div class="proj-name">EDUSTREAM LMS</div>
+        <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
+        <a class="go" href="#" aria-label="Open EduStream LMS case study">→</a>
+      </div>
+    </section>
+  </main>
+
+  <footer id="contact">
+    <div class="grid-bg bottom"></div>
+    <div class="contact container">
+      <div class="contact-copy">
+        <h2 class="contact-title">Contact Me</h2>
+        <p class="contact-lead">If you&rsquo;re looking for a collab on your next big project, drop me a message. I&rsquo;d love to chat or meet up over coffee!</p>
+      </div>
+      <div class="contact-side">
+        <div class="email-row">
+          <a class="email" href="mailto:ebutt732@gmail.com">ebutt732@gmail.com</a>
+          <button type="button" class="copybtn" data-copy="ebutt732@gmail.com" aria-label="Copy email address" title="Copy email address">
+            <svg class="i-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 5.8V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7a2.5 2.5 0 0 0 2.5 2.5h.2"/></svg>
+            <svg class="i-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
+          </button>
+          <span class="copied-note" role="status" aria-live="polite">Copied</span>
+        </div>
+        <div class="socials">
+          <a href="https://www.linkedin.com/in/eeman-butt" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" title="LinkedIn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.3 10.7V17M7.3 7.5v.02M11.3 17v-6.3M11.3 13.6a2.6 2.6 0 0 1 5.2 0V17"/></svg>
+          </a>
+          <a href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer" aria-label="Topmate" title="Topmate">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3.4v3.2M16 3.4v3.2M3.5 10.2h17M9.4 14.6l1.9 1.9 3.5-3.5"/></svg>
+          </a>
+          <a href="https://www.instagram.com/_allaboutart__" target="_blank" rel="noopener noreferrer" aria-label="Instagram" title="Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.02"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <div class="end-space"></div>
+</div>
+
+<script>
+/* Build the Sentinel ERP schedule mock (used in cards 1 & 2) */
+(function(){
+  const officers=["Jacob Jones","Cody Fisher","Esther Howard","Ralph Edwards","Devon Lane","Jenny Wilson","Guy Hawkins","Albert Flores"];
+  const times=["9:00a - 5:00p","5:00p - 1:00a","1:00a - 9:00a","8:00a - 4:00p","4:00p - 12:00a","10:00a - 6:00p"];
+  const runsheet="Everyday Day Time Runsheet";
+
+  function shift(kind,i,tagText){
+    const t=times[i%times.length], o=officers[(i*3+kind.length)%officers.length];
+    let tag="";
+    if(tagText==="unassigned") tag='<span class="tag warn">Unassigned</span>';
+    if(tagText==="missed")     tag='<span class="tag bad">3 Missed</span>';
+    if(tagText==="completed")  tag='<span class="tag ok">Completed</span>';
+    return `<div class="shift ${kind}">
+      <div class="t"><span>${t}</span><span class="dot"></span></div>
+      <div class="sub">${runsheet}</div>
+      ${tagText==="unassigned" ? tag : `<div class="off">${o}</div>${tag}`}
+    </div>`;
+  }
+  function row(pattern,seed){
+    return `<div class="row">${pattern.map((p,i)=>shift(p[0],seed+i,p[1])).join("")}</div>`;
+  }
+
+  const K_OK=["ok",null], K_OKC=["ok","completed"], K_W=["warn",null],
+        K_WU=["warn","unassigned"], K_B=["bad","missed"], K_I=["info",null];
+
+  const board=`
+    <div class="group-label">Patrol Runsheets</div>
+    ${row([K_I,K_OK,K_W,K_OKC,K_I,K_OK],0)}
+    ${row([K_OK,K_I,K_B,K_OK,K_W,K_OKC],3)}
+    ${row([K_I,K_OKC,K_OK,K_I,K_OK,K_I],6)}
+    <div class="group-label">Unassigned Location(s)</div>
+    ${row([K_WU,K_WU,K_I,K_WU,K_I,K_WU],2)}
+    <div class="group-label">Parking Lot</div>
+    ${row([K_OK,K_I,K_OKC,K_W,K_OK,K_I],4)}
+    <div class="group-label">Basement</div>
+    ${row([K_I,K_OK,K_W,K_OKC,K_B,K_OK],1)}
+  `;
+
+  const erpHTML=`
+    <div class="side">
+      <span class="s-logo">S</span>
+      ${'<i></i>'.repeat(3)}<i class="on"></i>${'<i></i>'.repeat(10)}
+    </div>
+    <div class="main">
+      <div class="topbar">
+        <span class="title">Schedule</span>
+        <span class="spacer"></span>
+        <span class="chip site">#759 Columbus, Georgia <span class="v">▾</span></span>
+        <span class="ico"></span><span class="ico"></span>
+        <span class="avatar"></span>
+        <span class="who"><b>Mike Smith</b><span>Franchise Owner</span></span>
+      </div>
+      <div class="filters">
+        <span class="pill">Sites (1) <span class="x">✕</span></span>
+        <span class="pill">All Statuses <span class="v">▾</span></span>
+        <span class="pill">All Shifts <span class="v">▾</span></span>
+        <span class="pill">All Officers <span class="v">▾</span></span>
+        <span class="dst">You are viewing this calendar in daylight saving</span>
+        <span class="btn-ghost">View Activity</span>
+        <span class="btn-blue">+ Create Extra Job</span>
+      </div>
+      <div class="datebar">
+        <span class="nav-arrow">‹</span>
+        <span class="range">Jan 17 - Jan 23, 2024</span>
+        <span class="nav-arrow">›</span>
+        <span class="missed">3 Missed Hits</span>
+        <div class="seg"><span class="on">Day</span><span>Week</span></div>
+        <span class="pill">Month <span class="v">▾</span></span>
+      </div>
+      <div class="dayhead"><span class="d">WED</span><span class="n">22</span></div>
+      <div class="board">${board}</div>
+    </div>`;
+
+  document.querySelectorAll("[data-erp]").forEach(el=>{ el.innerHTML=erpHTML; });
+})();
+</script>
+
+<script>
+/* ---- copy the email to the clipboard ----
+   navigator.clipboard needs a secure context, which a page opened over file://
+   is not, so there is a textarea + execCommand fallback behind it. */
+(function(){
+  document.querySelectorAll('[data-copy]').forEach(function(btn){
+    var label = btn.getAttribute('aria-label');
+    function flash(){
+      btn.classList.add('copied');
+      btn.setAttribute('aria-label', 'Email address copied');
+      setTimeout(function(){
+        btn.classList.remove('copied');
+        btn.setAttribute('aria-label', label);
+      }, 1800);
+    }
+    function legacy(text){
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); flash(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    btn.addEventListener('click', function(){
+      var text = btn.getAttribute('data-copy');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(flash, function(){ legacy(text); });
+      } else {
+        legacy(text);
+      }
+    });
+  });
+})();
+</script>
+
+<script>
+/* ---- light / dark toggle ---- */
+(function(){
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  if (!btn) return;
+  function label(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    btn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
+    btn.setAttribute('title', 'Switch to ' + next + ' theme');
+  }
+  function apply(theme){
+    root.setAttribute('data-theme', theme);
+    try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+    label();
+  }
+  // dark is the default and the page never follows the OS on its own; the
+  // toggle is the only thing that moves it, and the choice is remembered
+  btn.addEventListener('click', function(){
+    apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  });
+  label();
+})();
+</script>
+</body>
+</html>
