@@ -514,9 +514,7 @@
   }
   .contact-copy{max-width:620px}
   .contact-side{display:flex;flex-direction:column;align-items:flex-start;gap:26px;padding-bottom:8px}
-  /* the column is bottom-anchored inside .contact, so space added under the email
-     row lifts the address rather than pushing the socials down */
-  .email-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .email-row{display:flex;align-items:center;gap:12px}
   .email-row .email{
     font-family:var(--font-ui);font-size:20px;color:var(--muted);
     text-decoration:none;transition:color .2s;
@@ -551,19 +549,21 @@
     display:inline-flex;flex-direction:column;align-items:center;gap:9px;
     color:var(--ink);text-decoration:none;
   }
+  /* 15px keeps the corner at the same quarter-of-the-box ratio the 40px original
+     had, so growing the container does not square it off */
   .socials .box{
-    width:46px;height:46px;display:inline-flex;align-items:center;justify-content:center;
-    border:1px solid var(--line);border-radius:12px;
+    width:60px;height:60px;display:inline-flex;align-items:center;justify-content:center;
+    border:1px solid var(--line);border-radius:15px;
     transition:background .15s ease,color .15s ease,border-color .15s ease;
   }
   .socials .cap{
-    font-family:var(--font-mono);
-    font-size:11px;line-height:1;letter-spacing:.08em;color:var(--ink);
+    font-family:var(--font-ui);
+    font-size:11px;line-height:1;letter-spacing:0;color:var(--ink);
     transition:color .15s ease;
   }
   .socials a:hover .box,.socials a:focus-visible .box{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
   .socials a:hover .cap,.socials a:focus-visible .cap{color:var(--accent)}
-  .socials svg{width:22px;height:22px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .socials svg{width:28px;height:28px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   @media (max-width:820px){
     footer{padding:100px 0 90px}
     .contact{gap:36px}
