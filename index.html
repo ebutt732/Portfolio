@@ -63,6 +63,9 @@
        rather than by eye. 1.5 x #5B4F6C = #8876A2. */
     --logo-row-filter:brightness(1.5);
     --cred-ink:#8876A2;
+    /* matches about.html's token of the same name, so the shared footer glows
+       identically on both pages rather than at double strength here in light */
+    --glow-b:rgba(120,80,255,.10);
     --font-ui:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
     --font-display:'Archivo','IBM Plex Sans',sans-serif;
     --font-mono:'IBM Plex Mono',ui-monospace,monospace;
@@ -104,6 +107,7 @@
     /* 1.27 x #5B4F6C = #746489, which holds 4.85:1 on this ground */
     --logo-row-filter:brightness(1.27);
     --cred-ink:#746489;
+    --glow-b:rgba(120,80,255,.05);
     /* Inverted so the artwork's dark tail becomes the light one and the fade
        runs into the light ground instead of into black; the hue-rotate undoes
        the purple -> olive swing that a bare invert leaves behind. */
@@ -537,7 +541,19 @@
   /* ---------- footer ---------- */
   /* was a fixed 904px of empty decorative space; the contact banner now lives
      in it, so it sizes to its content with the grid still running behind */
-  footer{position:relative;margin-top:80px;overflow:hidden;padding:140px 0 56px}
+  /* The banner used to sit 140px of padding plus an 80px margin below the last
+     card, which read as a gap rather than a section break. The separation is
+     carried by the ground instead - the grid, and the glow below - so the space
+     can come down without the footer running into the cards above it. */
+  footer{position:relative;margin-top:0;overflow:hidden;padding:76px 0 56px}
+  /* Top-left counterpart to the glow the grid already throws bottom-right, so
+     the footer opens on a wash the way the top of the page does and reads as
+     its own section rather than as the tail of the one above. Above the grid
+     lines, below the content, and inert to the pointer. */
+  footer::before{
+    content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:radial-gradient(680px 420px at 6% 0%,var(--glow-b),transparent 68%);
+  }
   .end-space{height:0}
 
   /* ---------- contact banner ----------
@@ -613,7 +629,7 @@
   .socials a:hover .cap,.socials a:focus-visible .cap{color:var(--accent)}
   .socials svg{width:28px;height:28px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
   @media (max-width:820px){
-    footer{padding:100px 0 90px}
+    footer{padding:76px 0 90px}
     .contact{gap:36px}
     .contact-side{padding-bottom:0}
   }
