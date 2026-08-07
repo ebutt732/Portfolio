@@ -311,35 +311,199 @@
   .projects{position:relative;z-index:2;padding-top:40px;display:flex;flex-direction:column;gap:112px;padding-bottom:96px}
   .card{
     border-radius:28px;overflow:hidden;position:relative;
+    /* each card is an anchor target for its case study's back button */
+    scroll-margin-top:28px;
     box-shadow:var(--card-shadow);
   }
-  .card .stage{padding:73px 73px 30px;position:relative}
-  .card.blue  {background:linear-gradient(175deg,#3e6ceb 0%,#2d55d0 60%,#2447b4 100%)}
-  .card.orange{background:linear-gradient(175deg,#f0920f 0%,#dd7f08 60%,#c76f05 100%)}
-  .card.green {background:linear-gradient(175deg,#27b664 0%,#1d9e54 60%,#158947 100%)}
-  .app-shot{
-    background:#fff;border-radius:10px;overflow:hidden;
-    box-shadow:0 30px 60px -20px rgba(0,0,0,.45);
-    height:599px;position:relative;
+  /* The stage is now the export itself - shot, inset and body gradient all
+     baked in - so the 73/30 padding that used to frame a live mock is gone.
+     aspect-ratio pins it to the export's own 1200x702 body, which is what keeps
+     a bitmap honest on a fluid card: it scales, it never stretches. */
+  .card .stage{position:relative;aspect-ratio:1200/702}
+/* ---------- project card artwork ----------
+   Redrawn from assets/<hue>-<theme>.png rather than served as bitmaps: the
+   card is fluid and .caption goes height:auto under 820px, so a stretched
+   export would distort and its 48px corners would show through .card's 28px
+   clip. Every value is sampled off the export composited over the theme's
+   --bg, which is why the band stops are opaque - the export's band is a
+   translucent frosted layer, and baking the ground in reproduces it without
+   a second composite. Each body measured as a straight ramp (<=2/255 off a
+   two-stop gradient, and flat across x), so it needs no more than two stops.
+   The band is not flat vertically, so it is drawn as two profiles - the top
+   row on .caption, the bottom row on ::after under a downward mask - which
+   lands within 2/255 mean, 6/255 peak of the export. */
+
+  /* ---- dark ---- */
+  :root:not([data-theme="light"]) .card.blue{background:#09275a}
+  :root:not([data-theme="light"]) .card.blue .stage{
+    background:url("assets/darkmode-blue.png") top center/100% 120.7977% no-repeat,
+      linear-gradient(180deg,#1c69e7 0%,#09275a 100%);
   }
+  :root:not([data-theme="light"]) .card.blue .caption{
+    background:linear-gradient(90deg,
+      #0e1d45 0%,#0e1d45 5%,#0d193d 10%,#0b142f 15%,#0b0f23 20%,#0a0b1b 25%,
+      #0a0815 30%,#090712 35%,#090712 40%,#0a0815 45%,#0a0b1c 50%,#0b1026 55%,
+      #0b1533 60%,#0d1a3f 65%,#0e1e47 70%,#0d204b 75%,#0e204b 80%,#0f214b 85%,
+      #13244c 90%,#17254c 95%,#17254c 100%);
+    box-shadow:inset 0 -1px 0 #161d5a;
+  }
+  :root:not([data-theme="light"]) .card.blue .caption::after{
+    background:linear-gradient(90deg,
+      #0f1e45 0%,#0f1e45 5%,#0f1c40 10%,#101938 15%,#111630 20%,#141628 25%,
+      #171624 30%,#191622 35%,#191621 40%,#171623 45%,#161828 50%,#151930 55%,
+      #141d39 60%,#131f41 65%,#132046 70%,#122046 75%,#122044 80%,#162144 85%,
+      #1c2646 90%,#232b47 95%,#232b47 100%);
+  }
+  :root:not([data-theme="light"]) .card.purple{background:#1f1e64}
+  :root:not([data-theme="light"]) .card.purple .stage{
+    background:url("assets/darkmode-purple.png") top center/100% 120.7977% no-repeat,
+      linear-gradient(180deg,#7775ff 0%,#1f1e64 100%);
+  }
+  :root:not([data-theme="light"]) .card.purple .caption{
+    background:linear-gradient(90deg,
+      #170f51 0%,#170f51 5%,#170e4a 10%,#170d3e 15%,#170b34 20%,#180b2c 25%,
+      #180b27 30%,#180a24 35%,#180a24 40%,#180b27 45%,#170b2d 50%,#170c36 55%,
+      #170d41 60%,#170e4c 65%,#170f53 70%,#170f56 75%,#170f57 80%,#191157 85%,
+      #1c1457 90%,#201858 95%,#201858 100%);
+    box-shadow:inset 0 -1px 0 #221682;
+  }
+  :root:not([data-theme="light"]) .card.purple .caption::after{
+    background:linear-gradient(90deg,
+      #191051 0%,#191051 5%,#19104d 10%,#1b1146 15%,#1d123e 20%,#211438 25%,
+      #241734 30%,#261932 35%,#261a32 40%,#251833 45%,#231738 50%,#21163e 55%,
+      #1f1547 60%,#1d144e 65%,#1c1452 70%,#1b1352 75%,#1c1351 80%,#201751 85%,
+      #261d52 90%,#2d2454 95%,#2d2454 100%);
+  }
+  :root:not([data-theme="light"]) .card.teal{background:#11231e}
+  :root:not([data-theme="light"]) .card.teal .stage{
+    background:url("assets/darkmode-teal.png") top center/100% 120.7977% no-repeat,
+      linear-gradient(180deg,#5eb5a1 0%,#11231e 100%);
+  }
+  :root:not([data-theme="light"]) .card.teal .caption{
+    background:linear-gradient(90deg,
+      #0d2422 0%,#0d2422 5%,#0d2a24 10%,#0d2f26 15%,#0e3328 20%,#0e362a 25%,
+      #0e382b 30%,#0e382a 35%,#0d372a 40%,#0e3529 45%,#0d3327 50%,#0d3025 55%,
+      #0c2c23 60%,#0c2921 65%,#0c2620 70%,#0c231f 75%,#0b201d 80%,#0c1e1c 85%,
+      #0b1c1b 90%,#0c1b1b 95%,#0c1b1b 100%);
+    box-shadow:inset 0 -1px 0 #0b231f;
+  }
+  :root:not([data-theme="light"]) .card.teal .caption::after{
+    background:linear-gradient(90deg,
+      #0c201e 0%,#0c201e 5%,#0c2420 10%,#0c2923 15%,#0d2e25 20%,#0e3127 25%,
+      #0e3328 30%,#0e3428 35%,#0d3427 40%,#0d3227 45%,#0d3025 50%,#0d2d23 55%,
+      #0c2a22 60%,#0c2620 65%,#0c241f 70%,#0c211e 75%,#0c1f1d 80%,#0d1d1c 85%,
+      #0d1c1c 90%,#0e1b1b 95%,#0e1b1b 100%);
+  }
+
+  /* ---- light ---- */
+  :root[data-theme="light"] .card.blue{background:#0252d5}
+  :root[data-theme="light"] .card.blue .stage{
+    background:url("assets/lightmode-blue.png") top center/100% 120.7977% no-repeat,
+      linear-gradient(180deg,#b1cbf6 0%,#0252d5 100%);
+  }
+  :root[data-theme="light"] .card.blue .caption{
+    background:linear-gradient(90deg,
+      #c0d0ee 0%,#c0d0ee 5%,#c4d4ef 10%,#ccd9ef 15%,#d4def0 20%,#dae1f0 25%,
+      #dde3f1 30%,#dfe4f1 35%,#e0e5f1 40%,#dde2f1 45%,#d9e1f0 50%,#d3dcf0 55%,
+      #cbd7ef 60%,#c3d3ee 65%,#becfef 70%,#bcceee 75%,#bbceee 80%,#bdceee 85%,
+      #bfcfee 90%,#c1d1ee 95%,#c1d1ee 100%);
+    box-shadow:inset 0 -1px 0 #bebbf8;
+  }
+  :root[data-theme="light"] .card.blue .caption::after{
+    background:linear-gradient(90deg,
+      #c1d1ee 0%,#c1d1ee 5%,#c5d3ee 10%,#cad6ef 15%,#d2dcf0 20%,#d9e1f1 25%,
+      #dee4f2 30%,#e1e6f1 35%,#e1e6f1 40%,#dee5f0 45%,#dae1f1 50%,#d4def0 55%,
+      #cdd8f0 60%,#c6d5ef 65%,#c3d2ee 70%,#c2d1ee 75%,#c4d2ef 80%,#c7d5ef 85%,
+      #cad8f0 90%,#cdd9f0 95%,#cdd9f0 100%);
+  }
+  :root[data-theme="light"] .card.purple{background:#3d3ac0}
+  :root[data-theme="light"] .card.purple .stage{
+    background:url("assets/lightmode-purple.png") top center/100% 120.7977% no-repeat,
+      linear-gradient(180deg,#c5c7e9 0%,#3d3ac0 100%);
+  }
+  :root[data-theme="light"] .card.purple .caption{
+    background:linear-gradient(90deg,
+      #d2d3ed 0%,#d2d3ed 5%,#cdcfec 10%,#ced0ec 15%,#d3d4ee 20%,#dcddf0 25%,
+      #e4e5f2 30%,#ebedf4 35%,#eff1f5 40%,#f1f3f6 45%,#eff0f4 50%,#e9ebf3 55%,
+      #e2e4f1 60%,#d9dbef 65%,#d2d3ed 70%,#cccfeb 75%,#cbcceb 80%,#cacbea 85%,
+      #cbcceb 90%,#cccdeb 95%,#cccdeb 100%);
+    box-shadow:inset 0 -1px 0 #b1b1e7;
+  }
+  :root[data-theme="light"] .card.purple .caption::after{
+    background:linear-gradient(90deg,
+      #d6d7ee 0%,#d6d7ee 5%,#d0d1ec 10%,#ced0eb 15%,#cfd2ec 20%,#d5d6ee 25%,
+      #dcdef0 30%,#e3e5f2 35%,#e9eaf4 40%,#ebeef4 45%,#ebedf4 50%,#e7e9f3 55%,
+      #e0e1f1 60%,#d8daef 65%,#d2d4ed 70%,#cfd1ed 75%,#ced0ec 80%,#cfd1ec 85%,
+      #d2d3ed 90%,#d4d6ed 95%,#d4d6ed 100%);
+  }
+  :root[data-theme="light"] .card.teal{background:#2f665a}
+  :root[data-theme="light"] .card.teal .stage{
+    background:url("assets/lightmode-teal.png") top center/100% 120.7977% no-repeat,
+      linear-gradient(180deg,#baded6 0%,#2f665a 100%);
+  }
+  :root[data-theme="light"] .card.teal .caption{
+    background:linear-gradient(90deg,
+      #d5e1dd 0%,#d5e1dd 5%,#d1e0db 10%,#cdded9 15%,#c9dcd6 20%,#c4d9d2 25%,
+      #c1d8cf 30%,#bdd5cc 35%,#bad3c9 40%,#bad1c8 45%,#b8cfc6 50%,#b8cfc6 55%,
+      #bacec7 60%,#bccec8 65%,#bfd0ca 70%,#c3d0cc 75%,#c7d2cf 80%,#c9d4d2 85%,
+      #cdd7d5 90%,#d1d9d8 95%,#d1d9d8 100%);
+    box-shadow:inset 0 -1px 0 #68958d;
+  }
+  :root[data-theme="light"] .card.teal .caption::after{
+    background:linear-gradient(90deg,
+      #d7e1de 0%,#d7e1de 5%,#d4e1dd 10%,#d0dfda 15%,#cbddd8 20%,#c8dbd5 25%,
+      #c5d9d2 30%,#c1d8cf 35%,#bfd6cd 40%,#bdd4cb 45%,#bcd2c9 50%,#bbd0c8 55%,
+      #bcd0c8 60%,#bed0c9 65%,#bfd0ca 70%,#c2d1cc 75%,#c4d1cd 80%,#c7d2d0 85%,
+      #cbd4d3 90%,#cdd6d5 95%,#cdd6d5 100%);
+  }
+
+  /* ---- light: the bands are too pale for the white caption ink ---- */
+  /* blue: #0247b9 holds 5.1:1 on #bbceee and 6.4:1 on #e1e6f1 */
+  :root[data-theme="light"] .card.blue .caption .proj-name{color:#0247b9}
+  :root[data-theme="light"] .card.blue .caption .proj-desc{color:#0247b9}
+  :root[data-theme="light"] .card.blue .caption .go{border-color:#0247b9;color:#0247b9}
+  :root[data-theme="light"] .card.blue .caption .go:hover{background:#0247b9;color:#fff}
+  /* purple: #3d3ac0 holds 5.2:1 on #cacbea and 7.4:1 on #f1f3f6 */
+  :root[data-theme="light"] .card.purple .caption .proj-name{color:#3d3ac0}
+  :root[data-theme="light"] .card.purple .caption .proj-desc{color:#3d3ac0}
+  :root[data-theme="light"] .card.purple .caption .go{border-color:#3d3ac0;color:#3d3ac0}
+  :root[data-theme="light"] .card.purple .caption .go:hover{background:#3d3ac0;color:#fff}
+  /* teal: #27564c holds 5.1:1 on #bacec7 and 6.2:1 on #d7e1de */
+  :root[data-theme="light"] .card.teal .caption .proj-name{color:#27564c}
+  :root[data-theme="light"] .card.teal .caption .proj-desc{color:#27564c}
+  :root[data-theme="light"] .card.teal .caption .go{border-color:#27564c;color:#27564c}
+  :root[data-theme="light"] .card.teal .caption .go:hover{background:#27564c;color:#fff}
+
+  /* The band's vertical shift is carried here: the bottom profile fades in
+     downward over the top one on .caption. z-index keeps it under the caption
+     copy - .caption sets no stacking context of its own, so both it and the
+     children below resolve against .projects. */
+  .caption::after{
+    content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+    -webkit-mask-image:linear-gradient(180deg,rgba(0,0,0,0) 0%,#000 100%);
+            mask-image:linear-gradient(180deg,rgba(0,0,0,0) 0%,#000 100%);
+  }
+  .caption > *{position:relative;z-index:1}
+  /* Each export is the whole 1200x848 card at 2x. Only the body is used here -
+     the band is still drawn in CSS below, so it stays fluid and survives
+     .caption going height:auto under 820px. 848/702 = 120.7977%, anchored to the
+     top, crops the band away. The gradient underneath is the same ramp the
+     export opens with, so it both covers the frame before the bitmap decodes and
+     fills the export's 48px corners where .card clips at 28px. */
   .caption{
-    position:relative;height:146px;display:flex;align-items:center;
-    padding:0 74px;background:rgba(5,6,18,.55);backdrop-filter:blur(6px);
+    position:relative;height:146px;display:flex;align-items:center;padding:0 74px;
   }
-  .card.blue   .caption{background:linear-gradient(90deg,rgba(8,12,40,.72),rgba(10,16,52,.6))}
-  .card.orange .caption{background:linear-gradient(90deg,rgba(46,26,2,.72),rgba(58,33,3,.6))}
-  .card.green  .caption{background:linear-gradient(90deg,rgba(3,32,16,.72),rgba(5,42,21,.6))}
-  .caption::before{
-    content:"";position:absolute;inset:0;pointer-events:none;
-    background:radial-gradient(420px 200px at 8% 120%,rgba(255,255,255,.10),transparent 70%);
-  }
+  /* Both lines are IBM Plex Sans now. The name loses the mono's .24em tracking
+     with it - that spacing was there to hold spaced caps apart and would pull
+     mixed-case titles to pieces. */
   .caption .proj-name{
     width:296px;flex:0 0 auto;
-    font-family:var(--font-mono);font-size:19px;font-weight:500;
-    letter-spacing:.24em;color:#fff;
+    font-family:var(--font-ui);font-size:24px;font-weight:600;
+    letter-spacing:.01em;color:#fff;
   }
   .caption .proj-desc{
-    flex:1;font-size:26px;line-height:35px;font-weight:400;color:#fff;max-width:590px;
+    flex:1;font-family:var(--font-ui);font-size:20px;line-height:28px;
+    font-weight:400;color:#fff;max-width:590px;
   }
   .caption .go{
     margin-left:auto;flex:0 0 auto;width:48px;height:48px;border-radius:50%;
@@ -635,9 +799,7 @@
   }
   /* ---------- responsive ---------- */
   @media (max-width:1100px){
-    .caption .proj-desc{font-size:20px;line-height:28px}
-    .caption .proj-name{width:200px;letter-spacing:.2em}
-    .card .stage{padding:40px 40px 20px}
+    .caption .proj-name{width:200px}
     .portfolio-title{gap:36px}
   }
   @media (max-width:480px){
@@ -659,7 +821,6 @@
     .logo-track{display:flex;width:max-content;animation:logoScroll 30s linear infinite}
     .logo-row{flex-wrap:nowrap;padding-right:44px}
     .logo-row.dup{display:flex}
-    .app-shot{height:420px}
     .caption{flex-wrap:wrap;height:auto;padding:22px 32px;gap:10px}
     .erp .row{grid-template-columns:repeat(4,1fr)}
     .lms .right{display:none}
@@ -765,103 +926,32 @@
   <main class="projects container">
 
     <!-- ============ Card 1 — Sentinel ERP (blue) ============ -->
-    <section class="card blue">
-      <div class="stage">
-        <div class="app-shot"><div class="erp" data-erp></div></div>
-      </div>
+    <section class="card blue" id="sentinel-erp">
+      <div class="stage" role="img" aria-label="Sentinel ERP sites dashboard: site and industry-vertical breakdowns, a contracts chart, and a table of sites with supervisors, officer counts and monthly revenue."></div>
       <div class="caption">
         <div class="proj-name">SENTINEL ERP</div>
         <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
-        <a class="go" href="#" aria-label="Open Sentinel ERP case study">→</a>
+        <a class="go" href="Sentinel-ERP.html" aria-label="Open Sentinel ERP case study">→</a>
       </div>
     </section>
 
-    <!-- ============ Card 2 — Sentinel ERP (orange) ============ -->
-    <section class="card orange">
-      <div class="stage">
-        <div class="app-shot"><div class="erp" data-erp></div></div>
-      </div>
+    <!-- ============ Card 2 — Syntax DS (purple) ============ -->
+    <section class="card purple" id="syntax-ds">
+      <div class="stage" role="img" aria-label="Syntax design system: a button specification sheet across four sizes and five states, alongside course-card components and the theme colour tables."></div>
       <div class="caption">
-        <div class="proj-name">SENTINEL ERP</div>
-        <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
-        <a class="go" href="#" aria-label="Open Sentinel ERP case study">→</a>
+        <div class="proj-name">Syntax DS</div>
+        <p class="proj-desc">Making Educative’s design system (Syntax) scalable through homogenization of components</p>
+        <a class="go" href="Syntax-DS.html" aria-label="Open Syntax DS case study">→</a>
       </div>
     </section>
 
-    <!-- ============ Card 3 — EduStream LMS (green) ============ -->
-    <section class="card green">
-      <div class="stage">
-        <div class="app-shot">
-          <div class="lms">
-            <div class="top">
-              <div class="brand">in<em>C</em>ours</div>
-              <div class="search">What course are you looking for today?</div>
-              <div class="r"><span>♡ My Learning</span><span>Following</span><span>🔔</span><span class="av"></span></div>
-            </div>
-            <div class="cats">
-              <span class="on">Development</span><span>Business</span><span>Finance</span><span>Software</span>
-              <span>Growth</span><span>Productivity</span><span>Design</span><span>Marketing</span>
-              <span>Health</span><span>Music</span>
-            </div>
-            <div class="body">
-              <div class="left">
-                <h2>Conversion Rate Optimization: Convert Visitors Into Buyers</h2>
-                <p class="sub">Learn the science and art behind successful conversion rate optimization with this professional course for all levels.</p>
-                <div class="meta">
-                  <span><b>4.5</b> <span class="star">★★★★</span>☆ (2.1K)</span>
-                  <span><b>39</b> videos</span><span><b>15 hrs</b></span>
-                  <span><b>13,505</b> enrolled on this course</span>
-                </div>
-                <div class="player">
-                  <div class="laptop"></div>
-                  <div class="play">▶</div>
-                  <div class="bar"><span>▶</span><span>0:15 / 3:44</span><div class="line"></div><span>⛶</span></div>
-                </div>
-                <div class="under">
-                  <span>◔ Introductory Level</span><span>🏅 Digital certificate when eligible</span>
-                  <div class="fright"><span>+ Follow</span><span>Add to Calendar</span></div>
-                </div>
-                <div class="inst">
-                  <span class="av"></span><b>Mia Crane</b>
-                  <span>• 4.8 instructor rating</span><span>• 7,768 reviews</span>
-                  <span>• 41 courses</span><span>• 132,307 learners</span>
-                </div>
-                <div class="tabs">
-                  <span class="on">Overview</span><span>Content</span><span>Compare Plans</span>
-                  <span>Discussions</span><span>About creator</span><span>More courses</span>
-                </div>
-              </div>
-              <aside class="right">
-                <div class="plans"><span class="on">Basic</span><span>Standard</span><span>Premium</span></div>
-                <div class="price">$75.00</div>
-                <h4>Description</h4>
-                <ul class="feat">
-                  <li>4 thematic weeks</li>
-                  <li>29 comprehensive video lessons</li>
-                  <li>Interactive tests, assignments</li>
-                  <li>Hands-on projects</li>
-                  <li>Downloadable resources</li>
-                  <li>Community forum</li>
-                  <li>24/7 customer support</li>
-                  <li>Money-back guarantee</li>
-                </ul>
-                <div class="buy">Buy Course</div>
-                <div class="ghostlink">Preview</div>
-                <div class="ghostlink" style="color:#5b6274">Compare Plans</div>
-                <div class="hr"></div>
-                <p class="fine"><b>∞ Unlimited access</b>, anywhere, anytime<br>
-                ✦ Learn from hand-vetted creators, experts in their field</p>
-                <div class="hr"></div>
-                <p class="fine" style="text-align:center"><b>Gift Course</b> &nbsp;·&nbsp; <b>Apply Coupon</b><br>Try Personal Plan for Free</p>
-              </aside>
-            </div>
-          </div>
-        </div>
-      </div>
+    <!-- ============ Card 3 — Code Widgets (teal) ============ -->
+    <section class="card teal" id="code-widgets">
+      <div class="stage" role="img" aria-label="Educative lesson page: a course sidebar beside a lesson with an embedded multi-file code editor and its test-case results panel."></div>
       <div class="caption">
-        <div class="proj-name">EDUSTREAM LMS</div>
-        <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
-        <a class="go" href="#" aria-label="Open EduStream LMS case study">→</a>
+        <div class="proj-name">Code Widgets</div>
+        <p class="proj-desc">Bringing consistency to Educative code widgets through audits and revamps of their existing states</p>
+        <a class="go" href="Code-Widgets-Revamp.html" aria-label="Open Code Widgets case study">→</a>
       </div>
     </section>
   </main>

@@ -66,7 +66,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-of
   width:14px; height:14px; display:block;
   fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
 }
-/* .back is inert for now - no link, so no hover/focus treatment */
+.topbar .back:hover, .topbar .back:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
 .topbar .name{font-family:'IBM Plex Mono',monospace; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); white-space:nowrap;}
 .topbar .tabs{
   display:flex; align-items:center; gap:2px;
@@ -344,8 +344,10 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
 .botbar .nextproj{
   display:inline-flex; align-items:center; gap:10px;
   font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--muted); padding:7px 13px; line-height:1;
-}
+  color:var(--muted); padding:7px 13px; line-height:1; text-decoration:none;}
+.botbar .nextproj:hover, .botbar .nextproj:focus-visible{color:var(--accent-text);}
+.botbar .nextproj:hover .ar{transform:translateX(3px);}
+.botbar .nextproj .ar{transition:transform .15s ease;}
 /* SVG rather than "→": the glyph's ink sits above the text centre line, which
    is what left the arrow riding high next to the uppercase label */
 .botbar .nextproj .ar{display:flex; align-items:center; flex:0 0 auto;}
@@ -401,7 +403,7 @@ body.lb-open{overflow:hidden;}
    toggle icon never disagrees with what is on screen. */
 (function(){
   var t;
-  try{ t = localStorage.getItem('theme'); }catch(e){}
+  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
   if(t !== 'light' && t !== 'dark'){
     t = 'dark';
   }
@@ -413,7 +415,7 @@ body.lb-open{overflow:hidden;}
   <header class="topbar">
     <div class="bar">
       <span class="lead">
-        <span class="back" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></span>
+        <a class="back" href="index.html#code-widgets" aria-label="Back to work"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
         <span class="name">Code Widgets</span>
       </span>
       <nav class="tabs" aria-label="Sections">
@@ -737,7 +739,7 @@ body.lb-open{overflow:hidden;}
   <nav class="botbar" aria-label="Case study navigation">
     <div class="bar">
       <span class="cur">Code Widgets &bull; 2026</span>
-      <span class="nextproj">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></span>
+      <a class="nextproj" href="Sentinel-ERP.html" aria-label="Next project: Sentinel ERP">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
     </div>
   </nav>
 
@@ -812,7 +814,7 @@ body.lb-open{overflow:hidden;}
     }
     function apply(theme){
       root.setAttribute('data-theme', theme);
-      try{ localStorage.setItem('theme', theme); }catch(e){}
+      try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
       label();
     }
     // dark is the default and the page never follows the OS on its own; the

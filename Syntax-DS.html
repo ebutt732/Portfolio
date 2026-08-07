@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Syntax Design System – 5-Minute Case Study</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* Local faces first choice when this file sits next to the portfolio's fonts/
+   folder; the Google link above covers it when it doesn't. */
+@font-face{font-family:'Archivo';src:url(fonts/archivo.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:'IBM Plex Sans';src:url(fonts/ibm-plex-sans.woff2) format('woff2');font-weight:100 900;font-style:normal;font-display:swap;}
+@font-face{font-family:'IBM Plex Mono';src:url(fonts/ibm-plex-mono.woff2) format('woff2');font-weight:500;font-style:normal;font-display:swap;}
+
+/* Dark is the default theme: the bare :root carries the dark tokens, so the page
+   opens dark whatever the OS is set to. Light only arrives via an explicit
+   data-theme="light", which the toggle sets and localStorage remembers. */
+:root, :root[data-theme="dark"]{
+  color-scheme:dark;
+  --ground:#06020E; --panel:#151C24; --panel-2:#1B242E; --bar:#07020F; --bar-stroke:#0D1216;
+  --ink:#877891; --heading:#BBAAC6; --muted:#b8aec5; --line:#28323D; --line-soft:#1F2933;
+  --accent:#688DCA; --accent-text:#688DCA; --accent-soft:rgba(104,141,202,.10);
+  --ok:#4CC38A; --bad:#E5695E;
+  --hatch:rgba(231,236,241,.05);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
+  --shot-border:rgba(180,190,200,.4); --shot-shadow:0 10px 28px -14px rgba(0,0,0,.45);
+}
+:root[data-theme="light"]{
+  color-scheme:light;
+  --ground:#F2F4F6; --panel:#FFFFFF; --panel-2:#EAEEF1; --bar:#F2F4F6; --bar-stroke:#D6DCE2;
+  --ink:#141B23; --heading:#141B23; --muted:#5A6673; --line:#D6DCE2; --line-soft:#E3E8EC;
+  --accent:#688DCA; --accent-text:#3E69B0; --accent-soft:rgba(104,141,202,.10);
+  --ok:#1E7A4C; --bad:#B23A2E;
+  --hatch:rgba(20,27,35,.045);
+  --shadow:none;
+  --shot-border:rgba(120,132,145,.35); --shot-shadow:none;
+}
+
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth; overflow-x:clip;}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;}}
+body{
+  margin:0; background:var(--ground); color:var(--ink);
+  font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+  font-size:17px; line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  padding:54px 0 0;            /* clears the fixed top bar; footer is in-flow */
+  overflow-x:clip;
+}
+.wrap{max-width:1120px; margin:0 auto; padding:0 24px;}
+[id]{scroll-margin-top:20px;}  /* sections carry their own 52px top padding */
+h1,h2,h3{font-family:'Archivo','IBM Plex Sans',sans-serif; line-height:1.14; text-wrap:balance; margin:0; color:var(--heading);}
+h2{font-size:clamp(1.4rem,2.6vw,1.85rem); font-weight:700; letter-spacing:-.01em;}
+h3{font-size:1.08rem; font-weight:650;}
+p{margin:0 0 1em;}
+a{color:var(--accent-text); text-decoration-thickness:1px; text-underline-offset:3px;}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:2px;}
+.mono{font-family:'IBM Plex Mono',ui-monospace,monospace; font-weight:500;}
+b,strong{color:var(--heading);}
+code{
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:.84em;
+  background:var(--accent-soft); color:var(--accent-text);
+  padding:2px 6px; border-radius:4px;
+}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace; font-weight:500;
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--accent-text); display:flex; align-items:center; gap:10px; margin-bottom:12px;
+}
+.eyebrow::after{content:""; height:1px; flex:0 0 36px; background:var(--accent); opacity:.5;}
+.muted{color:var(--muted);}
+
+/* ---------- fixed top bar (54px) ---------- */
+.topbar{
+  position:fixed; top:0; left:0; right:0; z-index:100; height:54px;
+  background:var(--bar); border-bottom:1px solid var(--bar-stroke);
+}
+.topbar .bar{height:54px; display:flex; align-items:center; gap:28px; padding:0 24px; max-width:1120px; margin:0 auto;}
+.topbar .lead{display:flex; align-items:center; gap:12px; flex:0 0 auto;}
+.topbar .back{
+  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+  flex:0 0 28px; padding:0; border-radius:7px; border:1px solid var(--line);
+  color:var(--muted); text-decoration:none; line-height:0;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.topbar .back:hover, .topbar .back:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.topbar .back svg{
+  width:14px; height:14px; display:block;
+  fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
+}
+.topbar .name{font-family:'IBM Plex Mono',monospace; font-size:.78rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); white-space:nowrap;}
+.topbar .tabs{
+  display:flex; align-items:center; gap:2px;
+  overflow-x:auto; scrollbar-width:none;
+  flex:0 1 auto; min-width:0;    /* lets the strip shrink and scroll */
+  position:relative;
+  scroll-behavior:smooth;
+}
+@media (prefers-reduced-motion: reduce){ .topbar .tabs{scroll-behavior:auto;} }
+.topbar .tabs::-webkit-scrollbar{display:none;}
+.topbar .tabs a{
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); text-decoration:none; padding:6px 11px; border-radius:7px; white-space:nowrap;
+  transition:background .15s ease, color .15s ease;
+}
+.topbar .tabs a:hover{color:var(--heading);}
+.topbar .tabs a.active{color:var(--accent-text); background:var(--accent-soft);}
+.topbar .endgrp{margin-left:auto; flex:0 0 auto; display:flex; align-items:center; gap:12px;}
+.topbar .readtime{
+  flex:0 0 auto; font-family:'IBM Plex Mono',monospace; font-size:.66rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--accent-text);
+  display:flex; align-items:center; gap:7px; white-space:nowrap;
+}
+.topbar .readtime::before{content:"●"; font-size:.5rem;}
+
+/* theme toggle - matches the .back button on the left of the bar */
+.themetoggle{
+  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+  flex:0 0 auto; padding:0; border-radius:7px; border:1px solid var(--line);
+  background:transparent; color:var(--muted); cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.themetoggle:hover, .themetoggle:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.themetoggle svg{width:15px; height:15px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+/* show the icon for the theme the click will switch TO */
+.themetoggle .i-sun{display:block;}
+.themetoggle .i-moon{display:none;}
+:root[data-theme="light"] .themetoggle .i-sun{display:none;}
+:root[data-theme="light"] .themetoggle .i-moon{display:block;}
+
+/* ---------- footer bar (in-flow, at end of page) ---------- */
+.botbar{height:54px; background:var(--bar); border-top:1px solid var(--bar-stroke);}
+.botbar .bar{height:54px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 24px; max-width:1120px; margin:0 auto;}
+.botbar .nextproj{
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--muted); padding:7px 13px; line-height:1; text-decoration:none;}
+.botbar .nextproj:hover, .botbar .nextproj:focus-visible{color:var(--accent-text);}
+.botbar .nextproj:hover .ar{transform:translateX(3px);}
+.botbar .nextproj .ar{transition:transform .15s ease;}
+.botbar .nextproj .ar{display:flex; align-items:center; flex:0 0 auto;}
+.botbar .nextproj .ar svg{
+  width:14px; height:14px; display:block;
+  fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;
+}
+.botbar .cur{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+@media (max-width:560px){
+  .topbar .name{display:none;}
+  .topbar .readtime{display:none;}   /* keep the section nav readable; toggle stays */
+}
+
+/* ---------- hero ---------- */
+.hero{padding:44px 0 8px;}
+/* max-width tuned so the two-line break lands after "design" at every size */
+.hero h1{font-size:clamp(2.05rem,4.6vw,3.4rem); font-weight:700; letter-spacing:-.015em; max-width:21ch;}
+.hero .sub{font-size:1.08rem; color:var(--muted); max-width:56ch; margin-top:18px;}
+.meta{
+  margin-top:32px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+}
+.meta div{padding:14px 16px 14px 0; border-right:1px solid var(--line-soft);}
+.meta div:last-child{border-right:none;}
+.meta dt{font-family:'IBM Plex Mono',monospace; font-size:.64rem; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); margin:0 0 5px;}
+.meta dd{margin:0; font-size:.88rem; font-weight:600; color:var(--heading);}
+
+/* ---------- numbered sections ---------- */
+section.sec{padding:52px 0 4px;}
+.secnum{
+  font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.13em;
+  color:var(--accent-text); display:block; margin-bottom:8px;
+}
+section.sec > h2{margin-bottom:16px; max-width:32ch;}
+
+/* ---------- cards ---------- */
+.grid2{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); margin:20px 0;}
+.grid3{display:grid; gap:14px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); margin:20px 0;}
+.card{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:18px 18px 16px; box-shadow:var(--shadow);}
+.card .tag{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-text); display:block; margin-bottom:8px;}
+.card h3{margin-bottom:6px;}
+.card p{font-size:.92rem; color:var(--muted); margin-bottom:0;}
+
+.scan{list-style:none; margin:16px 0; padding:0; max-width:70ch;}
+.scan li{position:relative; padding:10px 0 10px 26px; border-top:1px solid var(--line-soft); font-size:.96rem;}
+.scan li:first-child{border-top:none;}
+.scan li::before{content:"✕"; position:absolute; left:2px; color:var(--bad); font-family:'IBM Plex Mono',monospace; font-size:.78rem;}
+.scan.ok li::before{content:"✓"; color:var(--ok);}
+.scan li b{font-weight:650;}
+
+/* audience list - same rhythm as .scan, emoji markers instead of a glyph */
+.personas{list-style:none; margin:16px 0 18px; padding:0; max-width:62ch;}
+.personas li{
+  display:flex; align-items:baseline; gap:12px;
+  padding:11px 0; border-top:1px solid var(--line-soft); font-size:.96rem;
+}
+.personas li:first-child{border-top:none;}
+.personas .ico{flex:0 0 1.6em; font-style:normal; font-size:1rem; line-height:1.4;}
+.personas b{font-weight:650; color:var(--heading);}
+
+.pull{
+  margin:26px 0; padding:4px 0 4px 20px; border-left:3px solid var(--accent);
+  font-family:'Archivo',sans-serif; font-size:clamp(1.15rem,2.2vw,1.45rem);
+  font-weight:650; line-height:1.32; letter-spacing:-.01em; max-width:30ch; text-wrap:balance;
+  color:var(--heading);
+}
+.pull small{display:block; margin-top:8px; font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted); font-weight:500;}
+
+/* ---------- process story cards ---------- */
+.story{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0;}
+.story .step{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; box-shadow:var(--shadow);}
+.story .k{font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:7px;}
+.story .step.win{border-color:var(--accent);}
+.story .step.win .k{color:var(--accent-text);}
+.story p{font-size:.9rem; margin:0;}
+
+/* ---------- graphics kept from the original Syntax brief ----------
+   Hatched panels standing in for the component screenshots, in the same
+   figure/caption rhythm the rest of the page uses. */
+.figrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; margin:30px 0 0;}
+.figrow figure{margin:0;}
+figure.shotfig{margin:32px 0 0;}
+.slot{
+  position:relative; border:1px solid var(--line); border-radius:12px;
+  background:
+    repeating-linear-gradient(45deg, var(--hatch) 0 1.5px, transparent 1.5px 14px),
+    var(--panel-2);
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  padding:28px; overflow:hidden; min-height:250px;
+}
+.slot.tall{min-height:300px;}
+.slot .in{max-width:44ch;}
+.slot .fig{
+  display:inline-block; font-family:'IBM Plex Mono',monospace; font-size:.62rem;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--accent-text);
+  border:1px solid var(--accent); border-radius:999px; padding:3px 11px; margin-bottom:12px;
+  background:var(--ground);
+}
+.slot h4{font-family:'Archivo',sans-serif; font-weight:650; font-size:1.05rem; margin:0 0 6px; color:var(--heading);}
+.slot p{font-size:.86rem; color:var(--muted); margin:0;}
+figure figcaption{
+  margin-top:14px; text-align:center; line-height:1.5;
+  font-family:'IBM Plex Mono',monospace; font-size:.66rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted);
+}
+
+/* hero graphic: mild bleed past the text column, same as the reference */
+.heroshot{margin:36px 0 0; padding:0;}
+.heroshot .shot{
+  display:block; position:relative;
+  width:min(1342px, calc(100vw - 32px));
+  margin-left:50%; transform:translateX(-50%);
+}
+.heroshot .slot{min-height:320px; border-radius:12px;}
+.heroshot figcaption{text-align:left;}
+
+/* ---------- full-width end banner ---------- */
+.endbanner{
+  width:100%; margin:52px 0 0;
+  background:var(--panel-2); border-top:1px solid var(--line-soft);
+}
+.endbanner .slot{border:none; border-radius:0; min-height:230px;}
+.endbanner figcaption{padding:0 24px 18px; margin-top:0;}
+
+/* ---------- stat banner ---------- */
+.statband{
+  margin:34px 0 30px; padding:26px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+}
+.statband div{padding:6px 16px 6px 0; border-right:1px solid var(--line-soft);}
+.statband div:last-child{border-right:none;}
+.statband .num{
+  font-family:'Archivo',sans-serif; font-weight:700; font-size:clamp(1.7rem,3.2vw,2.3rem);
+  letter-spacing:-.02em; line-height:1; font-variant-numeric:tabular-nums; color:var(--heading);
+}
+.statband .num i{font-style:normal; font-size:.55em; color:var(--accent-text); padding:0 .12em;}
+.statband .lbl{font-size:.76rem; color:var(--muted); margin-top:7px; line-height:1.35;}
+
+/* ---------- lessons ---------- */
+.lessons{list-style:none; margin:18px 0; padding:0; counter-reset:les;}
+.lessons li{counter-increment:les; position:relative; padding:13px 0 13px 44px; border-top:1px solid var(--line-soft); font-size:.98rem;}
+.lessons li:first-child{border-top:none;}
+.lessons li::before{
+  content:"0" counter(les); position:absolute; left:0; top:13px;
+  font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--accent-text); letter-spacing:.08em;
+}
+.lessons span{display:block; font-size:.9rem; color:var(--muted); margin-top:3px;}
+
+/* ---------- closing ---------- */
+.closing{
+  margin:32px 0 8px; padding:26px 24px; border-radius:12px; background:var(--panel-2);
+  border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.closing p{margin:0; font-size:.95rem; max-width:44ch;}
+.closing .badge{
+  font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--accent-text); border:1px solid var(--accent); border-radius:999px; padding:7px 16px; white-space:nowrap;
+  text-decoration:none; transition:background .15s ease;
+}
+.closing .badge:hover, .closing .badge:focus-visible{background:var(--accent-soft);}
+</style>
+
+<script>
+/* Resolve the theme before first paint so data-theme is always set and the
+   toggle icon never disagrees with what is on screen. Dark is the default. */
+(function(){
+  var t;
+  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
+  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+})();
+</script>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="bar">
+    <span class="lead">
+      <a class="back" href="index.html#syntax-ds" aria-label="Back to work"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
+      <span class="name">Syntax · Educative</span>
+    </span>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#overview">Overview</a>
+      <a href="#problem">Problem</a>
+      <a href="#process">Process</a>
+      <a href="#color">Color</a>
+      <a href="#impact">Impact</a>
+      <a href="#conclusion">Conclusion</a>
+    </nav>
+    <span class="endgrp">
+      <span class="readtime">5 min read</span>
+      <button type="button" class="themetoggle" id="themeToggle" aria-label="Switch to light theme" title="Switch theme">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
+      </button>
+    </span>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="overview">
+    <div class="eyebrow">Design System · Web, Mobile &amp; Tablet</div>
+    <h1>Making the Syntax design system scale.</h1>
+    <p class="sub">128 component variants unified across Educative's ten most-visited
+    screens — one canonical component, one token system, one source of truth.</p>
+
+    <dl class="meta">
+      <div><dt>Initiative</dt><dd>Syntax · Educative</dd></div>
+      <div><dt>Scope</dt><dd>128 components · FAT10</dd></div>
+      <div><dt>Platforms</dt><dd>Web, Mobile, Tablet</dd></div>
+      <div><dt>Q1 outcome</dt><dd>43% of core components unified</dd></div>
+    </dl>
+
+    <figure class="heroshot">
+      <span class="shot">
+        <div class="slot">
+          <div class="in">
+            <div class="fig">Hero</div>
+            <h4>Components unified across FAT10 core screens</h4>
+            <p>One canonical variant per component type, applied everywhere — instances update automatically.</p>
+          </div>
+        </div>
+      </span>
+      <figcaption>Syntax components in the core navigation screens (web)</figcaption>
+    </figure>
+  </section>
+
+  <!-- ================= 01 OVERVIEW ================= -->
+  <section class="sec">
+    <span class="secnum">01 / PROJECT OVERVIEW</span>
+    <h2>Ten screens, three audiences, no shared source of truth</h2>
+    <p class="muted" style="max-width:62ch;">FAT10 is Educative's ten most-visited screens and
+    core navigation points — the journeys millions of learners traverse. As the platform grew,
+    those screens accumulated hundreds of component variations built without shared governance.
+    Three groups felt it differently:</p>
+    <ul class="personas">
+      <li><span class="ico" aria-hidden="true">👥</span><span><b>Learners:</b> met different interaction patterns and hierarchy on screens that should feel the same</span></li>
+      <li><span class="ico" aria-hidden="true">🎨</span><span><b>Designers:</b> rebuilt variants from scratch and hunted for the "right" style every time</span></li>
+      <li><span class="ico" aria-hidden="true">⚙️</span><span><b>Developers:</b> maintained parallel implementations of the same component across 50+ files</span></li>
+    </ul>
+    <p class="muted" style="max-width:62ch;">My job was to turn that landscape into one system
+    designers and developers would actually reach for — across web, mobile, and tablet.</p>
+  </section>
+
+  <!-- ================= 02 PROBLEM ================= -->
+  <section class="sec" id="problem">
+    <span class="secnum">02 / PROBLEM · CHALLENGE · GOAL</span>
+    <h2>Consistency at scale</h2>
+    <ul class="scan">
+      <li><b>Design chaos</b> – 128 component instances across FAT10 with no unification strategy.</li>
+      <li><b>Dev burden</b> – logos, cards and accordions each reimplemented in several code modules.</li>
+      <li><b>Token explosion</b> – a palette grown to 188 colors, many unused or near-duplicate.</li>
+      <li><b>Maintenance tax</b> – a brand color change meant edits across 50+ files; bug fixes didn't propagate.</li>
+    </ul>
+    <div class="grid2">
+      <div class="card">
+        <span class="tag">Goal 01</span>
+        <h3>One canonical variant</h3>
+        <p>Every component type resolves to a single system component — two only where layout genuinely demands it.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Goal 02</span>
+        <h3>Accessible by default</h3>
+        <p>WCAG compliance built into the component, not rediscovered in a page-by-page audit.</p>
+      </div>
+    </div>
+    <div class="pull">Designers were spending 3–5 days recreating work that already existed.</div>
+
+    <figure class="shotfig">
+      <div class="slot tall">
+        <div class="in">
+          <div class="fig">Before</div>
+          <h4>Chaotic variants</h4>
+          <p>Company logos, content cards and accordions — each carrying six or more inconsistent treatments across course pages, landing pages and modals.</p>
+        </div>
+      </div>
+      <figcaption>Before: the same component, six ways</figcaption>
+    </figure>
+  </section>
+
+  <!-- ================= 03 PROCESS ================= -->
+  <section class="sec" id="process">
+    <span class="secnum">03 / PROCESS · EXECUTION</span>
+    <h2>Audit first, then design once</h2>
+    <p class="muted" style="max-width:62ch;">Rather than a big-bang rewrite, we phased it:
+    inventory what exists, rank it by real usage, design one canonical variant, and roll it out
+    incrementally. Of 128 instances, 55 were targeted for Q1 — the highest-frequency,
+    highest-impact components.</p>
+
+    <div class="story">
+      <div class="step">
+        <span class="k">Step 01 – Audit</span>
+        <p>Grepped the codebase for color and token occurrences and cross-checked platform analytics with engineering. Ground truth on what was actually used.</p>
+      </div>
+      <div class="step win">
+        <span class="k">Step 02 – Design · adopted</span>
+        <p>One canonical variant per component (two where full-width and two-column layouts both existed), validated against WCAG across 50+ states.</p>
+      </div>
+      <div class="step">
+        <span class="k">Step 03 – Roll out</span>
+        <p>New designs replaced the originals in place, so every instance across FAT10 updated automatically instead of screen by screen.</p>
+      </div>
+    </div>
+
+    <div class="figrow">
+      <figure>
+        <div class="slot">
+          <div class="in">
+            <div class="fig">Audit</div>
+            <h4>Component inventory + usage metrics</h4>
+            <p>All 128 instances mapped by type, variant count and usage frequency.</p>
+          </div>
+        </div>
+        <figcaption>Ranking components by real usage</figcaption>
+      </figure>
+      <figure>
+        <div class="slot">
+          <div class="in">
+            <div class="fig">Design</div>
+            <h4>Canonical variant explorations</h4>
+            <p>Competitive analysis of mature design systems informed structure and naming.</p>
+          </div>
+        </div>
+        <figcaption>Converging six variants into one</figcaption>
+      </figure>
+    </div>
+
+    <h3 style="margin-top:36px;">Three worked examples</h3>
+    <div class="grid3">
+      <div class="card">
+        <span class="tag">Example 01</span>
+        <h3>Company logos</h3>
+        <p>Six treatments across course pages, landing pages and modals → two canonical variants (vertical, horizontal). One design day, one eng day.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Example 02</span>
+        <h3>Content cards</h3>
+        <p>Course, testimonial and feature cards each had their own internal structure → one card with composable inner elements. New card types now ship in hours.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Example 03</span>
+        <h3>Accordions</h3>
+        <p>Curriculum, FAQ and code-lab accordions each behaved differently → a single interaction model, standardized platform-wide.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 04 COLOR & TOKENS ================= -->
+  <section class="sec" id="color">
+    <span class="secnum">04 / DEEP DIVE · COLOR &amp; TOKENS</span>
+    <h2>From 188 colors to a three-layer token system</h2>
+    <p class="muted" style="max-width:62ch;">The palette had grown organically for years: 188
+    colors, 115 tokens, three color families no component relied on, and a dark mode that was a
+    straight copy of light. We eliminated everything with zero occurrences, folded low-usage
+    shades into their nearest primary, and rebuilt dark mode from scratch.</p>
+
+    <div class="statband">
+      <div><span class="num">188<i>→</i>74</span><div class="lbl">colors in the palette</div></div>
+      <div><span class="num">115<i>→</i>80</span><div class="lbl">tokens after reduction</div></div>
+      <div><span class="num">3</span><div class="lbl">unused color families removed</div></div>
+      <div><span class="num">100%</span><div class="lbl">dark mode redesigned &amp; WCAG-checked</div></div>
+    </div>
+
+    <div class="grid3">
+      <div class="card">
+        <span class="tag">Layer 1</span>
+        <h3>Color palettes</h3>
+        <p>Named by hue plus darkness scale — <code>grey-50</code> through <code>grey-1000</code>. No ambiguity, clear progression.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Layer 2</span>
+        <h3>Semantic tokens</h3>
+        <p>Three types (background, stroke, content) × six purposes (neutral, brand, success, warning, danger, additional) — <code>bg-primary</code>, <code>stroke-success</code>.</p>
+      </div>
+      <div class="card">
+        <span class="tag">Layer 3</span>
+        <h3>Component themes</h3>
+        <p>Theme tokens bind semantics to components. Pick "success" and background, stroke and text resolve themselves.</p>
+      </div>
+    </div>
+    <p class="muted" style="max-width:62ch; margin-top:18px;">Roughly three weeks of front-loaded
+    design and engineering work — including the dark mode rebuild and WCAG validation — that paid
+    off across every component that followed.</p>
+  </section>
+
+  <!-- ================= 05 IMPACT ================= -->
+  <section class="sec" id="impact">
+    <span class="secnum">05 / IMPACT</span>
+    <h2>A system people reach for</h2>
+    <div class="statband">
+      <div><span class="num">43%</span><div class="lbl">of FAT10 components unified in Q1</div></div>
+      <div><span class="num">1–2 days</span><div class="lbl">design time, down from 3–5</div></div>
+      <div><span class="num">40%</span><div class="lbl">CSS color-token bloat removed</div></div>
+      <div><span class="num">100%</span><div class="lbl">WCAG coverage on shipped components</div></div>
+    </div>
+    <ul class="scan ok">
+      <li><b>Users</b> – familiar interaction patterns and hierarchy across the screens they use most, with accessibility guaranteed at the component level.</li>
+      <li><b>Business</b> – new features assemble from system components instead of starting from scratch; one visual language across web, mobile and tablet.</li>
+      <li><b>Design &amp; dev</b> – a single source of truth: a button fix that took two hours now takes five minutes, and a brand color change is one edit.</li>
+    </ul>
+    <div class="pull">Adoption happened because unification was the fastest path — not because it was mandated.<small>Key insight</small></div>
+  </section>
+
+  <!-- ================= 06 CONCLUSION ================= -->
+  <section class="sec" id="conclusion">
+    <span class="secnum">06 / CONCLUSION · NEXT STEPS · LEARNINGS</span>
+    <h2>What this project taught me</h2>
+    <ol class="lessons">
+      <li><b>Audit with data, not opinion.</b><span>Occurrence counts settled arguments that taste never would.</span></li>
+      <li><b>Standardize interaction before visuals.</b><span>Variant bloat started with behavior, not styling — the accordions proved it.</span></li>
+      <li><b>Adoption follows convenience.</b><span>Copy-pasting a unified card takes 30 seconds; rebuilding takes a day. That's the whole strategy.</span></li>
+    </ol>
+    <div class="closing">
+      <p>Q1 shipped 43% of core components; Q2 closed the remaining 57%. Syntax now grows with
+      the product — new components follow its patterns and naming without a central gatekeeper.</p>
+      <span class="badge">Living system · ongoing</span>
+    </div>
+  </section>
+
+</div>
+
+<figure class="endbanner" aria-label="Unified system banner">
+  <div class="slot">
+    <div class="in">
+      <div class="fig">After</div>
+      <h4>One unified system</h4>
+      <p>43% of FAT10 shipped on Syntax components in Q1 — consistent, tokenized and accessible by default.</p>
+    </div>
+  </div>
+  <figcaption>More of the system &mdash; Syntax Design System</figcaption>
+</figure>
+
+<nav class="botbar" aria-label="Case study navigation">
+  <div class="bar">
+    <span class="cur">Syntax &bull; 2025</span>
+    <a class="nextproj" href="Code-Widgets-Revamp.html" aria-label="Next project: Code Widgets">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</nav>
+
+<script>
+/* ---- section tabs: scroll-spy + keep the active tab in view ---- */
+(function(){
+  var strip = document.querySelector('.topbar .tabs');
+  var tabs = [].slice.call(document.querySelectorAll('.topbar .tabs a'));
+  var sections = tabs
+    .map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); })
+    .filter(Boolean);
+  var activeId = null;
+
+  // on narrow screens the tab strip overflows; carry the active tab into view
+  // so there is always a highlighted tab on screen
+  function reveal(el){
+    if (!el || !strip || strip.scrollWidth <= strip.clientWidth + 1) return;
+    var target = el.offsetLeft - (strip.clientWidth - el.offsetWidth) / 2;
+    target = Math.max(0, Math.min(strip.scrollWidth - strip.clientWidth, target));
+    if (Math.abs(target - strip.scrollLeft) < 2) return;
+    strip.scrollLeft = target;
+  }
+  function setActive(id){
+    if (id === activeId) return;
+    activeId = id;
+    var el = null;
+    tabs.forEach(function(a){
+      var on = a.getAttribute('href') === '#' + id;
+      a.classList.toggle('active', on);
+      if (on) el = a;
+    });
+    reveal(el);
+  }
+  tabs.forEach(function(a){
+    a.addEventListener('click', function(){ setActive(a.getAttribute('href').slice(1)); });
+  });
+  var ticking = false;
+  function update(){
+    ticking = false;
+    // the reading line sits just below the 54px header; through the final
+    // screenful the page runs out of scroll, so the line slides down instead
+    var max  = document.documentElement.scrollHeight - window.innerHeight;
+    var tail = window.scrollY - (max - window.innerHeight);
+    var line = 72 + Math.max(0, tail);
+    var current = sections[0] && sections[0].id;
+    for (var i = 0; i < sections.length; i++){
+      if (sections[i].getBoundingClientRect().top <= line) current = sections[i].id;
+    }
+    if (current) setActive(current);
+  }
+  window.addEventListener('scroll', function(){
+    if (!ticking){ ticking = true; requestAnimationFrame(update); }
+  }, {passive:true});
+  window.addEventListener('resize', update, {passive:true});
+  update();
+})();
+
+/* ---- light / dark toggle ---- */
+(function(){
+  var root = document.documentElement;
+  var btn  = document.getElementById('themeToggle');
+  if (!btn) return;
+  function label(){
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    btn.setAttribute('aria-label', 'Switch to ' + next + ' theme');
+    btn.setAttribute('title', 'Switch to ' + next + ' theme');
+  }
+  function apply(theme){
+    root.setAttribute('data-theme', theme);
+    try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+    label();
+  }
+  // dark is the default and the page never follows the OS on its own; the
+  // toggle is the only thing that moves it, and the choice is remembered
+  btn.addEventListener('click', function(){
+    apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+  });
+  label();
+})();
+</script>
+</body>
+</html>
