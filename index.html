@@ -313,26 +313,30 @@
      footer is a snap stop, so its text lands just under the fold of that
      40 rather than a screen further down. */
   .projects{position:relative;z-index:2;padding-top:40px;display:flex;flex-direction:column;gap:112px;padding-bottom:40px}
-  /* Scrolling the projects hands off from one card to the next: a scroll down
-     from the blue card settles the purple one at the top of the screen rather
-     than leaving it half off. mandatory rather than proximity, because
-     proximity only pulls once you are already most of the way there, which is
-     the whole thing it was meant to save. mandatory needs somewhere to rest
-     outside the list too, or the footer would be snapped back out of - so the
-     hero and the footer are snap points of their own, and the page reads as
-     one stop per screen. Cards taller than the viewport are exempt by spec:
-     while a snap area covers the whole snapport the scroll rests freely
-     inside it, so a long caption is never scrolled past unreadably. */
-  html{scroll-snap-type:y mandatory}
-  /* nav, not .hero - the hero starts below the bar, so snapping to it made
-     scroll 0 unreachable and the header impossible to get back to. */
-  nav,footer{scroll-snap-align:start}
+  /* Scrolling the projects hands off from one card to the next - but proximity,
+     not mandatory, and the difference is the whole bug. mandatory must come to
+     rest on a snap point, and the first two were the top of the page and the
+     first card ~900px below it, with nothing between. Any scroll ending in the
+     first half of that gap was dragged back to 0: you pushed the page down and
+     it bounced to the top. mandatory suits a deck of equal full-height panels,
+     which this - a tall hero, then cards - is not.
+
+     scroll-snap-stop:always on the cards is what actually does the work.
+     proximity alone only pulls once you are near a card, but snap-stop forbids
+     the scroll passing over one, so a flick down from the hero still comes to
+     rest on the blue card rather than sailing past it. That is the handoff,
+     without the page ever fighting a deliberate scroll. The top needs no snap
+     point of its own now, so nothing tugs at the header. */
+  html{scroll-snap-type:y proximity}
+  footer{scroll-snap-align:start}
+  /* snapping is motion the reader did not ask for */
+  @media (prefers-reduced-motion: reduce){html{scroll-snap-type:none}}
   .card{
     border-radius:28px;overflow:hidden;position:relative;
     /* each card is both an anchor target for its case study's back button and a
        snap position, and scroll-margin sets where both of them land. snap-stop
-       makes each one catch, so a fast flick moves one project rather than
-       skidding past two. */
+       is what makes each one catch under proximity: the scroll may not pass
+       over a card without stopping, so one flick moves one project. */
     scroll-margin-top:28px;scroll-snap-align:start;scroll-snap-stop:always;
     box-shadow:var(--card-shadow);
   }
