@@ -187,6 +187,36 @@ main > section:first-child{padding-top:56px;}   /* gap from the header to the fi
 .job li{position:relative; padding:0 0 6px 22px; font-size:1rem; line-height:1.55; color:var(--ink);}
 .job li::before{content:"•"; position:absolute; left:4px; color:var(--ink);}
 
+/* ---------- view full CV ---------- */
+/* Sized off the touch target rather than the type: 52px tall and its own line,
+   so it is reachable on a phone without becoming a banner on a desktop. It
+   borrows the bordered-pill treatment the socials and the theme toggle already
+   use, so it reads as this page's control rather than a new one. */
+.cv-btn{
+  display:inline-flex; align-items:center; gap:12px;
+  margin-top:34px; min-height:52px; padding:0 22px;
+  border:1px solid var(--line); border-radius:12px;
+  color:var(--muted); text-decoration:none;
+  font-family:'IBM Plex Sans',sans-serif; font-size:16px; font-weight:500;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+.cv-btn:hover, .cv-btn:focus-visible{
+  background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);
+}
+.cv-btn .cv-ico{display:flex; flex:0 0 auto;}
+.cv-btn .cv-ico svg{
+  width:19px; height:19px; display:block;
+  fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;
+}
+/* the format and weight sit back from the label - useful before you tap, not
+   part of the call to action */
+.cv-btn .cv-meta{
+  font-family:'IBM Plex Mono',ui-monospace,monospace;
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink); white-space:nowrap;
+}
+.cv-btn:hover .cv-meta, .cv-btn:focus-visible .cv-meta{color:inherit;}
+
 /* ---------- toolkit ---------- */
 .toolkit{display:flex; flex-wrap:wrap; gap:24px;}
 /* box-sizing:border-box means the 1px sits inside the 64px box rather than
@@ -308,6 +338,9 @@ footer::before{
   .contact-side{padding-bottom:0;}
 }
 @media (max-width:680px){
+  /* full width on a phone - a 52px pill floating in a wide column is easy to
+     miss, and the row is the most reliable thing to hit with a thumb */
+  .cv-btn{display:flex; width:100%; justify-content:center;}
   body{font-size:16px;}
   .topbar .bar{height:76px; gap:16px;}
   .topbar .endgrp{gap:16px;}
@@ -421,6 +454,14 @@ footer::before{
         </ul>
       </div>
     </div>
+
+    <a class="cv-btn" href="assets/Eeman-Butt-Product-Designer.pdf" target="_blank" rel="noopener">
+      <span class="cv-ico" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z"/><path d="M14 3v4.5A1.5 1.5 0 0 0 15.5 9H19"/></svg>
+      </span>
+      <span class="cv-label">View Full CV</span>
+      <span class="cv-meta">PDF &middot; 239&nbsp;KB</span>
+    </a>
   </section>
 
   <!-- ================= TOOLKIT ================= -->
