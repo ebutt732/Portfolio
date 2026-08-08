@@ -1,0 +1,60 @@
+<!-- ==========================================================================
+     PARKED: the Skills section, lifted out of about.html.
+
+     Removed on request until the content is refined - nothing about it was
+     changed on the way out, so restoring is a paste, not a rebuild.
+
+     TO RESTORE, put each piece back where it came from:
+
+     1. MARKUP -> into about.html between the #nutshell and #experience
+        sections.
+     2. BASE CSS -> into about.html's <style>, immediately before the
+        "/* ---------- experience ---------- */" block.
+     3. RESPONSIVE -> one line into each of two of about.html's existing
+        breakpoints: repeat(3,1fr) into @media (max-width:980px), and
+        repeat(2,1fr) into @media (max-width:680px).
+
+     Note: about.html's .nutshell rule sizes the portrait column with the same
+     expression this grid uses, so that the two stay in step. That comment in
+     about.html now refers to this file - if the column count or gap changes
+     here, .nutshell wants the same change.
+     ========================================================================== -->
+
+<!-- ============================== 1. MARKUP ============================== -->
+  <section id="skills">
+    <p class="eyebrow">Skills</p>
+    <!-- IMAGE SLOTS: one per skill card. Drop <img src="..." alt=""> inside each .card. -->
+    <div class="skills">
+      <div class="frame card"><span class="lbl">Design system</span></div>
+      <div class="frame card"><span class="lbl">Interactions</span></div>
+      <div class="frame card"><span class="lbl">Dark mode</span></div>
+      <div class="frame card"><span class="lbl">UI audits</span></div>
+      <div class="frame card"><span class="lbl">Trends analysis</span></div>
+    </div>
+  </section>
+
+<!-- ============================= 2. BASE CSS ============================= -->
+<style>
+/* ---------- skills ---------- */
+.skills{display:grid; grid-template-columns:repeat(5,1fr); gap:22px;}
+.skills .card{
+  aspect-ratio:1/1; position:relative;
+  display:flex; align-items:flex-end; justify-content:center; padding-bottom:22px;
+}
+.skills .card .lbl{
+  font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:calc(.68rem + 2px); font-weight:500;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--muted); text-align:center;
+}
+/* an image dropped into a skill card sits behind its label */
+.skills .card > img{position:absolute; inset:0; width:100%; height:100%; object-fit:cover;}
+</style>
+
+<!-- ============================ 3. RESPONSIVE ============================ -->
+<style>
+@media (max-width:980px){
+  .skills{grid-template-columns:repeat(3,1fr);}
+}
+@media (max-width:680px){
+  .skills{grid-template-columns:repeat(2,1fr);}
+}
+</style>
