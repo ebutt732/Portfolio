@@ -308,7 +308,11 @@
   }
 
   /* ---------- project cards ---------- */
-  .projects{position:relative;z-index:2;padding-top:40px;display:flex;flex-direction:column;gap:112px;padding-bottom:96px}
+  /* padding-bottom carries the whole gap to the footer now: the footer's own
+     top padding is zero, so 40px is 40px rather than 40 stacked on 76. The
+     footer is a snap stop, so its text lands just under the fold of that
+     40 rather than a screen further down. */
+  .projects{position:relative;z-index:2;padding-top:40px;display:flex;flex-direction:column;gap:112px;padding-bottom:40px}
   /* Scrolling the projects hands off from one card to the next: a scroll down
      from the blue card settles the purple one at the top of the screen rather
      than leaving it half off. mandatory rather than proximity, because
@@ -750,7 +754,7 @@
      card, which read as a gap rather than a section break. The separation is
      carried by the ground instead - the grid, and the glow below - so the space
      can come down without the footer running into the cards above it. */
-  footer{position:relative;margin-top:0;overflow:hidden;padding:76px 0 56px}
+  footer{position:relative;margin-top:0;overflow:hidden;padding:0 0 56px}
   /* Top-left counterpart to the glow the grid already throws bottom-right, so
      the footer opens on a wash the way the top of the page does and reads as
      its own section rather than as the tail of the one above. Above the grid
