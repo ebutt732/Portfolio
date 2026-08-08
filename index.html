@@ -309,10 +309,27 @@
 
   /* ---------- project cards ---------- */
   .projects{position:relative;z-index:2;padding-top:40px;display:flex;flex-direction:column;gap:112px;padding-bottom:96px}
+  /* Scrolling the projects hands off from one card to the next: a scroll down
+     from the blue card settles the purple one at the top of the screen rather
+     than leaving it half off. mandatory rather than proximity, because
+     proximity only pulls once you are already most of the way there, which is
+     the whole thing it was meant to save. mandatory needs somewhere to rest
+     outside the list too, or the footer would be snapped back out of - so the
+     hero and the footer are snap points of their own, and the page reads as
+     one stop per screen. Cards taller than the viewport are exempt by spec:
+     while a snap area covers the whole snapport the scroll rests freely
+     inside it, so a long caption is never scrolled past unreadably. */
+  html{scroll-snap-type:y mandatory}
+  /* nav, not .hero - the hero starts below the bar, so snapping to it made
+     scroll 0 unreachable and the header impossible to get back to. */
+  nav,footer{scroll-snap-align:start}
   .card{
     border-radius:28px;overflow:hidden;position:relative;
-    /* each card is an anchor target for its case study's back button */
-    scroll-margin-top:28px;
+    /* each card is both an anchor target for its case study's back button and a
+       snap position, and scroll-margin sets where both of them land. snap-stop
+       makes each one catch, so a fast flick moves one project rather than
+       skidding past two. */
+    scroll-margin-top:28px;scroll-snap-align:start;scroll-snap-stop:always;
     box-shadow:var(--card-shadow);
   }
   /* The stage is now the export itself - shot, inset and body gradient all
@@ -341,18 +358,18 @@
   }
   :root:not([data-theme="light"]) .card.blue .caption{
     background:linear-gradient(90deg,
-      #0e1d45 0%,#0e1d45 5%,#0d193d 10%,#0b142f 15%,#0b0f23 20%,#0a0b1b 25%,
-      #0a0815 30%,#090712 35%,#090712 40%,#0a0815 45%,#0a0b1c 50%,#0b1026 55%,
-      #0b1533 60%,#0d1a3f 65%,#0e1e47 70%,#0d204b 75%,#0e204b 80%,#0f214b 85%,
-      #13244c 90%,#17254c 95%,#17254c 100%);
+      #0e1a3e 0%,#0e1a3e 5%,#0d1839 10%,#0c1531 15%,#0c122a 20%,#0b1025 25%,
+      #0b0e21 30%,#0b0d20 35%,#0b0d20 40%,#0b0e21 45%,#0b1026 50%,#0c132c 55%,
+      #0c1633 60%,#0d193b 65%,#0e1b3f 70%,#0d1c42 75%,#0e1c42 80%,#0e1d42 85%,
+      #111f42 90%,#131f42 95%,#131f42 100%);
     box-shadow:inset 0 -1px 0 #161d5a;
   }
   :root:not([data-theme="light"]) .card.blue .caption::after{
     background:linear-gradient(90deg,
-      #0f1e45 0%,#0f1e45 5%,#0f1c40 10%,#101938 15%,#111630 20%,#141628 25%,
-      #171624 30%,#191622 35%,#191621 40%,#171623 45%,#161828 50%,#151930 55%,
-      #141d39 60%,#131f41 65%,#132046 70%,#122046 75%,#122044 80%,#162144 85%,
-      #1c2646 90%,#232b47 95%,#232b47 100%);
+      #121e40 0%,#121e40 5%,#121c3d 10%,#121b38 15%,#131933 20%,#15192f 25%,
+      #16192c 30%,#18192b 35%,#18192a 40%,#16192c 45%,#161a2f 50%,#151b33 55%,
+      #151d39 60%,#141e3e 65%,#141f41 70%,#131f41 75%,#131f3f 80%,#161f3f 85%,
+      #192241 90%,#1e2541 95%,#1e2541 100%);
   }
   :root:not([data-theme="light"]) .card.purple{background:#1f1e64}
   :root:not([data-theme="light"]) .card.purple .stage{
@@ -361,18 +378,18 @@
   }
   :root:not([data-theme="light"]) .card.purple .caption{
     background:linear-gradient(90deg,
-      #170f51 0%,#170f51 5%,#170e4a 10%,#170d3e 15%,#170b34 20%,#180b2c 25%,
-      #180b27 30%,#180a24 35%,#180a24 40%,#180b27 45%,#170b2d 50%,#170c36 55%,
-      #170d41 60%,#170e4c 65%,#170f53 70%,#170f56 75%,#170f57 80%,#191157 85%,
-      #1c1457 90%,#201858 95%,#201858 100%);
+      #180f4b 0%,#180f4b 5%,#180e47 10%,#180e40 15%,#180c3a 20%,#180c35 25%,
+      #180c32 30%,#180c30 35%,#180c30 40%,#180c32 45%,#180c35 50%,#180d3b 55%,
+      #180e41 60%,#180e48 65%,#180f4c 70%,#180f4e 75%,#180f4f 80%,#19104f 85%,
+      #1b124f 90%,#1d144f 95%,#1d144f 100%);
     box-shadow:inset 0 -1px 0 #221682;
   }
   :root:not([data-theme="light"]) .card.purple .caption::after{
     background:linear-gradient(90deg,
-      #191051 0%,#191051 5%,#19104d 10%,#1b1146 15%,#1d123e 20%,#211438 25%,
-      #241734 30%,#261932 35%,#261a32 40%,#251833 45%,#231738 50%,#21163e 55%,
-      #1f1547 60%,#1d144e 65%,#1c1452 70%,#1b1352 75%,#1c1351 80%,#201751 85%,
-      #261d52 90%,#2d2454 95%,#2d2454 100%);
+      #1c134d 0%,#1c134d 5%,#1c134a 10%,#1d1346 15%,#1e1441 20%,#21153e 25%,
+      #23173b 30%,#24183a 35%,#24193a 40%,#23173b 45%,#22173e 50%,#211641 55%,
+      #201647 60%,#1e154b 65%,#1e154d 70%,#1d144d 75%,#1e144d 80%,#20174d 85%,
+      #241a4d 90%,#281f4e 95%,#281f4e 100%);
   }
   :root:not([data-theme="light"]) .card.teal{background:#11231e}
   :root:not([data-theme="light"]) .card.teal .stage{
@@ -381,18 +398,18 @@
   }
   :root:not([data-theme="light"]) .card.teal .caption{
     background:linear-gradient(90deg,
-      #0d2422 0%,#0d2422 5%,#0d2a24 10%,#0d2f26 15%,#0e3328 20%,#0e362a 25%,
-      #0e382b 30%,#0e382a 35%,#0d372a 40%,#0e3529 45%,#0d3327 50%,#0d3025 55%,
-      #0c2c23 60%,#0c2921 65%,#0c2620 70%,#0c231f 75%,#0b201d 80%,#0c1e1c 85%,
-      #0b1c1b 90%,#0c1b1b 95%,#0c1b1b 100%);
+      #0d2622 0%,#0d2622 5%,#0d2a24 10%,#0d2d25 15%,#0d2f26 20%,#0d3127 25%,
+      #0d3228 30%,#0d3227 35%,#0d3227 40%,#0d3127 45%,#0d2f25 50%,#0d2e24 55%,
+      #0c2b23 60%,#0c2922 65%,#0c2821 70%,#0c2621 75%,#0c241f 80%,#0c231f 85%,
+      #0c221e 90%,#0c211e 95%,#0c211e 100%);
     box-shadow:inset 0 -1px 0 #0b231f;
   }
   :root:not([data-theme="light"]) .card.teal .caption::after{
     background:linear-gradient(90deg,
-      #0c201e 0%,#0c201e 5%,#0c2420 10%,#0c2923 15%,#0d2e25 20%,#0e3127 25%,
-      #0e3328 30%,#0e3428 35%,#0d3427 40%,#0d3227 45%,#0d3025 50%,#0d2d23 55%,
-      #0c2a22 60%,#0c2620 65%,#0c241f 70%,#0c211e 75%,#0c1f1d 80%,#0d1d1c 85%,
-      #0d1c1c 90%,#0e1b1b 95%,#0e1b1b 100%);
+      #0c231f 0%,#0c231f 5%,#0c2521 10%,#0c2822 15%,#0d2b24 20%,#0e2d25 25%,
+      #0e2e25 30%,#0e2f25 35%,#0d2f25 40%,#0d2e25 45%,#0d2d24 50%,#0d2b22 55%,
+      #0c2922 60%,#0c2721 65%,#0c2520 70%,#0c241f 75%,#0c221f 80%,#0d211e 85%,
+      #0d211e 90%,#0e201e 95%,#0e201e 100%);
   }
 
   /* ---- light ---- */
@@ -459,20 +476,23 @@
 
   /* ---- light: the bands are too pale for the white caption ink ---- */
   /* blue: #0247b9 holds 5.1:1 on #bbceee and 6.4:1 on #e1e6f1 */
+  :root[data-theme="light"] .card.blue .caption{--cap-rule:rgba(2,71,185,.28)}
   :root[data-theme="light"] .card.blue .caption .proj-name{color:#0247b9}
   :root[data-theme="light"] .card.blue .caption .proj-desc{color:#0247b9}
-  :root[data-theme="light"] .card.blue .caption .go{border-color:#0247b9;color:#0247b9}
-  :root[data-theme="light"] .card.blue .caption .go:hover{background:#0247b9;color:#fff}
+  :root[data-theme="light"] .card.blue .caption .go{border-color:rgba(2,71,185,.45);color:#0247b9}
+  :root[data-theme="light"] .card.blue .caption .go:hover{background:#0247b9;border-color:#0247b9;color:#fff}
   /* purple: #3d3ac0 holds 5.2:1 on #cacbea and 7.4:1 on #f1f3f6 */
+  :root[data-theme="light"] .card.purple .caption{--cap-rule:rgba(61,58,192,.28)}
   :root[data-theme="light"] .card.purple .caption .proj-name{color:#3d3ac0}
   :root[data-theme="light"] .card.purple .caption .proj-desc{color:#3d3ac0}
-  :root[data-theme="light"] .card.purple .caption .go{border-color:#3d3ac0;color:#3d3ac0}
-  :root[data-theme="light"] .card.purple .caption .go:hover{background:#3d3ac0;color:#fff}
+  :root[data-theme="light"] .card.purple .caption .go{border-color:rgba(61,58,192,.45);color:#3d3ac0}
+  :root[data-theme="light"] .card.purple .caption .go:hover{background:#3d3ac0;border-color:#3d3ac0;color:#fff}
   /* teal: #27564c holds 5.1:1 on #bacec7 and 6.2:1 on #d7e1de */
+  :root[data-theme="light"] .card.teal .caption{--cap-rule:rgba(39,86,76,.28)}
   :root[data-theme="light"] .card.teal .caption .proj-name{color:#27564c}
   :root[data-theme="light"] .card.teal .caption .proj-desc{color:#27564c}
-  :root[data-theme="light"] .card.teal .caption .go{border-color:#27564c;color:#27564c}
-  :root[data-theme="light"] .card.teal .caption .go:hover{background:#27564c;color:#fff}
+  :root[data-theme="light"] .card.teal .caption .go{border-color:rgba(39,86,76,.45);color:#27564c}
+  :root[data-theme="light"] .card.teal .caption .go:hover{background:#27564c;border-color:#27564c;color:#fff}
 
   /* The band's vertical shift is carried here: the bottom profile fades in
      downward over the top one on .caption. z-index keeps it under the caption
@@ -491,26 +511,47 @@
      export opens with, so it both covers the frame before the bitmap decodes and
      fills the export's 48px corners where .card clips at 28px. */
   .caption{
+    --cap-rule:rgba(255,255,255,.20);
     position:relative;height:146px;display:flex;align-items:center;padding:0 74px;
   }
-  /* Both lines are IBM Plex Sans now. The name loses the mono's .24em tracking
-     with it - that spacing was there to hold spaced caps apart and would pull
-     mixed-case titles to pieces. */
+  /* Both lines are IBM Plex Sans. The caps are set here rather than typed into
+     the markup, so the copy stays readable in the source and no card can drift
+     out of case. 500 keeps the caps present without going bold, and caps need a
+     little tracking back to breathe. */
   .caption .proj-name{
-    width:296px;flex:0 0 auto;
-    font-family:var(--font-ui);font-size:24px;font-weight:600;
-    letter-spacing:.01em;color:#fff;
+    width:267px;flex:0 0 auto;
+    font-family:var(--font-ui);font-size:24px;font-weight:500;
+    text-transform:uppercase;letter-spacing:.06em;color:#fff;
   }
+  /* A rule divides the name from the description. It rides on the description's
+     own border, so it stands exactly as tall as the copy beside it rather than
+     being a fixed bar that misses on a one-line caption. The name column gives
+     up the 29px the border and padding take, so the description text starts
+     where it always did. */
   .caption .proj-desc{
     flex:1;font-family:var(--font-ui);font-size:20px;line-height:28px;
     font-weight:400;color:#fff;max-width:590px;
+    border-left:1px solid var(--cap-rule);padding-left:28px;
   }
+  /* The ring was 1.5px at 55% and the arrow was a text glyph, whose weight came
+     from the font and could not be dialled down. Both are thinner now, and the
+     arrow is a stroked path so its weight is set here rather than inherited. */
+  /* Pure white on these near-black bands was hotter than it needed to be and
+     bloomed at 20px. Both lines come down off it - the name still leads, the
+     description sits back - and both hold well clear of AA on the darkest
+     pixel either band reaches. */
+  :root:not([data-theme="light"]) .caption .proj-name{color:rgba(255,255,255,.88)}
+  :root:not([data-theme="light"]) .caption .proj-desc{color:rgba(255,255,255,.76)}
   .caption .go{
     margin-left:auto;flex:0 0 auto;width:48px;height:48px;border-radius:50%;
-    border:1.5px solid rgba(255,255,255,.55);display:grid;place-items:center;
-    color:#fff;font-size:18px;text-decoration:none;transition:.25s;
+    border:1px solid rgba(255,255,255,.42);display:grid;place-items:center;
+    color:#fff;text-decoration:none;transition:.25s;
   }
-  .caption .go:hover{background:#fff;color:#111;transform:translateX(4px)}
+  .caption .go svg{
+    width:18px;height:18px;display:block;
+    fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;
+  }
+  .caption .go:hover{background:#fff;color:#111;border-color:#fff;transform:translateX(4px)}
 
   /* =======================================================
      Sentinel ERP schedule screen (CSS recreation)
@@ -821,7 +862,19 @@
     .logo-track{display:flex;width:max-content;animation:logoScroll 30s linear infinite}
     .logo-row{flex-wrap:nowrap;padding-right:44px}
     .logo-row.dup{display:flex}
-    .caption{flex-wrap:wrap;height:auto;padding:22px 32px;gap:10px}
+    /* Reordered rather than restacked: the name and the arrow share the top
+       row, and the description drops below them across the full width. order
+       is what moves the arrow up past the description without touching the
+       DOM, so the reading order stays name, description, link. */
+    .caption{flex-wrap:wrap;height:auto;padding:22px 24px;gap:14px}
+    .caption .proj-name{order:0;flex:1 1 auto;width:auto;font-size:18px}
+    .caption .go{order:1;margin-left:auto}
+    .caption .proj-desc{
+      order:2;flex:0 0 100%;max-width:none;
+      font-size:14px;line-height:20px;border-left:0;padding-left:0;
+    }
+    /* 112px of air reads as a gap on a phone, not a rhythm */
+    .projects{gap:48px}
     .erp .row{grid-template-columns:repeat(4,1fr)}
     .lms .right{display:none}
   }
@@ -931,7 +984,7 @@
       <div class="caption">
         <div class="proj-name">SENTINEL ERP</div>
         <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
-        <a class="go" href="Sentinel-ERP.html" aria-label="Open Sentinel ERP case study">→</a>
+        <a class="go" href="Sentinel-ERP.html" aria-label="Open Sentinel ERP case study"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a>
       </div>
     </section>
 
@@ -941,7 +994,7 @@
       <div class="caption">
         <div class="proj-name">Syntax DS</div>
         <p class="proj-desc">Making Educative’s design system (Syntax) scalable through homogenization of components</p>
-        <a class="go" href="Syntax-DS.html" aria-label="Open Syntax DS case study">→</a>
+        <a class="go" href="Syntax-DS.html" aria-label="Open Syntax DS case study"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a>
       </div>
     </section>
 
@@ -951,7 +1004,7 @@
       <div class="caption">
         <div class="proj-name">Code Widgets</div>
         <p class="proj-desc">Bringing consistency to Educative code widgets through audits and revamps of their existing states</p>
-        <a class="go" href="Code-Widgets-Revamp.html" aria-label="Open Code Widgets case study">→</a>
+        <a class="go" href="Code-Widgets-Revamp.html" aria-label="Open Code Widgets case study"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a>
       </div>
     </section>
   </main>

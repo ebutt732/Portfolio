@@ -133,7 +133,7 @@ b,strong{color:var(--heading);}
 .botbar{
   height:54px; background:var(--bar); border-top:1px solid var(--bar-stroke);
 }
-.botbar .bar{height:54px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 24px; max-width:1120px; margin:0 auto;}
+.botbar .bar{position:relative; cursor:pointer; height:54px; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:0 24px; max-width:1120px; margin:0 auto;}
 .botbar .nextproj{
   display:inline-flex; align-items:center; gap:10px;
   font-family:'IBM Plex Mono',monospace; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
@@ -141,6 +141,9 @@ b,strong{color:var(--heading);}
 .botbar .nextproj:hover, .botbar .nextproj:focus-visible{color:var(--accent-text);}
 .botbar .nextproj:hover .ar{transform:translateX(3px);}
 .botbar .nextproj .ar{transition:transform .15s ease;}
+.botbar .nextproj::after{content:""; position:absolute; inset:0;}
+.botbar .bar:hover .nextproj{color:var(--accent-text);}
+.botbar .bar:hover .nextproj .ar{transform:translateX(3px);}
 /* SVG rather than "→": the glyph's ink sits above the text centre line, which
    is what left the arrow riding high next to the uppercase label */
 .botbar .nextproj .ar{display:flex; align-items:center; flex:0 0 auto;}
