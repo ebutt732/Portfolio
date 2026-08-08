@@ -758,7 +758,7 @@
      card, which read as a gap rather than a section break. The separation is
      carried by the ground instead - the grid, and the glow below - so the space
      can come down without the footer running into the cards above it. */
-  footer{position:relative;margin-top:0;overflow:hidden;padding:76px 0}
+  footer{position:relative;margin-top:0;overflow:hidden;padding:76px 0 96px}
   /* Top-left counterpart to the glow the grid already throws bottom-right, so
      the footer opens on a wash the way the top of the page does and reads as
      its own section rather than as the tail of the one above. Above the grid
@@ -775,8 +775,9 @@
   .contact{
     position:relative;z-index:2;
     display:flex;align-items:flex-end;justify-content:space-between;gap:56px;flex-wrap:wrap;
-    /* the clearance below this row lives on the footer's own padding now, so
-       it balances the space above and the block stays centred */
+    /* the clearance around this row is the footer's own padding - 76 above,
+       96 below - so it lives in one place rather than being split across two
+       elements the way it used to be */
   }
   .contact-title{
     font-family:var(--font-display);
