@@ -26,6 +26,7 @@
   --hatch:rgba(231,236,241,.05);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
   --shot-border:rgba(180,190,200,.4); --shot-shadow:0 10px 28px -14px rgba(0,0,0,.45);
+  --shot-scrim:.05;              /* dark mode only: 5% black knock-back on every image */
 }
 :root[data-theme="light"]{
   color-scheme:light;
@@ -36,6 +37,7 @@
   --hatch:rgba(20,27,35,.045);
   --shadow:none;
   --shot-border:rgba(120,132,145,.35); --shot-shadow:none;
+  --shot-scrim:0;                /* light mode: screenshots at full brightness */
 }
 
 *{box-sizing:border-box;}
@@ -256,6 +258,19 @@ figure figcaption{
 }
 .heroshot .slot{min-height:320px; border-radius:12px;}
 .heroshot figcaption{text-align:left;}
+.heroshot .heroimg{display:block; width:100%; height:auto;}
+/* .framed - for sources that carry no chrome of their own (flat, near-white
+   boards like the Figma exports). */
+.shot.framed{
+  border:1px solid var(--shot-border); border-radius:12px; overflow:hidden;
+  box-shadow:var(--shot-shadow); background:var(--panel);
+}
+/* One 5% black knock-back over the image in dark mode only, so a white board
+   doesn't glare against the near-black ground. --shot-scrim is 0 in light. */
+.shot.framed::after{
+  content:""; position:absolute; inset:0; background:#000;
+  opacity:var(--shot-scrim); pointer-events:none; z-index:1;
+}
 
 /* ---------- full-width end banner ---------- */
 .endbanner{
@@ -356,16 +371,11 @@ figure figcaption{
     </dl>
 
     <figure class="heroshot">
-      <span class="shot">
-        <div class="slot">
-          <div class="in">
-            <div class="fig">Hero</div>
-            <h4>Components unified across FAT10 core screens</h4>
-            <p>One canonical variant per component type, applied everywhere — instances update automatically.</p>
-          </div>
-        </div>
+      <span class="shot framed">
+        <img class="heroimg" src="all-components.png" width="2048" height="1049"
+             alt="Syntax design system boards: a typography scale table, the FAQ accordion component in light and dark mode, badge sets across light, dark and on-colour themes at three sizes, Educative content-card badges, and the primary button matrix across four sizes and five states in both themes.">
       </span>
-      <figcaption>Syntax components in the core navigation screens (web)</figcaption>
+      <figcaption>Syntax components: typography, FAQs, badges and buttons across light and dark themes</figcaption>
     </figure>
   </section>
 
