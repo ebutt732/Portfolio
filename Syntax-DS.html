@@ -259,6 +259,9 @@ figure figcaption{
 .heroshot .slot{min-height:320px; border-radius:12px;}
 .heroshot figcaption{text-align:left;}
 .heroshot .heroimg{display:block; width:100%; height:auto;}
+/* any framed screenshot, hero or in-section */
+.shot{display:block; position:relative;}
+.shot img{display:block; width:100%; height:auto;}
 /* .framed - for sources that carry no chrome of their own (flat, near-white
    boards like the Figma exports). */
 .shot.framed{
@@ -375,7 +378,7 @@ figure figcaption{
         <img class="heroimg" src="all-components.png?v=3" width="2048" height="1049"
              alt="Syntax design system boards: a typography scale table, the FAQ accordion component, tabs at two sizes across four states, badge sets across light, dark and on-colour themes at three sizes, Educative content-card badges, and the primary button matrix across four sizes and five states in both themes.">
       </span>
-      <figcaption>Syntax components: typography, FAQs, tabs, badges and buttons across light and dark themes</figcaption>
+      <figcaption>Syntax design system components</figcaption>
     </figure>
   </section>
 
@@ -421,14 +424,11 @@ figure figcaption{
     <div class="pull">Designers were spending 3–5 days recreating work that already existed.</div>
 
     <figure class="shotfig">
-      <div class="slot tall">
-        <div class="in">
-          <div class="fig">Before</div>
-          <h4>Chaotic variants</h4>
-          <p>Company logos, content cards and accordions — each carrying six or more inconsistent treatments across course pages, landing pages and modals.</p>
-        </div>
-      </div>
-      <figcaption>Before: the same component, six ways</figcaption>
+      <span class="shot framed">
+        <img src="company-logos.png?v=1" width="2048" height="643"
+             alt="Audit board: thumbnails of nine Educative pages — landing page, course homepage, unlimited, projects, mock interview, learn to code, interview PAL, cloud labs and blogs — beside a table of the eight different company-logo strip treatments used across them, each with its own wording, logo set, size and alignment.">
+      </span>
+      <figcaption>8 company logo variants across 9 pages</figcaption>
     </figure>
   </section>
 
