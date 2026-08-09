@@ -284,13 +284,6 @@ figure figcaption{
   opacity:var(--shot-scrim); pointer-events:none; z-index:1;
 }
 
-/* ---------- full-width end banner ---------- */
-.endbanner{
-  width:100%; margin:52px 0 0;
-  background:var(--panel-2); border-top:1px solid var(--line-soft);
-}
-.endbanner .slot{border:none; border-radius:0; min-height:230px;}
-.endbanner figcaption{padding:0 24px 18px; margin-top:0;}
 
 /* ---------- stat banner ---------- */
 .statband{
@@ -322,12 +315,12 @@ figure figcaption{
   border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
 }
 .closing p{margin:0; font-size:.95rem; max-width:44ch;}
+/* A status label, not a control: no outline, no pill, no hover. The muted
+   colour keeps it from reading as a link, since links carry the accent. */
 .closing .badge{
   font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--accent-text); border:1px solid var(--accent); border-radius:999px; padding:7px 16px; white-space:nowrap;
-  text-decoration:none; transition:background .15s ease;
+  color:var(--muted); white-space:nowrap; padding:0; border:0; background:none;
 }
-.closing .badge:hover, .closing .badge:focus-visible{background:var(--accent-soft);}
 </style>
 
 <script>
@@ -373,7 +366,7 @@ figure figcaption{
     <div class="eyebrow">Design System · Educative</div>
     <h1>Making Syntax DS homogenous &amp; scalable</h1>
     <p class="sub">128 component variants unified across Educative's ten most-visited
-    screens (FAT10) — one canonical component, one token system, one source of truth.</p>
+    screens (FAT10): one canonical component, one token system, one source of truth.</p>
 
     <dl class="meta">
       <div><dt>Initiative</dt><dd>Syntax · Educative</dd></div>
@@ -396,7 +389,7 @@ figure figcaption{
     <span class="secnum">01 / PROJECT OVERVIEW</span>
     <h2>Ten screens, three audiences, no shared source of truth</h2>
     <p class="muted" style="max-width:62ch;">FAT10 is Educative's ten most-visited screens and
-    core navigation points — the journeys millions of learners traverse. As the platform grew,
+    core navigation points, the journeys millions of learners traverse. As the platform grew,
     those screens accumulated hundreds of component variations built without shared governance.
     Three groups felt it differently:</p>
     <ul class="personas">
@@ -405,7 +398,7 @@ figure figcaption{
       <li><span class="ico" aria-hidden="true">⚙️</span><span><b>Developers:</b> maintained parallel implementations of the same component across 50+ files</span></li>
     </ul>
     <p class="muted" style="max-width:62ch;">My job was to turn that landscape into one system
-    designers and developers would actually reach for — across web, mobile, and tablet.</p>
+    designers and developers would actually reach for, across web, mobile, and tablet.</p>
   </section>
 
   <!-- ================= 02 PROBLEM ================= -->
@@ -422,7 +415,7 @@ figure figcaption{
       <div class="card">
         <span class="tag">Goal 01</span>
         <h3>One canonical variant</h3>
-        <p>Every component type resolves to a single system component — two only where layout genuinely demands it.</p>
+        <p>Every component type resolves to a single system component; two only where layout genuinely demands it.</p>
       </div>
       <div class="card">
         <span class="tag">Goal 02</span>
@@ -435,7 +428,7 @@ figure figcaption{
     <figure class="shotfig">
       <span class="shot bleed">
         <img src="company-logos.png?v=1" width="2048" height="643"
-             alt="Audit board: thumbnails of nine Educative pages — landing page, course homepage, unlimited, projects, mock interview, learn to code, interview PAL, cloud labs and blogs — beside a table of the eight different company-logo strip treatments used across them, each with its own wording, logo set, size and alignment.">
+             alt="Audit board: thumbnails of nine Educative pages (landing page, course homepage, unlimited, projects, mock interview, learn to code, interview PAL, cloud labs and blogs) beside a table of the eight different company-logo strip treatments used across them, each with its own wording, logo set, size and alignment.">
       </span>
       <figcaption>8 company logo variants across 9 pages</figcaption>
     </figure>
@@ -447,19 +440,19 @@ figure figcaption{
     <h2>Audit first, then design once</h2>
     <p class="muted" style="max-width:62ch;">Rather than a big-bang rewrite, we phased it:
     inventory what exists, rank it by real usage, design one canonical variant, and roll it out
-    incrementally. Of 128 instances, 55 were targeted for Q1 — the highest-frequency,
+    incrementally. Of 128 instances, 55 were targeted for Q1: the highest-frequency,
     highest-impact components.</p>
 
     <ol class="lessons steps">
       <li><b>Audit.</b><span>Grepped the codebase for color and token occurrences and cross-checked platform analytics with engineering. Ground truth on what was actually used.</span></li>
-      <li><b>Design.</b><span>One canonical variant per component — two where full-width and two-column layouts both existed — validated against WCAG across 50+ states.</span></li>
+      <li><b>Design.</b><span>One canonical variant per component (two where full-width and two-column layouts both existed), validated against WCAG across 50+ states.</span></li>
       <li><b>Roll out.</b><span>New designs replaced the originals in place, so every instance across FAT10 updated automatically instead of screen by screen.</span></li>
     </ol>
 
     <figure class="shotfig">
       <span class="shot bleed">
         <img src="process-sheet.png?v=1" width="2048" height="933"
-             alt="Audit spreadsheet titled FAT10 components: one column per page — landing page, CHP, unlimited, projects, mock interview, L2C, interview prep, explore, cloudlabs, blogs and answers — listing every component on it, colour-coded by type, with per-page totals summing to 128 and a footer tallying occurrences per component: company logos 6, buttons 9, badges 8, carousels 5, tabs 7, accordions 3, pills 4, content cards 13.">
+             alt="Audit spreadsheet titled FAT10 components: one column per page (landing page, CHP, unlimited, projects, mock interview, L2C, interview prep, explore, cloudlabs, blogs and answers), listing every component on it, colour-coded by type, with per-page totals summing to 128 and a footer tallying occurrences per component: company logos 6, buttons 9, badges 8, carousels 5, tabs 7, accordions 3, pills 4, content cards 13.">
       </span>
       <figcaption>Ranking components by real usage</figcaption>
     </figure>
@@ -467,15 +460,15 @@ figure figcaption{
     <h3 style="margin-top:44px;">Three worked examples</h3>
 
     <div class="example">
-      <h3 class="phase">Example 01 — Company logos</h3>
+      <h3 class="phase">Example 01: Company logos</h3>
       <p class="muted" style="max-width:62ch;">Logos appeared in six treatments across course
-      pages, landing pages and modals. We unified them down to two canonical variants — vertical
-      and horizontal — and applied them everywhere. One design day, one engineering day.</p>
+      pages, landing pages and modals. We unified them down to two canonical variants, vertical
+      and horizontal, and applied them everywhere. One design day, one engineering day.</p>
       <figure class="shotfig">
         <div class="slot">
           <div class="in">
             <div class="fig">Before &amp; after</div>
-            <h4>Company logos — 6 variants → 2 system components</h4>
+            <h4>Company logos: 6 variants → 2 system components</h4>
             <p>Drop the before/after export in here.</p>
           </div>
         </div>
@@ -484,16 +477,16 @@ figure figcaption{
     </div>
 
     <div class="example">
-      <h3 class="phase">Example 02 — Content cards</h3>
+      <h3 class="phase">Example 02: Content cards</h3>
       <p class="muted" style="max-width:62ch;">Cards were the most chaotic of the three: course,
       testimonial and feature cards each carried their own internal structure. We designed one card
-      with composable inner elements — title, description, metadata, CTA — so new card types now
+      with composable inner elements (title, description, metadata, CTA), so new card types now
       ship in hours rather than days.</p>
       <figure class="shotfig">
         <div class="slot">
           <div class="in">
             <div class="fig">Before &amp; after</div>
-            <h4>Content cards — one composable structure</h4>
+            <h4>Content cards: one composable structure</h4>
             <p>Drop the before/after export in here.</p>
           </div>
         </div>
@@ -502,7 +495,7 @@ figure figcaption{
     </div>
 
     <div class="example">
-      <h3 class="phase">Example 03 — Accordions</h3>
+      <h3 class="phase">Example 03: Accordions</h3>
       <p class="muted" style="max-width:62ch;">Curriculum, FAQ and code-lab accordions each had
       their own interaction model and styling. We standardized on a single behaviour and visual
       treatment, then replaced the old accordions platform-wide.</p>
@@ -510,7 +503,7 @@ figure figcaption{
         <div class="slot">
           <div class="in">
             <div class="fig">Before &amp; after</div>
-            <h4>Accordions — interaction model unified</h4>
+            <h4>Accordions: interaction model unified</h4>
             <p>Drop the before/after export in here.</p>
           </div>
         </div>
@@ -539,12 +532,12 @@ figure figcaption{
       <div class="card">
         <span class="tag">Layer 1</span>
         <h3>Color palettes</h3>
-        <p>Named by hue plus darkness scale — <code>grey-50</code> through <code>grey-1000</code>. No ambiguity, clear progression.</p>
+        <p>Named by hue plus darkness scale: <code>grey-50</code> through <code>grey-1000</code>. No ambiguity, clear progression.</p>
       </div>
       <div class="card">
         <span class="tag">Layer 2</span>
         <h3>Semantic tokens</h3>
-        <p>Three types (background, stroke, content) × six purposes (neutral, brand, success, warning, danger, additional) — <code>bg-primary</code>, <code>stroke-success</code>.</p>
+        <p>Three types (background, stroke, content) × six purposes (neutral, brand, success, warning, danger, additional): <code>bg-primary</code>, <code>stroke-success</code>.</p>
       </div>
       <div class="card">
         <span class="tag">Layer 3</span>
@@ -553,7 +546,7 @@ figure figcaption{
       </div>
     </div>
     <p class="muted" style="max-width:62ch; margin-top:18px;">Roughly three weeks of front-loaded
-    design and engineering work — including the dark mode rebuild and WCAG validation — that paid
+    design and engineering work, including the dark mode rebuild and WCAG validation, that paid
     off across every component that followed.</p>
   </section>
 
@@ -572,7 +565,7 @@ figure figcaption{
       <li><b>Business</b> – new features assemble from system components instead of starting from scratch; one visual language across web, mobile and tablet.</li>
       <li><b>Design &amp; dev</b> – a single source of truth: a button fix that took two hours now takes five minutes, and a brand color change is one edit.</li>
     </ul>
-    <div class="pull">Adoption happened because unification was the fastest path — not because it was mandated.<small>Key insight</small></div>
+    <div class="pull">Adoption happened because unification was the fastest path, not because it was mandated.<small>Key insight</small></div>
   </section>
 
   <!-- ================= 06 CONCLUSION ================= -->
@@ -581,28 +574,18 @@ figure figcaption{
     <h2>What this project taught me</h2>
     <ol class="lessons">
       <li><b>Audit with data, not opinion.</b><span>Occurrence counts settled arguments that taste never would.</span></li>
-      <li><b>Standardize interaction before visuals.</b><span>Variant bloat started with behavior, not styling — the accordions proved it.</span></li>
+      <li><b>Standardize interaction before visuals.</b><span>Variant bloat started with behavior, not styling; the accordions proved it.</span></li>
       <li><b>Adoption follows convenience.</b><span>Copy-pasting a unified card takes 30 seconds; rebuilding takes a day. That's the whole strategy.</span></li>
     </ol>
     <div class="closing">
       <p>Q1 shipped 43% of core components; Q2 closed the remaining 57%. Syntax now grows with
-      the product — new components follow its patterns and naming without a central gatekeeper.</p>
+      the product; new components follow its patterns and naming without a central gatekeeper.</p>
       <span class="badge">Living system · ongoing</span>
     </div>
   </section>
 
 </div>
 
-<figure class="endbanner" aria-label="Unified system banner">
-  <div class="slot">
-    <div class="in">
-      <div class="fig">After</div>
-      <h4>One unified system</h4>
-      <p>43% of FAT10 shipped on Syntax components in Q1 — consistent, tokenized and accessible by default.</p>
-    </div>
-  </div>
-  <figcaption>More of the system &mdash; Syntax Design System</figcaption>
-</figure>
 
 <nav class="botbar" aria-label="Case study navigation">
   <div class="bar">
