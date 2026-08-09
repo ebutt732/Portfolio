@@ -21,7 +21,9 @@
   color-scheme:dark;
   --ground:#06020E; --panel:#151C24; --panel-2:#1B242E; --bar:#07020F; --bar-stroke:#0D1216;
   --ink:#877891; --heading:#BBAAC6; --muted:#b8aec5; --line:#28323D; --line-soft:#1F2933;
-  --accent:#688DCA; --accent-text:#688DCA; --accent-soft:rgba(104,141,202,.10);
+  /* #7775FF carries strokes and rules; text steps one shade lighter so it
+     clears 4.5:1 on panel-2 as well as on the ground (4.31 vs 5.32). */
+  --accent:#7775FF; --accent-text:#8B89FF; --accent-soft:rgba(119,117,255,.14);
   --ok:#4CC38A; --bad:#E5695E;
   --hatch:rgba(231,236,241,.05);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
@@ -32,7 +34,8 @@
   color-scheme:light;
   --ground:#F2F4F6; --panel:#FFFFFF; --panel-2:#EAEEF1; --bar:#F2F4F6; --bar-stroke:#D6DCE2;
   --ink:#141B23; --heading:#141B23; --muted:#5A6673; --line:#D6DCE2; --line-soft:#E3E8EC;
-  --accent:#688DCA; --accent-text:#3E69B0; --accent-soft:rgba(104,141,202,.10);
+  /* same accent, but text darkens on light ground where #7775FF is only 3.3:1 */
+  --accent:#7775FF; --accent-text:#5A57E8; --accent-soft:rgba(119,117,255,.12);
   --ok:#1E7A4C; --bad:#B23A2E;
   --hatch:rgba(20,27,35,.045);
   --shadow:none;
@@ -211,20 +214,19 @@ section.sec > h2{margin-bottom:16px; max-width:32ch;}
 }
 .pull small{display:block; margin-top:8px; font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.11em; text-transform:uppercase; color:var(--muted); font-weight:500;}
 
-/* ---------- process story cards ---------- */
-.story{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:12px; margin:18px 0;}
-.story .step{background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; box-shadow:var(--shadow);}
-.story .k{font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); display:block; margin-bottom:7px;}
-.story .step.win{border-color:var(--accent);}
-.story .step.win .k{color:var(--accent-text);}
-.story p{font-size:.9rem; margin:0;}
+/* ---------- process steps: listed down the page, no containers ---------- */
+.lessons.steps{margin:22px 0 4px;}
+.lessons.steps li{font-size:1.02rem;}
 
 /* ---------- graphics kept from the original Syntax brief ----------
    Hatched panels standing in for the component screenshots, in the same
    figure/caption rhythm the rest of the page uses. */
-.figrow{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:22px; margin:30px 0 0;}
-.figrow figure{margin:0;}
 figure.shotfig{margin:32px 0 0;}
+/* worked examples: heading, prose, then its own figure - one after another,
+   the same rhythm the Code Widgets case study uses for its phases */
+.example{margin-top:8px;}
+.example h3.phase{margin-top:44px; margin-bottom:12px; font-size:1.22rem;}
+.example figure.shotfig{margin-top:22px;}
 .slot{
   position:relative; border:1px solid var(--line); border-radius:12px;
   background:
@@ -350,7 +352,7 @@ figure figcaption{
       <a href="#overview">Overview</a>
       <a href="#problem">Problem</a>
       <a href="#process">Process</a>
-      <a href="#color">Color</a>
+      <a href="#color">Tokenization</a>
       <a href="#impact">Impact</a>
       <a href="#conclusion">Conclusion</a>
     </nav>
@@ -448,67 +450,78 @@ figure figcaption{
     incrementally. Of 128 instances, 55 were targeted for Q1 — the highest-frequency,
     highest-impact components.</p>
 
-    <div class="story">
-      <div class="step">
-        <span class="k">Step 01 – Audit</span>
-        <p>Grepped the codebase for color and token occurrences and cross-checked platform analytics with engineering. Ground truth on what was actually used.</p>
-      </div>
-      <div class="step win">
-        <span class="k">Step 02 – Design · adopted</span>
-        <p>One canonical variant per component (two where full-width and two-column layouts both existed), validated against WCAG across 50+ states.</p>
-      </div>
-      <div class="step">
-        <span class="k">Step 03 – Roll out</span>
-        <p>New designs replaced the originals in place, so every instance across FAT10 updated automatically instead of screen by screen.</p>
-      </div>
-    </div>
+    <ol class="lessons steps">
+      <li><b>Audit.</b><span>Grepped the codebase for color and token occurrences and cross-checked platform analytics with engineering. Ground truth on what was actually used.</span></li>
+      <li><b>Design.</b><span>One canonical variant per component — two where full-width and two-column layouts both existed — validated against WCAG across 50+ states.</span></li>
+      <li><b>Roll out.</b><span>New designs replaced the originals in place, so every instance across FAT10 updated automatically instead of screen by screen.</span></li>
+    </ol>
 
-    <div class="figrow">
-      <figure>
+    <figure class="shotfig">
+      <span class="shot bleed">
+        <img src="process-sheet.png?v=1" width="2048" height="933"
+             alt="Audit spreadsheet titled FAT10 components: one column per page — landing page, CHP, unlimited, projects, mock interview, L2C, interview prep, explore, cloudlabs, blogs and answers — listing every component on it, colour-coded by type, with per-page totals summing to 128 and a footer tallying occurrences per component: company logos 6, buttons 9, badges 8, carousels 5, tabs 7, accordions 3, pills 4, content cards 13.">
+      </span>
+      <figcaption>Ranking components by real usage</figcaption>
+    </figure>
+
+    <h3 style="margin-top:44px;">Three worked examples</h3>
+
+    <div class="example">
+      <h3 class="phase">Example 01 — Company logos</h3>
+      <p class="muted" style="max-width:62ch;">Logos appeared in six treatments across course
+      pages, landing pages and modals. We unified them down to two canonical variants — vertical
+      and horizontal — and applied them everywhere. One design day, one engineering day.</p>
+      <figure class="shotfig">
         <div class="slot">
           <div class="in">
-            <div class="fig">Audit</div>
-            <h4>Component inventory + usage metrics</h4>
-            <p>All 128 instances mapped by type, variant count and usage frequency.</p>
+            <div class="fig">Before &amp; after</div>
+            <h4>Company logos — 6 variants → 2 system components</h4>
+            <p>Drop the before/after export in here.</p>
           </div>
         </div>
-        <figcaption>Ranking components by real usage</figcaption>
-      </figure>
-      <figure>
-        <div class="slot">
-          <div class="in">
-            <div class="fig">Design</div>
-            <h4>Canonical variant explorations</h4>
-            <p>Competitive analysis of mature design systems informed structure and naming.</p>
-          </div>
-        </div>
-        <figcaption>Converging six variants into one</figcaption>
+        <figcaption>Company logos: six treatments converged into two</figcaption>
       </figure>
     </div>
 
-    <h3 style="margin-top:36px;">Three worked examples</h3>
-    <div class="grid3">
-      <div class="card">
-        <span class="tag">Example 01</span>
-        <h3>Company logos</h3>
-        <p>Six treatments across course pages, landing pages and modals → two canonical variants (vertical, horizontal). One design day, one eng day.</p>
-      </div>
-      <div class="card">
-        <span class="tag">Example 02</span>
-        <h3>Content cards</h3>
-        <p>Course, testimonial and feature cards each had their own internal structure → one card with composable inner elements. New card types now ship in hours.</p>
-      </div>
-      <div class="card">
-        <span class="tag">Example 03</span>
-        <h3>Accordions</h3>
-        <p>Curriculum, FAQ and code-lab accordions each behaved differently → a single interaction model, standardized platform-wide.</p>
-      </div>
+    <div class="example">
+      <h3 class="phase">Example 02 — Content cards</h3>
+      <p class="muted" style="max-width:62ch;">Cards were the most chaotic of the three: course,
+      testimonial and feature cards each carried their own internal structure. We designed one card
+      with composable inner elements — title, description, metadata, CTA — so new card types now
+      ship in hours rather than days.</p>
+      <figure class="shotfig">
+        <div class="slot">
+          <div class="in">
+            <div class="fig">Before &amp; after</div>
+            <h4>Content cards — one composable structure</h4>
+            <p>Drop the before/after export in here.</p>
+          </div>
+        </div>
+        <figcaption>Content cards: one structure, composed per use case</figcaption>
+      </figure>
+    </div>
+
+    <div class="example">
+      <h3 class="phase">Example 03 — Accordions</h3>
+      <p class="muted" style="max-width:62ch;">Curriculum, FAQ and code-lab accordions each had
+      their own interaction model and styling. We standardized on a single behaviour and visual
+      treatment, then replaced the old accordions platform-wide.</p>
+      <figure class="shotfig">
+        <div class="slot">
+          <div class="in">
+            <div class="fig">Before &amp; after</div>
+            <h4>Accordions — interaction model unified</h4>
+            <p>Drop the before/after export in here.</p>
+          </div>
+        </div>
+        <figcaption>Accordions: three behaviours reduced to one</figcaption>
+      </figure>
     </div>
   </section>
 
   <!-- ================= 04 COLOR & TOKENS ================= -->
   <section class="sec" id="color">
-    <span class="secnum">04 / DEEP DIVE · COLOR &amp; TOKENS</span>
+    <span class="secnum">04 / DEEP DIVE · TOKENIZATION</span>
     <h2>From 188 colors to a three-layer token system</h2>
     <p class="muted" style="max-width:62ch;">The palette had grown organically for years: 188
     colors, 115 tokens, three color families no component relied on, and a dark mode that was a
