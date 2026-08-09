@@ -519,26 +519,13 @@ figure figcaption{
       <div><span class="num">100%</span><div class="lbl">dark mode redesigned &amp; WCAG-checked</div></div>
     </div>
 
-    <div class="grid3">
-      <div class="card">
-        <span class="tag">Layer 1</span>
-        <h3>Color palettes</h3>
-        <p>Named by hue plus darkness scale: <code>grey-50</code> through <code>grey-1000</code>. No ambiguity, clear progression.</p>
-      </div>
-      <div class="card">
-        <span class="tag">Layer 2</span>
-        <h3>Semantic tokens</h3>
-        <p>Three types (background, stroke, content) × six purposes (neutral, brand, success, warning, danger, additional): <code>bg-primary</code>, <code>stroke-success</code>.</p>
-      </div>
-      <div class="card">
-        <span class="tag">Layer 3</span>
-        <h3>Component themes</h3>
-        <p>Theme tokens bind semantics to components. Pick "success" and background, stroke and text resolve themselves.</p>
-      </div>
-    </div>
-    <p class="muted" style="max-width:62ch; margin-top:18px;">Roughly three weeks of front-loaded
-    design and engineering work, including the dark mode rebuild and WCAG validation, that paid
-    off across every component that followed.</p>
+    <figure class="shotfig">
+      <span class="shot bleed">
+        <img src="old-palette.png?v=1" width="1719" height="727"
+             alt="The old colour palette board: 168 colours plus 11 additional and 9 gradients. A table counts every occurrence in the codebase by shade, from gray-L25 at 588 down to whole families sitting at zero (cyan, violet, fuchsia and pink barely register), above thumbnails of the fourteen palette sheets it was spread across.">
+      </span>
+      <figcaption>Step 1: identifying colour occurrences in agile with devs</figcaption>
+    </figure>
   </section>
 
   <!-- ================= 05 IMPACT ================= -->
