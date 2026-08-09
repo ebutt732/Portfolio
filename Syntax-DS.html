@@ -251,7 +251,8 @@ figure figcaption{
 
 /* hero graphic: mild bleed past the text column, same as the reference */
 .heroshot{margin:36px 0 0; padding:0;}
-.heroshot .shot{
+/* .bleed carries the same width, so every board sits on one measure */
+.heroshot .shot, .shot.bleed{
   display:block; position:relative;
   width:min(1342px, calc(100vw - 32px));
   margin-left:50%; transform:translateX(-50%);
@@ -266,8 +267,14 @@ figure figcaption{
    boards like the Figma exports). */
 .shot.framed{
   border:1px solid var(--shot-border); border-radius:12px; overflow:hidden;
-  box-shadow:var(--shot-shadow); background:var(--panel);
+  box-shadow:var(--shot-shadow); background:transparent;
 }
+/* The export already carries a 21px radius at its natural 2048x1049, and its
+   corners are transparent - a square-ish frame corner would show the ground
+   through them. Percentages keep the frame's corner locked to the image's at
+   every width: 21/2048 horizontally, 21/1049 vertically, which stay equal in
+   px because the aspect ratio is fixed. */
+.heroshot .shot.framed{border-radius:1.0254% / 2.0019%;}
 /* One 5% black knock-back over the image in dark mode only, so a white board
    doesn't glare against the near-black ground. --shot-scrim is 0 in light. */
 .shot.framed::after{
@@ -424,7 +431,7 @@ figure figcaption{
     <div class="pull">Designers were spending 3–5 days recreating work that already existed.</div>
 
     <figure class="shotfig">
-      <span class="shot framed">
+      <span class="shot bleed">
         <img src="company-logos.png?v=1" width="2048" height="643"
              alt="Audit board: thumbnails of nine Educative pages — landing page, course homepage, unlimited, projects, mock interview, learn to code, interview PAL, cloud labs and blogs — beside a table of the eight different company-logo strip treatments used across them, each with its own wording, logo set, size and alignment.">
       </span>
