@@ -222,6 +222,8 @@ section.sec > h2{margin-bottom:16px; max-width:32ch;}
    Hatched panels standing in for the component screenshots, in the same
    figure/caption rhythm the rest of the page uses. */
 figure.shotfig{margin:32px 0 0;}
+/* breathing room under a step caption before the next step begins */
+figure.shotfig.stepgap{margin-bottom:70px;}
 /* worked examples: heading, prose, then its own figure - one after another,
    the same rhythm the Code Widgets case study uses for its phases */
 .example{margin-top:8px;}
@@ -311,7 +313,7 @@ figure figcaption{
 
 /* ---------- closing ---------- */
 .closing{
-  margin:32px 0 8px; padding:26px 24px; border-radius:12px; background:var(--panel-2);
+  margin:32px 0 48px; padding:26px 24px; border-radius:12px; background:var(--panel-2);
   border:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;
 }
 .closing p{margin:0; font-size:.95rem; max-width:44ch;}
@@ -519,7 +521,7 @@ figure figcaption{
       <div><span class="num">100%</span><div class="lbl">dark mode redesigned &amp; WCAG-checked</div></div>
     </div>
 
-    <figure class="shotfig">
+    <figure class="shotfig stepgap">
       <span class="shot bleed">
         <img src="old-palette.png?v=1" width="1719" height="727"
              alt="The old colour palette board: 168 colours plus 11 additional and 9 gradients. A table counts every occurrence in the codebase by shade, from gray-L25 at 588 down to whole families sitting at zero (cyan, violet, fuchsia and pink barely register), above thumbnails of the fourteen palette sheets it was spread across.">
@@ -527,7 +529,7 @@ figure figcaption{
       <figcaption>Step 1: identifying colour occurrences in agile with devs</figcaption>
     </figure>
 
-    <figure class="shotfig">
+    <figure class="shotfig stepgap">
       <span class="shot framed bleed">
         <img src="elimination.png?v=1" width="1699" height="734"
              alt="Elimination pass: each colour family listed as colour, usage count and a token tick, with struck-through rows marking the shades being cut and a half-tick for those kept only in dark mode. Below, a Tokens board headed Total tokens currently 115, grouping the token set by purpose: three colours for background, five for content, seven and nine background sets, and the danger set broken into strokes, text and background colours.">
@@ -559,7 +561,6 @@ figure figcaption{
       <li><b>Business</b> – new features assemble from system components instead of starting from scratch; one visual language across web, mobile and tablet.</li>
       <li><b>Design &amp; dev</b> – a single source of truth: a button fix that took two hours now takes five minutes, and a brand color change is one edit.</li>
     </ul>
-    <div class="pull">Adoption happened because unification was the fastest path, not because it was mandated.<small>Key insight</small></div>
   </section>
 
   <!-- ================= 06 CONCLUSION ================= -->
