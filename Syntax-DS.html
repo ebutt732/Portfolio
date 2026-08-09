@@ -159,6 +159,22 @@ code{
   .topbar .readtime{display:none;}   /* keep the section nav readable; toggle stays */
 }
 
+/* ---------- touch targets ----------
+   On touch widths every control grows to at least 36px, and the square ones
+   to a full 36x36. Icons scale with them so the glyph does not sit lost in
+   the middle of a bigger box. */
+@media (max-width:768px){
+  .topbar .back, .themetoggle{
+    width:36px; height:36px; border-radius:9px;
+  }
+  .topbar .back{flex:0 0 36px;}
+  .topbar .back svg{width:17px; height:17px;}
+  .themetoggle svg{width:18px; height:18px;}
+  /* the label is inline-flex, so a min-height keeps the text centred in it */
+  .botbar .nextproj{min-height:36px; padding-top:0; padding-bottom:0;}
+  .topbar .name{font-size:.9rem;}    /* ~2px taller than the desktop wordmark */
+}
+
 /* ---------- hero ---------- */
 .hero{padding:44px 0 8px;}
 /* max-width tuned so the two-line break lands after "design" at every size */
@@ -327,14 +343,14 @@ figure figcaption{
 /* ---------- mobile: tap an image to open it fullscreen, then pinch to zoom ---------- */
 .zoombtn{
   position:absolute; right:10px; bottom:10px; z-index:3;
-  width:28px; height:28px; display:none;      /* shown on small screens only */
+  width:36px; height:36px; display:none;      /* shown on small screens only */
   align-items:center; justify-content:center; padding:0;
-  border:1px solid rgba(255,255,255,.3); border-radius:7px;
+  border:1px solid rgba(255,255,255,.3); border-radius:9px;
   background:rgba(8,10,14,.62); color:#fff; cursor:zoom-in;
   -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
 }
 .zoombtn svg{
-  width:16px; height:16px; display:block;      /* the 16x16 zoom glyph */
+  width:19px; height:19px; display:block;      /* the zoom glyph */
   fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;
 }
 @media (max-width:768px){ .zoombtn{display:flex;} }
