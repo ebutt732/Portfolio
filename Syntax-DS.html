@@ -323,6 +323,47 @@ figure figcaption{
   font-family:'IBM Plex Mono',monospace; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase;
   color:var(--muted); white-space:nowrap; padding:0; border:0; background:none;
 }
+
+/* ---------- mobile: tap an image to open it fullscreen, then pinch to zoom ---------- */
+.zoombtn{
+  position:absolute; right:10px; bottom:10px; z-index:3;
+  width:28px; height:28px; display:none;      /* shown on small screens only */
+  align-items:center; justify-content:center; padding:0;
+  border:1px solid rgba(255,255,255,.3); border-radius:7px;
+  background:rgba(8,10,14,.62); color:#fff; cursor:zoom-in;
+  -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+}
+.zoombtn svg{
+  width:16px; height:16px; display:block;      /* the 16x16 zoom glyph */
+  fill:none; stroke:currentColor; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round;
+}
+@media (max-width:768px){ .zoombtn{display:flex;} }
+
+.lightbox{
+  position:fixed; inset:0; z-index:1000; display:none; overflow:hidden;
+  background:#05070B; touch-action:none; overscroll-behavior:contain;
+}
+.lightbox.open{display:block;}
+.lightbox img{
+  position:absolute; top:0; left:0; max-width:none;
+  transform-origin:0 0; will-change:transform;
+  -webkit-user-select:none; user-select:none; -webkit-user-drag:none;
+}
+.lightbox .lb-close{
+  position:absolute; top:14px; right:14px; z-index:2;
+  width:38px; height:38px; display:flex; align-items:center; justify-content:center;
+  padding:0; border:1px solid rgba(255,255,255,.28); border-radius:10px;
+  background:rgba(8,10,14,.7); color:#fff; cursor:pointer;
+}
+.lightbox .lb-close svg{width:16px; height:16px; display:block; fill:none; stroke:currentColor;
+  stroke-width:1.9; stroke-linecap:round;}
+.lightbox .lb-hint{
+  position:absolute; left:0; right:0; bottom:16px; text-align:center; pointer-events:none;
+  font-family:'IBM Plex Mono',monospace; font-size:.6rem; letter-spacing:.12em;
+  text-transform:uppercase; color:rgba(255,255,255,.6);
+  transition:opacity .3s ease;
+}
+body.lb-open{overflow:hidden;}
 </style>
 
 <script>
@@ -665,6 +706,160 @@ figure figcaption{
   });
   label();
 })();
+
+  /* ---- mobile: fullscreen image viewer with pinch / double-tap zoom ---- */
+  (function(){
+    var imgs = [].slice.call(document.querySelectorAll('figure img'))
+                  .filter(function(img){ return !img.hasAttribute('data-nozoom'); });
+    if (!imgs.length) return;
+
+    var ZOOM_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true">'
+      + '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4 21 21M10.5 7.6v5.8M7.6 10.5h5.8"/></svg>';
+
+    var box, stage, hint, cur, nat = {w:0, h:0};
+    var scale = 1, fit = 1, tx = 0, ty = 0;
+
+    function build(){
+      box = document.createElement('div');
+      box.className = 'lightbox';
+      box.setAttribute('role', 'dialog');
+      box.setAttribute('aria-modal', 'true');
+      box.setAttribute('aria-label', 'Image viewer');
+      box.innerHTML =
+        '<button type="button" class="lb-close" aria-label="Close image viewer">'
+        + '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'
+        + '<img alt="">'
+        + '<div class="lb-hint">Pinch or double-tap to zoom</div>';
+      document.body.appendChild(box);
+      stage = box.querySelector('img');
+      hint  = box.querySelector('.lb-hint');
+      box.querySelector('.lb-close').addEventListener('click', close);
+      wire();
+    }
+
+    function draw(){
+      stage.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+    }
+    function clamp(){
+      var vw = window.innerWidth, vh = window.innerHeight;
+      var w = nat.w * scale, h = nat.h * scale;
+      tx = w <= vw ? (vw - w) / 2 : Math.min(0, Math.max(vw - w, tx));
+      ty = h <= vh ? (vh - h) / 2 : Math.min(0, Math.max(vh - h, ty));
+    }
+    function reset(){
+      fit = Math.min(window.innerWidth / nat.w, window.innerHeight / nat.h);
+      scale = fit; clamp(); draw();
+    }
+    function zoomAt(next, px, py){
+      next = Math.max(fit, Math.min(fit * 8, next));
+      var k = next / scale;
+      tx = px - (px - tx) * k;
+      ty = py - (py - ty) * k;
+      scale = next; clamp(); draw();
+    }
+
+    function open(img){
+      if (!box) build();
+      cur = img;
+      stage.src = img.currentSrc || img.src;
+      stage.alt = img.alt || '';
+      nat.w = img.naturalWidth || img.offsetWidth || 1;
+      nat.h = img.naturalHeight || img.offsetHeight || 1;
+      if (!img.naturalWidth) stage.addEventListener('load', function once(){
+        stage.removeEventListener('load', once);
+        nat.w = stage.naturalWidth; nat.h = stage.naturalHeight; reset();
+      });
+      box.classList.add('open');
+      document.body.classList.add('lb-open');
+      reset();
+      hint.style.opacity = '1';
+      setTimeout(function(){ if (hint) hint.style.opacity = '0'; }, 2200);
+      box.querySelector('.lb-close').focus();
+    }
+    function close(){
+      box.classList.remove('open');
+      document.body.classList.remove('lb-open');
+      if (cur){ var b = cur.parentNode.querySelector('.zoombtn'); if (b) b.focus(); }
+    }
+
+    function wire(){
+      var pts = {}, n = 0, last = {x:0, y:0}, pinch = null, tapT = 0, tapX = 0, tapY = 0, moved = 0;
+
+      box.addEventListener('pointerdown', function(e){
+        if (e.target.closest('.lb-close')) return;
+        pts[e.pointerId] = {x:e.clientX, y:e.clientY};
+        n++;
+        box.setPointerCapture(e.pointerId);
+        if (n === 1){ last = {x:e.clientX, y:e.clientY}; moved = 0; }
+        if (n === 2){
+          var k = Object.keys(pts), a = pts[k[0]], b2 = pts[k[1]];
+          pinch = {d:Math.hypot(a.x - b2.x, a.y - b2.y), s:scale};
+        }
+        e.preventDefault();
+      });
+
+      box.addEventListener('pointermove', function(e){
+        if (!(e.pointerId in pts)) return;
+        pts[e.pointerId] = {x:e.clientX, y:e.clientY};
+        var k = Object.keys(pts);
+        if (n >= 2 && pinch){
+          var a = pts[k[0]], b2 = pts[k[1]];
+          var d = Math.hypot(a.x - b2.x, a.y - b2.y);
+          if (pinch.d > 0) zoomAt(pinch.s * (d / pinch.d), (a.x + b2.x) / 2, (a.y + b2.y) / 2);
+        } else if (n === 1){
+          var dx = e.clientX - last.x, dy = e.clientY - last.y;
+          moved += Math.abs(dx) + Math.abs(dy);
+          last = {x:e.clientX, y:e.clientY};
+          tx += dx; ty += dy; clamp(); draw();
+        }
+      });
+
+      function up(e){
+        if (!(e.pointerId in pts)) return;
+        delete pts[e.pointerId]; n = Math.max(0, n - 1);
+        if (n < 2) pinch = null;
+        if (n === 1){ var k = Object.keys(pts); last = {x:pts[k[0]].x, y:pts[k[0]].y}; }
+        if (n === 0 && moved < 10){
+          var now = Date.now();
+          if (now - tapT < 300 && Math.abs(e.clientX - tapX) < 30 && Math.abs(e.clientY - tapY) < 30){
+            zoomAt(scale > fit * 1.05 ? fit : fit * 3, e.clientX, e.clientY);
+            tapT = 0;
+          } else {
+            tapT = now; tapX = e.clientX; tapY = e.clientY;
+            if (scale <= fit * 1.05) setTimeout(function(){ if (tapT === now) close(); }, 300);
+          }
+        }
+      }
+      box.addEventListener('pointerup', up);
+      box.addEventListener('pointercancel', up);
+      box.addEventListener('dblclick', function(e){
+        zoomAt(scale > fit * 1.05 ? fit : fit * 3, e.clientX, e.clientY);
+      });
+      box.addEventListener('wheel', function(e){
+        e.preventDefault();
+        zoomAt(scale * (e.deltaY < 0 ? 1.12 : 1 / 1.12), e.clientX, e.clientY);
+      }, {passive:false});
+      window.addEventListener('resize', function(){ if (box.classList.contains('open')) reset(); });
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && box.classList.contains('open')) close();
+      });
+    }
+
+    imgs.forEach(function(img){
+      var host = img.closest('.frame, .shot') || img.parentNode;
+      if (getComputedStyle(host).position === 'static') host.style.position = 'relative';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'zoombtn';
+      btn.setAttribute('aria-label', 'View image fullscreen');
+      btn.innerHTML = ZOOM_ICON;
+      btn.addEventListener('click', function(e){ e.preventDefault(); open(img); });
+      host.appendChild(btn);
+      img.addEventListener('click', function(){
+        if (getComputedStyle(btn).display !== 'none') open(img);
+      });
+    });
+  })();
 </script>
 </body>
 </html>
