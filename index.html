@@ -189,7 +189,7 @@
   @media (max-width:680px){
     .nav-end{gap:16px}
     .nav-links{gap:22px}
-    .logo img{height:28px}
+    .logo img{height:30px}
   }
 
   /* ---------- hero ---------- */
@@ -895,6 +895,12 @@
     .logo-row{flex-wrap:wrap;padding-right:0}
     .logo-row.dup{display:none}
   }
+/* ---------- touch targets ----------
+   The toggle is the one square control in the bar; 36x36 on touch widths. */
+@media (max-width:768px){
+  .themetoggle{width:36px; height:36px; border-radius:9px;}
+  .themetoggle svg{width:18px; height:18px;}
+}
 </style>
 </head>
 <body>
