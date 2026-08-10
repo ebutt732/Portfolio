@@ -346,12 +346,18 @@ footer::before{
   .topbar .bar{height:76px; gap:16px;}
   .topbar .endgrp{gap:16px;}
   .topbar .tabs{gap:22px;}
-  .topbar .logo img{height:28px;}   /* the type stays 20px; the wordmark gives way instead */
+  .topbar .logo img{height:30px;}   /* the type stays 20px; the wordmark gives way instead */
   .nutshell{grid-template-columns:1fr; gap:26px;}
   .nutshell .portrait{width:calc((100% - 22px) / 2);}
   .job{grid-template-columns:1fr; row-gap:14px;}
   .job .rail{display:none;}
   section{padding-bottom:56px;}
+}
+/* ---------- touch targets ----------
+   The toggle is the one square control in the bar; 36x36 on touch widths. */
+@media (max-width:768px){
+  .themetoggle{width:36px; height:36px; border-radius:9px;}
+  .themetoggle svg{width:18px; height:18px;}
 }
 </style>
 
