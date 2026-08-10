@@ -377,6 +377,21 @@ body.lb-open{overflow:hidden;}
 footer{border-top:1px solid var(--line); margin-top:40px; padding:24px 0 48px;}
 footer .wrap{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:baseline;}
 footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
+/* ---------- touch targets ----------
+   On touch widths every control grows to at least 36px, and the square ones
+   to a full 36x36. Icons scale with them so the glyph does not sit lost in
+   the middle of a bigger box. */
+@media (max-width:768px){
+  .topbar .back, .themetoggle{width:36px; height:36px; border-radius:9px;}
+  .topbar .back{flex:0 0 36px;}
+  .topbar .back svg{width:17px; height:17px;}
+  .themetoggle svg{width:18px; height:18px;}
+  .zoombtn{width:36px; height:36px; border-radius:9px;}
+  .zoombtn svg{width:19px; height:19px;}
+  /* the label is inline-flex, so a min-height keeps the text centred in it */
+  .botbar .nextproj{min-height:36px; padding-top:0; padding-bottom:0;}
+  .topbar .name{font-size:.9rem;}    /* ~2px taller than the desktop wordmark */
+}
 </style>
 
 <script>
