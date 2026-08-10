@@ -400,7 +400,22 @@ main.wrap{padding-bottom:48px;}   /* .wrap's padding shorthand outranks a bare
 }
 body.lb-open{overflow:hidden;}
 .botbar .cur{font-family:'IBM Plex Mono',monospace; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
-  </style>
+  /* ---------- touch targets ----------
+   On touch widths every control grows to at least 36px, and the square ones
+   to a full 36x36. Icons scale with them so the glyph does not sit lost in
+   the middle of a bigger box. */
+@media (max-width:768px){
+  .topbar .back, .themetoggle{width:36px; height:36px; border-radius:9px;}
+  .topbar .back{flex:0 0 36px;}
+  .topbar .back svg{width:17px; height:17px;}
+  .themetoggle svg{width:18px; height:18px;}
+  .zoombtn{width:36px; height:36px; border-radius:9px;}
+  .zoombtn svg{width:19px; height:19px;}
+  /* the label is inline-flex, so a min-height keeps the text centred in it */
+  .botbar .nextproj{min-height:36px; padding-top:0; padding-bottom:0;}
+  .topbar .name{font-size:.9rem;}    /* ~2px taller than the desktop wordmark */
+}
+</style>
 <script>
 /* Resolve the theme before first paint so data-theme is always set and the
    toggle icon never disagrees with what is on screen. */
