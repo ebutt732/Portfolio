@@ -902,6 +902,360 @@
   .themetoggle{width:36px; height:36px; border-radius:9px;}
   .themetoggle svg{width:18px; height:18px;}
 }
+
+  /* =======================================================================
+     ==  ported from Index-v2  =============================================
+     The testimonials section and the "Try Me!" cursor drawer, lifted across
+     unchanged. Everything above this line is the page as it was.
+     ======================================================================= */
+
+  /* the tokens the two new blocks need, in both themes. The light block sits
+     after the dark one and outweighs it on specificity, the same way the
+     page's own pair does. */
+  :root, :root[data-theme="dark"]{
+    --tile:rgba(255,255,255,.030);
+    --tile-hover:rgba(255,255,255,.055);
+    --tile-line:var(--line);
+    --tile-glare:rgba(255,255,255,.10);
+    --chip:rgba(255,255,255,.05);
+    --quote-mark:rgba(184,174,197,.20);
+    /* the tint is nearly nothing on purpose - a magnifier that washes out what
+       it is over is not magnifying anything */
+    --glass-tint:rgba(255,255,255,.012);
+    --glass-edge:rgba(255,255,255,.38);
+    --glass-ring:rgba(255,255,255,.16);
+    --glass-handle-a:rgba(255,255,255,.34);
+    --glass-handle-b:rgba(255,255,255,.10);
+  }
+  :root[data-theme="light"]{
+    --tile:#FFFFFF;
+    --tile-hover:#FFFFFF;
+    --tile-line:var(--line);
+    --tile-glare:rgba(62,58,78,.06);
+    --chip:rgba(62,58,78,.05);
+    --quote-mark:rgba(115,110,133,.22);
+    --glass-tint:rgba(255,255,255,.05);
+    --glass-edge:rgba(62,58,78,.30);
+    --glass-ring:rgba(62,58,78,.16);
+    --glass-handle-a:rgba(62,58,78,.28);
+    --glass-handle-b:rgba(62,58,78,.10);
+  }
+
+  /* ---------- section heads ----------
+     One step down from .contact-title so the sections read as subordinate to
+     the wordmark, on the same display face and the same tight tracking. */
+  .sec-head{
+    position:relative;z-index:2;
+    display:flex;align-items:flex-end;justify-content:space-between;gap:32px;flex-wrap:wrap;
+    margin-bottom:36px;
+  }
+  .sec-title{
+    font-family:var(--font-display);font-size:clamp(28px,3.4vw,42px);
+    font-weight:500;line-height:1.12;letter-spacing:-.02em;color:var(--heading);margin:0;
+  }
+  .sec-lead{font-size:16px;line-height:1.6;color:var(--ink);max-width:46ch;margin:12px 0 0}
+  /* the small caps label that opens each section - same mono the case studies
+     use for their step numbers, so the page keeps one voice for meta text */
+  .sec-kicker{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--cred-ink);margin:0 0 14px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .sec-kicker::before{content:"";width:26px;height:1px;background:currentColor;opacity:.6}
+
+  /* ---------- testimonials ---------- */
+  .praise{position:relative;z-index:2;padding-top:clamp(90px,10vw,150px)}
+  .praise-grid{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:22px;
+    /* the tilt is a real 3D rotation, so the grid has to own the vanishing
+       point - set on the parent, one perspective is shared by every card and
+       they lean as a group instead of each in its own little world */
+    perspective:1100px;
+  }
+  .tcard{
+    position:relative;overflow:hidden;
+    border:1px solid var(--tile-line);border-radius:20px;background:var(--tile);
+    padding:28px 26px 24px;
+    display:flex;flex-direction:column;gap:16px;
+    transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.22,1,.36,1),background .3s ease,border-color .3s ease;
+    will-change:transform;
+  }
+  .tcard:hover{background:var(--tile-hover);border-color:var(--muted)}
+  /* the glare is a soft disc parked at the pointer - --mx/--my are written by
+     the same handler that sets the tilt, so highlight and lean stay in step */
+  .tcard::before{
+    content:"";position:absolute;inset:0;pointer-events:none;opacity:0;
+    transition:opacity .35s ease;
+    background:radial-gradient(220px 220px at var(--mx,50%) var(--my,50%),var(--tile-glare),transparent 70%);
+  }
+  .tcard:hover::before{opacity:1}
+  /* an oversized quote mark bled off the top-right corner, sitting behind the
+     copy as texture rather than beside it as punctuation */
+  .tcard .qm{
+    position:absolute;top:-26px;right:6px;
+    font-family:var(--font-display);font-size:130px;line-height:1;font-weight:700;
+    color:var(--quote-mark);pointer-events:none;user-select:none;
+  }
+  .tcard .stars{display:flex;gap:3px;color:var(--accent)}
+  .tcard .stars svg{width:15px;height:15px;display:block;fill:currentColor}
+  .tcard blockquote{
+    font-size:17px;line-height:1.62;color:var(--text);margin:0;position:relative;
+  }
+  .tcard blockquote b{color:var(--bright);font-weight:500}
+  .tcard .by{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:6px}
+  .tcard .by .pic{
+    width:40px;height:40px;flex:0 0 auto;border-radius:50%;
+    display:grid;place-items:center;
+    font-family:var(--font-display);font-size:15px;font-weight:600;color:#fff;
+  }
+  .tcard .by .who b{display:block;font-size:15px;font-weight:500;color:var(--bright)}
+  .tcard .by .who span{font-size:13px;color:var(--ink)}
+  /* the first card spans two columns and opens the section. The type stays at
+     the set's own size - the extra width is the whole emphasis, and scaling
+     the quote up as well made it read as a different component. */
+  .tcard.wide{grid-column:span 2}
+
+  /* ---- the row under the grid: the rating on the left, the source on the
+     right. The stat is the part that does the persuading, so it leads. ---- */
+  .praise-foot{
+    margin-top:30px;display:flex;align-items:center;justify-content:space-between;
+    gap:24px;flex-wrap:wrap;
+  }
+  .rating{display:flex;align-items:center;gap:12px}
+  .rating .score{
+    font-family:var(--font-display);font-size:30px;font-weight:600;line-height:1;
+    color:var(--bright);letter-spacing:-.01em;
+  }
+  .rating .of{font-size:15px;color:var(--ink);line-height:1.45}
+  .rating .of b{display:block;color:var(--muted);font-weight:400}
+  .rating .stars{display:flex;gap:3px;color:var(--accent);margin-right:2px}
+  .rating .stars svg{width:16px;height:16px;display:block;fill:currentColor}
+  /* the CTA. Stroked at rest like every other control on the page, filling
+     with the accent on hover - and the arrow leaves the box, which is the
+     one thing that says "this goes somewhere else" rather than "this opens". */
+  .tm-btn{
+    display:inline-flex;align-items:center;gap:12px;
+    padding:14px 22px;border:1px solid var(--line);border-radius:999px;
+    color:var(--muted);text-decoration:none;
+    font-family:var(--font-ui);font-size:15px;font-weight:500;
+    transition:background .2s ease,color .2s ease,border-color .2s ease;
+  }
+  .tm-btn:hover,.tm-btn:focus-visible{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .tm-btn svg{width:17px;height:17px;display:block;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s cubic-bezier(.22,1,.36,1)}
+  .tm-btn:hover svg{transform:translate(3px,-3px)}
+  @media (max-width:980px){
+    .praise-grid{grid-template-columns:repeat(2,1fr)}
+    .tcard.wide{grid-column:span 2}
+  }
+  @media (max-width:640px){
+    .praise-grid{grid-template-columns:1fr}
+    .tcard.wide{grid-column:span 1}
+  }
+
+  /* Two fits for this page rather than Index-v2's. There is no section after
+     the testimonials here, so the clearance down to the footer is carried on
+     the section itself; and this page snaps card to card, so without a stop of
+     its own a flick off the last card would sail straight past the quotes to
+     the contact banner. */
+  .praise{padding-bottom:clamp(24px,4vw,56px);scroll-snap-align:start;scroll-margin-top:28px}
+
+  /* ---------- the cursor layer ----------
+     Two effects, one at a time, both painted in a fixed layer above the page
+     and inert to the pointer. Neither exists on a touch device: the dock is
+     hidden under (hover:none), and the script never arms itself there. */
+  .curlayer{position:fixed;inset:0;z-index:60;pointer-events:none}
+  #bubbleCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60}
+  /* ---- the magnifier ----
+     A lens, not a frosted panel: the copy behind it has to stay readable, so
+     there is no blur to speak of. What makes it read as glass is the geometry
+     instead - #lensWarp displaces the backdrop toward the centre, which is a
+     real magnification, and puts a steeper squeeze in the last third of the
+     radius so the type bends as it crosses the rim the way it does under a
+     loupe. The map that drives it is generated in JS; see makeLensMap().
+
+     The blur is a hair over nothing (0.35px) purely to take the aliasing off
+     the displaced edges. If url(#lensWarp) is ignored - the displacement is
+     the one part of this with uneven support - what is left is still a clean
+     bright lens with a rim, which is the right thing to degrade to. */
+  .glassframe{
+    --lens:112px;
+    position:fixed;left:0;top:0;width:var(--lens);height:var(--lens);
+    margin:calc(var(--lens) / -2) 0 0 calc(var(--lens) / -2);
+    border-radius:50%;
+    background:var(--glass-tint);
+    -webkit-backdrop-filter:url(#lensWarp) blur(.35px) brightness(1.06) saturate(1.1);
+            backdrop-filter:url(#lensWarp) blur(.35px) brightness(1.06) saturate(1.1);
+    box-shadow:
+      /* the glass edge, then the bright arc where light catches the top of the
+         curve, then the bounce along the bottom inner wall */
+      inset 0 0 0 1px var(--glass-edge),
+      inset 0 3px 7px -4px rgba(255,255,255,.75),
+      inset 0 -12px 20px -16px rgba(255,255,255,.5),
+      /* the ring outside the glass is the bezel it is set into */
+      0 0 0 1.5px var(--glass-ring),
+      0 12px 30px -14px rgba(0,0,0,.6);
+    opacity:0;transition:opacity .28s ease,box-shadow .25s ease;
+    will-change:transform;
+  }
+  .glassframe.live{opacity:1}
+  /* over a link or a control the bezel picks up the accent - the lens itself
+     holds its size, because the displacement map is cut for one radius and
+     resizing the element would slide the warp out of register with it */
+  .glassframe.hot{
+    box-shadow:
+      inset 0 0 0 1px var(--glass-edge),
+      inset 0 3px 7px -4px rgba(255,255,255,.75),
+      inset 0 -12px 20px -16px rgba(255,255,255,.5),
+      0 0 0 2px var(--accent),
+      0 12px 30px -14px rgba(0,0,0,.6);
+  }
+  /* the specular: a crescent along the upper-left of the curve, kept off the
+     centre so it never sits on top of what is being read */
+  .glassframe::before{
+    content:"";position:absolute;inset:1px;border-radius:inherit;pointer-events:none;
+    background:
+      radial-gradient(32% 21% at 30% 18%,rgba(255,255,255,.26),transparent 70%),
+      radial-gradient(22% 15% at 74% 84%,rgba(255,255,255,.09),transparent 74%);
+  }
+  /* the handle, hinged at the rim on the lower right. It is drawn outside the
+     lens rather than inside it, so it never crosses the glass - and because it
+     rides the frame's own rotate, it swings a little as the pointer moves. */
+  .glassframe::after{
+    content:"";position:absolute;left:83%;top:83%;
+    width:38px;height:11px;border-radius:0 6px 6px 0;
+    transform-origin:0 50%;transform:rotate(45deg);
+    background:linear-gradient(180deg,var(--glass-handle-a),var(--glass-handle-b));
+    box-shadow:0 0 0 1px var(--glass-ring),0 6px 14px -7px rgba(0,0,0,.7);
+    pointer-events:none;
+  }
+  /* the readout under the lens - it names what is being magnified, which is
+     what turns the effect from decoration into a hint */
+  .glassframe em{
+    position:absolute;left:50%;top:calc(100% + 16px);transform:translateX(-50%);
+    font-family:var(--font-mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--muted);font-style:normal;white-space:nowrap;opacity:.75;
+  }
+  /* the filter's own svg host - zero-sized, but it must stay in the layout
+     (not display:none) or Chrome drops the filter it defines */
+  .lens-defs{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+
+  /* ---- the "Try Me!" drawer ----
+     A pull-tab against the right edge with the mode list behind it. The whole
+     component travels as one piece: closing translates it right by exactly the
+     panel's width, which parks the panel off-screen and leaves the tab flush
+     against the edge. That is why --tp-w is a single number rather than a
+     width on the panel and an offset on the dock - the two can never disagree.
+
+     top is set to where the tagline's first line starts: 82 nav + 52 hero
+     padding + 60 h1 line + 24 tagline margin. Recompute it if any of those
+     four move. */
+  .trydock{
+    --tp-w:218px;
+    position:fixed;right:0;top:218px;z-index:70;
+    display:flex;align-items:flex-start;
+    transition:transform .45s cubic-bezier(.22,1,.36,1);
+  }
+  .trydock.closed{transform:translateX(var(--tp-w))}
+  @media (max-width:820px){.trydock{top:202px}}   /* h1 drops to a 44px line */
+  /* and this page, unlike Index-v2, also drops the nav to 76px at 680 - so the
+     tagline, and the drawer pinned to it, come up another 6 */
+  @media (max-width:680px){.trydock{top:196px}}
+
+  /* The bookmark. It exists only in the collapsed state - open, the panel's
+     own header does the collapsing and a second copy of the same word turned
+     on its side would just be noise. It keeps its box in the flow either way
+     and hides on opacity rather than display, so the panel never jumps sideways
+     as it appears and it can fade in behind the closing slide. */
+  .trydock-tab{
+    flex:0 0 auto;margin-top:8px;padding:13px 0 17px;width:42px;
+    display:flex;flex-direction:column;align-items:center;gap:11px;
+    border:1px solid var(--line);border-right:0;border-radius:14px 0 0 14px;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);
+    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+    box-shadow:-10px 18px 40px -22px rgba(0,0,0,.75);
+    color:var(--muted);cursor:pointer;
+    opacity:0;visibility:hidden;
+    transition:opacity .22s ease,visibility 0s linear .22s,color .2s ease,border-color .2s ease;
+  }
+  /* fades in a beat into the slide, so the panel is already on its way out */
+  .trydock.closed .trydock-tab{
+    opacity:1;visibility:visible;
+    transition:opacity .3s ease .16s,visibility 0s,color .2s ease,border-color .2s ease;
+  }
+  .trydock-tab:hover,.trydock-tab:focus-visible{color:var(--accent);border-color:var(--accent)}
+  /* The one run of vertical type on the page, and it earns it: a bookmark is
+     the shape. writing-mode rather than a rotate, so the box sizes itself to
+     the word. The cursor mark is a sibling above it rather than a child -
+     inside the rotated run it would be turned on its side with the glyphs,
+     and a sideways arrow is not a cursor. */
+  .trydock-tab .lbl{
+    writing-mode:vertical-rl;transform:rotate(180deg);
+    font-family:var(--font-ui);font-size:13px;font-weight:500;letter-spacing:.08em;
+  }
+  .trydock-tab svg{display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .trydock-tab .ico{width:15px;height:15px;fill:currentColor;stroke:none}
+  .trydock-tab .chev{width:16px;height:16px}
+
+  .trydock-panel{
+    flex:0 0 auto;width:var(--tp-w);margin-left:-1px;
+    border:1px solid var(--line);border-right:0;border-radius:16px 0 0 16px;
+    background:color-mix(in srgb,var(--bg) 88%,transparent);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    box-shadow:-16px 24px 60px -28px rgba(0,0,0,.8);
+    padding:14px 14px 12px;
+    /* off-screen is not enough on its own - the buttons would still be in the
+       tab order. visibility takes them out, and is delayed by the length of
+       the slide so it does not blink away before the panel has left. */
+    visibility:visible;transition:visibility 0s;
+  }
+  .trydock.closed .trydock-panel{visibility:hidden;transition:visibility 0s linear .45s}
+  /* The header is the collapse control, not a caption - so it carries the name
+     and the arrow that puts the panel away, and the whole row is the hit area. */
+  .trydock-head{
+    display:flex;align-items:center;gap:9px;width:100%;
+    padding:2px 4px 11px;border:0;background:transparent;cursor:pointer;
+    border-bottom:1px solid var(--line-soft);margin-bottom:10px;
+    font-family:var(--font-ui);font-size:14px;font-weight:500;letter-spacing:.01em;
+    color:var(--muted);text-align:left;
+    transition:color .2s ease;
+  }
+  .trydock-head:hover,.trydock-head:focus-visible{color:var(--accent)}
+  .trydock-head svg{flex:0 0 auto;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .trydock-head .ico{width:15px;height:15px;fill:currentColor;stroke:none}
+  .trydock-head .chev{width:16px;height:16px;margin-left:auto;transition:transform .25s cubic-bezier(.22,1,.36,1)}
+  .trydock-head:hover .chev{transform:translateX(3px)}
+
+  /* the mode list. Same buttons the playground tile builds, laid out as rows
+     here and as pills there - the script writes one markup for both. */
+  .curdock{display:flex;flex-direction:column;gap:4px}
+  .curdock button{
+    display:flex;align-items:center;gap:10px;width:100%;
+    border:0;background:transparent;color:var(--ink);cursor:pointer;
+    border-radius:10px;padding:10px 11px;text-align:left;
+    font-family:var(--font-ui);font-size:14px;
+    transition:background .2s ease,color .2s ease;
+  }
+  .curdock button svg{width:15px;height:15px;flex:0 0 auto;display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+  .curdock button:hover{background:var(--chip);color:var(--bright)}
+  .curdock button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+  /* the tick only exists on the selected row, so the rows do not carry a
+     column of empty space waiting for it */
+  .curdock button .tick{margin-left:auto;width:14px;height:14px;opacity:0;transition:opacity .2s ease}
+  .curdock button[aria-pressed="true"] .tick{opacity:1}
+
+  /* the copy of the list that lives inside the playground tile - pills in a
+     row rather than a stacked menu, and it stays put on touch so the tile is
+     not an empty box there (the script swaps its contents for a note) */
+  .curdock.inline{
+    flex-direction:row;flex-wrap:wrap;justify-content:center;gap:6px;
+  }
+  .curdock.inline button{width:auto;border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:13px}
+  .curdock.inline button .tick{display:none}
+  .curdock.inline .note{font-size:12.5px;color:var(--ink);text-align:center;line-height:1.5}
+  /* no pointer to decorate, and no reason to run either loop */
+  @media (hover:none),(pointer:coarse){.trydock,.curlayer,#bubbleCanvas{display:none}}
+  @media (prefers-reduced-motion: reduce){.trydock{display:none}}
 </style>
 </head>
 <body>
@@ -1024,6 +1378,120 @@
     </section>
   </main>
 
+  <section class="praise container" id="praise">
+    <div class="sec-head">
+      <div>
+        <p class="sec-kicker">Kind words</p>
+        <h2 class="sec-title">Hear what other<br>designers have to say</h2>
+      </div>
+      <p class="sec-lead">From 1:1 sessions with UX community members and junior designers on Topmate.</p>
+    </div>
+
+    <div class="praise-grid" id="praiseGrid">
+      <figure class="tcard wide">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <div class="stars" aria-label="Rated 5 out of 5">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+        </div>
+        <blockquote>I had a really helpful session with eeman around transitioning from graphic design to UI/UX. They explained things in a very clear and relatable way, <b>without any jargon</b>. I felt comfortable asking even basic questions, and they gave honest, practical advice based on real experience. I left the call with more clarity on how to move forward and what to focus on next. Would definitely recommend them to anyone starting out in UI/UX.</blockquote>
+        <figcaption class="by">
+          <span class="pic" style="background:linear-gradient(135deg,#7775ff,#3d3ac0)" aria-hidden="true">SK</span>
+          <span class="who"><b>Sourav Kumar</b><span>Topmate 1:1 &middot; Jul 2025</span></span>
+        </figcaption>
+      </figure>
+
+      <figure class="tcard">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <div class="stars" aria-label="Rated 5 out of 5">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+        </div>
+        <blockquote>Eeman was super comfortable to talk and gave me <b>a clear plan on what I should do to prepare for my interview</b>! Really appreciated her insights and for sure will book another session soon. &lt;3</blockquote>
+        <figcaption class="by">
+          <span class="pic" style="background:linear-gradient(135deg,#f2a7c3,#b45a82)" aria-hidden="true">AU</span>
+          <span class="who"><b>Amna Usman</b><span>Topmate 1:1 &middot; Feb 2025</span></span>
+        </figcaption>
+      </figure>
+
+      <figure class="tcard">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <div class="stars" aria-label="Rated 5 out of 5">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+        </div>
+        <blockquote>I had a great session with Eeman where we discussed my questions in depth. She was incredibly helpful, sharing real examples and insights around <b>the design thinking process, building design systems, and handling feedback from marketing and development teams</b>. Her guidance was clear and thoughtful. Looking forward to connecting again for more learning!</blockquote>
+        <figcaption class="by">
+          <span class="pic" style="background:linear-gradient(135deg,#5eb5a1,#2f665a)" aria-hidden="true">MT</span>
+          <span class="who"><b>Muhammad Taif</b><span>Topmate 1:1 &middot; Jul 2025</span></span>
+        </figcaption>
+      </figure>
+
+      <figure class="tcard">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <div class="stars" aria-label="Rated 5 out of 5">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+        </div>
+        <blockquote>I had a great session with Eeman! As someone new to UX, her advice really helped me understand how to get started the right way. She explained everything in a simple and clear way, shared useful tools, and gave <b>practical tips I can actually use</b>. Highly recommend her to anyone starting their UX journey!</blockquote>
+        <figcaption class="by">
+          <span class="pic" style="background:linear-gradient(135deg,#99E1FF,#3763e4)" aria-hidden="true">MH</span>
+          <span class="who"><b>Muhammad Hasan</b><span>Topmate 1:1 &middot; Aug 2025</span></span>
+        </figcaption>
+      </figure>
+
+      <figure class="tcard">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <div class="stars" aria-label="Rated 5 out of 5">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+        </div>
+        <blockquote>I had the pleasure of an insightful session with Eeman, and it was incredibly valuable. She shared <b>actionable tips on how to prepare for a design interview</b>, which boosted my confidence. Her innovative ideas and industry expertise also sparked new perspectives on design thinking. Thank you for the guidance and inspiration!</blockquote>
+        <figcaption class="by">
+          <span class="pic" style="background:linear-gradient(135deg,#f4b26a,#c07430)" aria-hidden="true">MU</span>
+          <span class="who"><b>Malik Umer</b><span>Topmate 1:1 &middot; Feb 2025</span></span>
+        </figcaption>
+      </figure>
+    </div>
+
+    <div class="praise-foot">
+      <div class="rating">
+        <div class="stars" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
+        </div>
+        <span class="score">5.0</span>
+        <span class="of">out of 5<b>across 14 rated sessions</b></span>
+      </div>
+      <!-- The public profile, deliberately: the testimonials list at
+           topmate.io/dashboard/... is the logged-in owner view and would put a
+           visitor on a login screen. Swap this if Topmate ever exposes a
+           public permalink for the reviews themselves. -->
+      <a class="tm-btn" href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer">
+        Read all 14 on Topmate
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16 16 8M9.4 8H16v6.6"/></svg>
+      </a>
+    </div>
+  </section>
+
   <footer id="contact">
     <div class="grid-bg bottom"></div>
     <div class="contact container">
@@ -1065,6 +1533,48 @@
   </footer>
   <div class="end-space"></div>
 </div>
+
+<!-- ==================== the cursor layer ====================
+     Both effects paint here, above the page and inert to the pointer. The
+     canvas is for the bubbles; the frame is the glass one. The dock is the
+     only part of this that takes a click. -->
+<!-- The magnifier's optics. feDisplacementMap moves every backdrop pixel by the
+     vector packed into the red and green channels of #lensMap, which is drawn on
+     a canvas at runtime - see makeLensMap(). Nothing is authored here but the
+     wiring; primitiveUnits="userSpaceOnUse" is what lets the map be placed in
+     the element's own pixels rather than in fractions of its box. -->
+<svg class="lens-defs" aria-hidden="true" focusable="false">
+  <filter id="lensWarp" x="0" y="0" width="100%" height="100%"
+          filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse"
+          color-interpolation-filters="sRGB">
+    <feImage id="lensMap" x="0" y="0" width="112" height="112" preserveAspectRatio="none" result="map"/>
+    <feDisplacementMap id="lensDisp" in="SourceGraphic" in2="map" scale="28"
+                       xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+<canvas id="bubbleCanvas" aria-hidden="true"></canvas>
+<div class="curlayer" aria-hidden="true">
+  <div class="glassframe" id="glassFrame">
+    <em id="glassLabel"></em>
+  </div>
+</div>
+<aside class="trydock" id="tryDock">
+  <!-- the collapsed-state bookmark: opens the panel -->
+  <button type="button" class="trydock-tab" id="tryTab" aria-expanded="false" aria-controls="tryPanel">
+    <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.6l13 7.4-5.6 1.6-1.6 5.6z"/></svg>
+    <span class="lbl">Try Me!</span>
+  </button>
+  <div class="trydock-panel" id="tryPanel">
+    <!-- and the open-state header: same name, horizontal, closes the panel -->
+    <button type="button" class="trydock-head" id="tryClose" aria-expanded="true" aria-controls="tryPanel">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.6l13 7.4-5.6 1.6-1.6 5.6z"/></svg>
+      Try Me!
+      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
+    </button>
+    <div class="curdock" id="curDock" role="group" aria-label="Cursor effect"></div>
+  </div>
+</aside>
 
 <script>
 /* Build the Sentinel ERP schedule mock (used in cards 1 & 2) */
@@ -1203,6 +1713,450 @@
     apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   });
   label();
+})();
+</script>
+
+<script>
+/* =========================================================================
+   ==  ported from Index-v2  ==============================================
+   Two independent IIFEs: the testimonial tilt and the cursor layer. Neither
+   talks to anything above it, so either can be lifted back out on its own.
+   ========================================================================= */
+
+var REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+var FINE    = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+
+/* -------------------------------------------------------- testimonials ---
+   Each card leans toward the pointer and lights where it is. The rotation
+   and the glare come off the same normalised position, so the highlight
+   always sits on the corner nearest the reader. */
+(function(){
+  if (REDUCED || !FINE) return;
+  Array.prototype.forEach.call(document.querySelectorAll('.tcard'), function(card){
+    card.addEventListener('pointermove', function(e){
+      var r = card.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width;
+      var py = (e.clientY - r.top) / r.height;
+      card.style.setProperty('--mx', (px * 100).toFixed(1) + '%');
+      card.style.setProperty('--my', (py * 100).toFixed(1) + '%');
+      /* short and linear while the pointer is on the card - a spring here
+         would lag behind the cursor and read as sludge rather than weight */
+      card.style.transition = 'transform .1s linear, background .3s ease, border-color .3s ease';
+      card.style.transform =
+        'rotateX(' + ((0.5 - py) * 7).toFixed(2) + 'deg)' +
+        'rotateY(' + ((px - 0.5) * 9).toFixed(2) + 'deg)' +
+        'translateZ(10px)';
+    });
+    card.addEventListener('pointerleave', function(){
+      card.style.transition = '';   // back to the sheet's own eased return
+      card.style.transform = '';
+    });
+  });
+})();
+
+/* --------------------------------------------------------- cursor layer ---
+   Three modes, one at a time, both effects painted above the page and inert
+   to the pointer. The mode is remembered next to the theme, and neither
+   effect arms itself without a fine pointer or with motion turned down. */
+(function(){
+  var MODES = [
+    { id: 'off', label: 'Default',
+      icon: '<path d="M5 3.6l13 7.4-5.6 1.6-1.6 5.6z"/>' },
+    { id: 'glass', label: 'Glass',
+      icon: '<rect x="3.4" y="5.2" width="17.2" height="13.6" rx="3.4"/><path d="M6.6 9.6h4.2M6.6 12.6h7"/>' },
+    { id: 'bubbles', label: 'Bubbles',
+      icon: '<circle cx="9.4" cy="14" r="5.1"/><circle cx="16.8" cy="7.8" r="3"/><circle cx="7.3" cy="11.6" r="1"/>' }
+  ];
+  var STORE = 'eeman-cursor';
+  var mode = 'off';
+  var docks = [document.getElementById('curDock'), document.getElementById('curDockInline')].filter(Boolean);
+  var readout = document.getElementById('curRead');
+
+  /* No pointer to decorate, or motion is turned down: the fixed dock is
+     already hidden by CSS, but the copy in the playground tile would be an
+     empty box, so it says why instead. */
+  if (!FINE || REDUCED){
+    var inline = document.getElementById('curDockInline');
+    if (inline) inline.innerHTML = '<p class="note">' +
+      (REDUCED ? 'Pointer effects are off because your system asks for reduced motion.'
+               : 'Pointer effects need a mouse or a trackpad.') + '</p>';
+    if (readout) readout.textContent = REDUCED ? 'reduced' : 'n/a';
+    return;
+  }
+
+  docks.forEach(function(dock){
+    MODES.forEach(function(m){
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-cur', m.id);
+      b.setAttribute('aria-pressed', 'false');
+      b.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + m.icon + '</svg>' +
+                    '<span class="lbl">' + m.label + '</span>' +
+                    '<svg class="tick" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>';
+      b.addEventListener('click', function(){ set(m.id); });
+      dock.appendChild(b);
+    });
+  });
+
+  /* ---- the drawer ----
+     Open on every load, no exceptions and nothing remembered: the panel is the
+     invitation to try the cursor effects at all, so a visitor who collapsed it
+     once should still be offered it the next time they come back. Only the
+     mode itself persists. State is written straight onto the element - the
+     slide is CSS, so nothing here has to know how far the panel travels. */
+  (function(){
+    var dock = document.getElementById('tryDock');
+    var tab = document.getElementById('tryTab');     // bookmark: opens
+    var shut = document.getElementById('tryClose');  // header: closes
+    if (!dock || !tab || !shut) return;
+    function apply(open){
+      dock.classList.toggle('closed', !open);
+      tab.setAttribute('aria-expanded', open ? 'true' : 'false');
+      shut.setAttribute('aria-expanded', open ? 'true' : 'false');
+      tab.setAttribute('aria-label', 'Open the cursor effects panel');
+      tab.setAttribute('title', 'Open the cursor effects panel');
+      shut.setAttribute('aria-label', 'Collapse the cursor effects panel');
+      shut.setAttribute('title', 'Collapse the cursor effects panel');
+    }
+    var autoDone = false;
+    tab.addEventListener('click', function(){ apply(true); autoDone = true; });
+    shut.addEventListener('click', function(){ apply(false); autoDone = true; });
+
+    /* Fold down once the Portfolio wordmark has gone past. The hero is the
+       drawer's own room - it is anchored to the tagline and there is nothing
+       under it there - but the case studies start immediately below the
+       wordmark, and a fixed panel over the right of the rail would sit on top
+       of them. So the trigger is the wordmark clearing the drawer's own top
+       edge, measured live rather than hard-coded: that is the exact moment the
+       panel stops having empty page beneath it.
+
+       It folds once. After that the reader's clicks are the only thing that
+       moves it - otherwise the panel would keep snapping shut under someone who
+       had just opened it, which is the opposite of "only display it again on
+       click". */
+    var mark = document.querySelector('.portfolio-title');
+    window.addEventListener('scroll', function(){
+      if (autoDone) return;
+      var past = mark
+        ? mark.getBoundingClientRect().bottom <= dock.getBoundingClientRect().top
+        : window.scrollY > 900;      // no wordmark on the page: fall back to a depth
+      if (!past) return;
+      autoDone = true;
+      if (!dock.classList.contains('closed')) apply(false);
+    }, { passive: true });
+
+    apply(true);
+  })();
+
+  /* ---- the magnifier ---- */
+  var fr = document.getElementById('glassFrame');
+  var frLabel = document.getElementById('glassLabel');
+  var ZONES = { 'work-rail': 'case studies', 'praise': 'kind words', 'playground': 'playground', 'contact': 'contact', 'work': 'portfolio' };
+
+  /* Paint the displacement map the lens filter reads.
+
+     feDisplacementMap moves the backdrop pixel at p by SCALE x (channel - 0.5),
+     so the map is a picture of a vector field: red carries x, green carries y,
+     and a flat 0.5 means "leave this pixel alone". Every pixel here points back
+     toward the centre of the lens - drawing a pixel with what sits nearer the
+     middle than it does is the whole of what magnification is.
+
+     The magnitude is what makes it read as glass rather than as a crop. Pulling
+     by (1 - 1/MAG) x the distance out, everywhere, is a clean MAG-times zoom -
+     but it is largest exactly at the rim, so the edge of the lens becomes a hard
+     seam where the page jumps. TAPER kills the pull off to nothing across the
+     last of the radius instead: content at the rim lines up with the page it
+     sits on, the middle is magnified, and the band between the two is where the
+     magnification is falling away - which is the squeeze that bends a straight
+     line as it crosses the edge of a real loupe.
+
+     SCALE has to clear twice the largest offset or the channel clips and the rim
+     tears. At 112px and 1.45x that peak is ~9.7px around r=0.6, so 28 is
+     comfortable and keeps the 8-bit quantisation down at a ninth of a pixel. */
+  function makeLensMap(size, mag, edge0, scale){
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var g = c.getContext('2d');
+    var img = g.createImageData(size, size);
+    var d = img.data;
+    var R = size / 2;
+    var k = 1 - 1 / mag;
+    for (var y = 0; y < size; y++){
+      for (var x = 0; x < size; x++){
+        var i = (y * size + x) * 4;
+        var dx = x - R + 0.5, dy = y - R + 0.5;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        var r = dist / R;
+        var rc = 0.5, gc = 0.5;
+        if (dist > 0.001 && r <= 1){
+          var t = Math.min(1, Math.max(0, (r - edge0) / (1 - edge0)));
+          var taper = 1 - (t * t * (3 - 2 * t));   // smoothstep, inverted
+          var off = -(dist * k * taper);
+          rc = 0.5 + (off * (dx / dist)) / scale;
+          gc = 0.5 + (off * (dy / dist)) / scale;
+        }
+        d[i]     = Math.max(0, Math.min(255, Math.round(rc * 255)));
+        d[i + 1] = Math.max(0, Math.min(255, Math.round(gc * 255)));
+        d[i + 2] = 128;
+        d[i + 3] = 255;
+      }
+    }
+    g.putImageData(img, 0, 0);
+    return c.toDataURL();
+  }
+  (function(){
+    var map = document.getElementById('lensMap');
+    if (!map) return;
+    var size = parseFloat(getComputedStyle(fr).width) || 112;
+    map.setAttribute('width', size);
+    map.setAttribute('height', size);
+    var url = makeLensMap(size, 1.45, 0.52, 28);
+    // href for anything current, xlink:href because Safari still wants it
+    map.setAttribute('href', url);
+    map.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', url);
+  })();
+
+  /* ---- bubbles ---- */
+  var cvs = document.getElementById('bubbleCanvas');
+  var ctx = cvs.getContext('2d');
+  var DPR = Math.min(2, window.devicePixelRatio || 1);
+  var bubbles = [];
+  var MAX = 90;      // five gradients a bubble - this is where the frame budget goes
+
+  function fit(){
+    cvs.width = Math.round(innerWidth * DPR);
+    cvs.height = Math.round(innerHeight * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  fit();
+  window.addEventListener('resize', fit);
+
+  /* pointer state, shared by both effects */
+  var mx = innerWidth / 2, my = innerHeight / 2, pmx = mx, pmy = my, inside = false;
+  var gx = mx, gy = my;          // the frame's own lagged position
+  var spawnRun = 0;              // distance travelled since the last bubble
+  var raf = 0, last = 0, hotTick = 0;
+
+  document.addEventListener('pointermove', function(e){
+    if (e.pointerType === 'touch') return;
+    mx = e.clientX; my = e.clientY;
+    inside = true;
+    if (mode !== 'off') start();
+  }, { passive: true });
+  document.addEventListener('pointerleave', function(){ inside = false; });
+  document.addEventListener('pointerdown', function(e){
+    if (mode !== 'bubbles' || e.pointerType === 'touch') return;
+    popNear(e.clientX, e.clientY, 90);
+  }, { passive: true });
+
+  function spawn(x, y, speed){
+    if (bubbles.length >= MAX) return;
+    var r = 7 + Math.random() * Math.random() * 26;   // squared random: mostly small, a few big
+    bubbles.push({
+      x: x + (Math.random() - 0.5) * 18,
+      y: y + (Math.random() - 0.5) * 18,
+      r: r,
+      /* born with a share of the pointer's own motion, so a fast sweep
+         throws a stream and a slow one lets them go where they are */
+      vx: (Math.random() - 0.5) * 1.2 + speed.x * 0.16,
+      vy: (Math.random() - 0.5) * 0.8 + speed.y * 0.16,
+      /* buoyancy scales with size and drag does not, so the big ones rise
+         faster and the small ones hang about - which is the giveaway that
+         tells a real bubble from a floating circle */
+      buoy: 0.012 + r * 0.0016,
+      wob: Math.random() * 6.283,
+      freq: 0.035 + Math.random() * 0.05,
+      amp: 0.25 + Math.random() * 0.75,
+      hue: 190 + Math.random() * 130,
+      life: 260 + Math.random() * 320,
+      fade: 0,
+      pop: 0, popMax: 22, frag: 5 + ((Math.random() * 4) | 0), fragA: Math.random() * 6.283
+    });
+  }
+
+  function popNear(x, y, R){
+    for (var i = 0; i < bubbles.length; i++){
+      var b = bubbles[i];
+      if (b.pop) continue;
+      if (Math.hypot(b.x - x, b.y - y) < R + b.r) b.pop = b.popMax;
+    }
+  }
+
+  function drawBubble(b, alpha){
+    var r = b.r;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(b.x, b.y);
+    /* a moving bubble is not a circle: it stretches along its travel and
+       flattens across it, by a little, capped so it never reads as a smear */
+    var sp = Math.min(0.2, Math.hypot(b.vx, b.vy) * 0.055);
+    ctx.scale(1 - sp * 0.5, 1 + sp * 0.5);
+    ctx.globalCompositeOperation = 'lighter';
+
+    /* The film. Nothing in the middle - a bubble is a shell, and the middle
+       is just the page behind it - then the wall thickens toward the rim and
+       goes bright right at the edge where you are looking through the most
+       soap. The two hues either side of that peak are the thin-film
+       interference: the same wall reads a different colour at a different
+       angle, which is why the rim is never white all the way round. */
+    var g = ctx.createRadialGradient(0, 0, r * 0.2, 0, 0, r);
+    g.addColorStop(0.00, 'rgba(255,255,255,0)');
+    g.addColorStop(0.70, 'rgba(255,255,255,0.03)');
+    g.addColorStop(0.86, 'hsla(' + b.hue + ',92%,74%,0.30)');
+    g.addColorStop(0.955, 'rgba(255,255,255,0.80)');
+    g.addColorStop(0.99, 'hsla(' + ((b.hue + 150) % 360) + ',95%,74%,0.46)');
+    g.addColorStop(1.00, 'rgba(255,255,255,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.2832); ctx.fill();
+
+    /* Two soft off-centre washes in complementary hues, clipped to the
+       sphere - the oil-slick smear that sits across the body rather than on
+       the rim. Clipped, so nothing leaks past the edge of the shell. */
+    ctx.beginPath(); ctx.arc(0, 0, r * 0.995, 0, 6.2832); ctx.clip();
+    var i1 = ctx.createRadialGradient(-r * 0.5, r * 0.45, 0, -r * 0.5, r * 0.45, r * 1.1);
+    i1.addColorStop(0, 'hsla(' + ((b.hue + 40) % 360) + ',95%,70%,0.22)');
+    i1.addColorStop(1, 'hsla(' + ((b.hue + 40) % 360) + ',95%,70%,0)');
+    ctx.fillStyle = i1; ctx.fillRect(-r, -r, r * 2, r * 2);
+    var i2 = ctx.createRadialGradient(r * 0.55, -r * 0.3, 0, r * 0.55, -r * 0.3, r);
+    i2.addColorStop(0, 'hsla(' + ((b.hue + 205) % 360) + ',95%,72%,0.19)');
+    i2.addColorStop(1, 'hsla(' + ((b.hue + 205) % 360) + ',95%,72%,0)');
+    ctx.fillStyle = i2; ctx.fillRect(-r, -r, r * 2, r * 2);
+
+    /* The window: one bright specular up and to the left, and the small
+       bounce-light spot opposite it. Two highlights, not one - a single
+       highlight reads as a bead, a pair reads as a sphere you can see
+       through. */
+    var s1 = ctx.createRadialGradient(-r * 0.36, -r * 0.42, 0, -r * 0.36, -r * 0.42, r * 0.36);
+    s1.addColorStop(0, 'rgba(255,255,255,0.95)');
+    s1.addColorStop(0.5, 'rgba(255,255,255,0.24)');
+    s1.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = s1;
+    ctx.beginPath(); ctx.ellipse(-r * 0.36, -r * 0.42, r * 0.30, r * 0.21, -0.6, 0, 6.2832); ctx.fill();
+
+    var s2 = ctx.createRadialGradient(r * 0.34, r * 0.44, 0, r * 0.34, r * 0.44, r * 0.24);
+    s2.addColorStop(0, 'rgba(255,255,255,0.40)');
+    s2.addColorStop(1, 'rgba(255,255,255,0)');
+    ctx.fillStyle = s2;
+    ctx.beginPath(); ctx.arc(r * 0.34, r * 0.44, r * 0.24, 0, 6.2832); ctx.fill();
+
+    ctx.restore();
+  }
+
+  function drawPop(b){
+    var t = b.pop / b.popMax;                 // 1 at the burst, 0 when gone
+    var rr = b.r * (1 + (1 - t) * 0.85);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.globalAlpha = t;
+    ctx.strokeStyle = 'hsla(' + b.hue + ',95%,82%,0.9)';
+    ctx.lineWidth = Math.max(0.6, b.r * 0.09 * t);
+    ctx.beginPath(); ctx.arc(b.x, b.y, rr, 0, 6.2832); ctx.stroke();
+    /* the wall does not vanish, it beads - a handful of droplets thrown out
+       along the ring it used to be */
+    for (var i = 0; i < b.frag; i++){
+      var a = b.fragA + i * (6.2832 / b.frag);
+      var d = rr * (1 + (1 - t) * 0.45);
+      ctx.fillStyle = 'rgba(255,255,255,' + (t * 0.7).toFixed(3) + ')';
+      ctx.beginPath();
+      ctx.arc(b.x + Math.cos(a) * d, b.y + Math.sin(a) * d, Math.max(0.5, b.r * 0.11 * t), 0, 6.2832);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function tick(now){
+    raf = 0;
+    var dt = Math.min(2.5, (now - last) / 16.667) || 1;
+    last = now;
+    var vx = mx - pmx, vy = my - pmy;
+    pmx = mx; pmy = my;
+
+    if (mode === 'glass'){
+      /* the frame chases at a fixed fraction per frame, so it is always a
+         little behind and the lag is what gives it mass */
+      gx += (mx - gx) * (1 - Math.pow(1 - 0.17, dt));
+      gy += (my - gy) * (1 - Math.pow(1 - 0.17, dt));
+      var lead = Math.max(-9, Math.min(9, (mx - gx) * 0.35));
+      fr.style.transform = 'translate(' + gx.toFixed(1) + 'px,' + gy.toFixed(1) + 'px) rotate(' + lead.toFixed(2) + 'deg)';
+      /* what is under the pointer only needs checking a few times a second -
+         elementFromPoint is the expensive part of this loop */
+      if (++hotTick > 6){
+        hotTick = 0;
+        var el = document.elementFromPoint(mx, my);
+        var hot = el && el.closest('a,button,input,summary,[role="button"],.dot,.toy,.tcard');
+        fr.classList.toggle('hot', !!hot);
+        if (!hot && el){
+          var zone = el.closest('[id]');
+          var name = '';
+          while (zone && !name){ name = ZONES[zone.id] || ''; zone = zone.parentElement && zone.parentElement.closest('[id]'); }
+          frLabel.textContent = name || 'portfolio';
+        }
+      }
+    } else if (mode === 'bubbles'){
+      var moved = Math.hypot(vx, vy);
+      if (inside && moved > 0.5){
+        spawnRun += moved;
+        /* one bubble per 24px of travel, so the stream is set by how far the
+           pointer went rather than by how many frames it took to get there */
+        while (spawnRun > 24){
+          spawnRun -= 24;
+          spawn(mx, my, { x: vx, y: vy });
+        }
+      }
+      ctx.clearRect(0, 0, innerWidth, innerHeight);
+      for (var i = bubbles.length - 1; i >= 0; i--){
+        var b = bubbles[i];
+        if (b.pop){
+          drawPop(b);
+          b.pop -= dt;
+          if (b.pop <= 0) bubbles.splice(i, 1);
+          continue;
+        }
+        b.vy -= b.buoy * dt;
+        b.vy *= Math.pow(0.972, dt);
+        b.vx *= Math.pow(0.965, dt);
+        b.wob += b.freq * dt;
+        b.x += (b.vx + Math.sin(b.wob) * b.amp) * dt;
+        b.y += b.vy * dt;
+        b.r += 0.004 * dt;               // the film thins and the bubble swells
+        b.life -= dt;
+        b.fade = Math.min(1, b.fade + 0.09 * dt);
+        if (b.life <= 0 || b.y + b.r < -20){ b.pop = b.popMax; continue; }
+        drawBubble(b, b.fade * Math.min(1, b.life / 60));
+      }
+    }
+
+    var busy = (mode === 'glass' && (Math.abs(mx - gx) > 0.3 || Math.abs(my - gy) > 0.3)) ||
+               (mode === 'bubbles' && bubbles.length > 0);
+    if (busy) start();
+  }
+
+  function start(){
+    if (!raf && mode !== 'off'){ last = performance.now(); raf = requestAnimationFrame(tick); }
+  }
+
+  function set(id){
+    mode = id;
+    try { localStorage.setItem(STORE, id); } catch (e) {}
+    docks.forEach(function(dock){
+      Array.prototype.forEach.call(dock.querySelectorAll('[data-cur]'), function(b){
+        b.setAttribute('aria-pressed', b.getAttribute('data-cur') === id ? 'true' : 'false');
+      });
+    });
+    if (readout){
+      var m = MODES.filter(function(x){ return x.id === id; })[0];
+      readout.textContent = m ? m.label.toLowerCase() : id;
+    }
+    fr.classList.toggle('live', id === 'glass');
+    if (id !== 'bubbles'){ bubbles.length = 0; ctx.clearRect(0, 0, innerWidth, innerHeight); }
+    if (id === 'glass'){ gx = mx; gy = my; }
+    if (raf){ cancelAnimationFrame(raf); raf = 0; }
+    start();
+  }
+
+  var saved;
+  try { saved = localStorage.getItem(STORE); } catch (e) {}
+  set(MODES.some(function(m){ return m.id === saved; }) ? saved : 'off');
 })();
 </script>
 </body>
