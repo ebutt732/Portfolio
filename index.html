@@ -1051,6 +1051,17 @@
   @media (max-width:640px){
     .praise-grid{grid-template-columns:1fr}
     .tcard.wide{grid-column:span 1}
+    /* One quote on a phone. Stacked into a single column the five become a
+       wall of text sitting between the work and the contact banner, and a
+       reader thumbing past it reads none of them. The rating and the link
+       underneath already carry the weight of numbers, so the one card that
+       covers the most ground stands and the rest fold away - they are still
+       a tap behind "Read all 14 on Topmate". */
+    .praise-grid > .tcard{display:none}
+    .praise-grid > .tcard.phone{display:flex}
+    /* and 24px off the run-up to the section head: 90 is the floor the clamp
+       lands on at this width, so this is that floor less 24 */
+    .praise{padding-top:66px}
   }
 
   /* Two fits for this page rather than Index-v2's. There is no section after
@@ -1420,7 +1431,7 @@
         </figcaption>
       </figure>
 
-      <figure class="tcard">
+      <figure class="tcard phone">
         <span class="qm" aria-hidden="true">&ldquo;</span>
         <div class="stars" aria-label="Rated 5 out of 5">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
