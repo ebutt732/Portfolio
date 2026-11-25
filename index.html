@@ -6,7 +6,7 @@
 <title>Eeman — Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script>
 /* Resolve the theme before first paint so data-theme is always set and the
    toggle icon never disagrees with what is on screen. Dark is the default:
@@ -14,8 +14,8 @@
    about.html, so the choice carries between pages. */
 (function(){
   var t;
-  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
-  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  try{ t = localStorage.getItem('eeman-theme-v3'); }catch(e){}
+  document.documentElement.setAttribute('data-theme', 'dark');   /* the main pages are made for dark mode and have no toggle: always dark, whatever was chosen on the case studies */
 })();
 </script>
 <style>
@@ -23,6 +23,10 @@
     /* palette from sentinel-case-study-full.html (dark theme) */
     color-scheme:dark;
     --bg:#06020E;
+    --grid-tile:#0A0716;                /* the tiles sit a touch above the page colour so the grid still reads on a near-black page (about.html uses the same pair) */
+    --grid-glow:150,130,255; --grid-glow-a:.075;   /* the glow that follows the pointer (colour, and how strong at most) */
+    --grid-core:215,200,255; --grid-core-a:.07;   /* the brighter shade at the centre of the glow (colour, and how strong at most) */
+    --grid-back:#030107;                /* what shows behind the tiles: a darker shade of the page, not black */
     --panel:#151C24;
     --ink:#877891;
     --heading:#8d8195;
@@ -47,10 +51,6 @@
     --wordmark-filter:brightness(.7);
     --avatar-frame:#5E5676;
     --avatar-stroke:#000;
-    /* the badge sits behind the wordmark, so it stays well under it in weight */
-    --badge-line:rgba(184,174,197,.20);
-    --badge-text:#585167;
-    --badge-arrow:#675F7C;
     /* The hero reads as one statement: the greeting and the emphasised run carry
        --hero-em, the plain tagline lines sit a step back on --hero-body. Which
        of the two is lighter has to flip with the theme - on the dark ground the
@@ -61,8 +61,9 @@
        multiplier lands them on an exact known colour - and --cred-ink is set to
        that colour, which is how the caption above them matches by construction
        rather than by eye. 1.5 x #5B4F6C = #8876A2. */
-    --logo-row-filter:brightness(1.5);
     --cred-ink:#8876A2;
+    --logo-hover-filter:url(#logoHoverDark); --logo-hover-ink:#E3DFEA;   /* on hover a logo takes the colour of "Eeman" in the headline (the highlight colour, --role-ink) */
+    --logo-row-filter:url(#logoTintDark);   /* the logos take the colour of the "Worked with teams:" label (--hero-body, #8D8195) */
     /* matches about.html's token of the same name, so the shared footer glows
        identically on both pages rather than at double strength here in light */
     --glow-a:rgba(80,105,255,.16);--glow-b:rgba(120,80,255,.10);
@@ -75,6 +76,10 @@
   :root[data-theme="light"]{
     color-scheme:light;
     --bg:#F2F4F6;
+    --grid-tile:#F2F4F6;
+    --grid-glow:128,92,248; --grid-glow-a:.1;   /* the pointer's glow: a purple */
+    --grid-core:112,64,236; --grid-core-a:.15;  /* and the deeper purple at its centre */
+    --grid-back:#EBEDEF;                /* only a step darker than the tile (as in dark mode), so the lines read as almost white and stay quiet behind the type */
     --panel:#FFFFFF;
     /* Softened off the near-black end: at 40-48px the display type read as
        heavy slabs against the light ground. Still 9:1+ on --bg. The hue is a
@@ -95,18 +100,13 @@
        filter, so the ring and the "Portfolio" letters share a colour */
     --avatar-frame:#BDB7D1;
     --avatar-stroke:#FFFFFF;
-    /* the badge sits behind the wordmark as a hint, not a control - lightened
-       so it stops competing with the light ground. It is aria-hidden, so the
-       drop from 4.8:1 to 3.9:1 is not taking anything from assistive tech. */
-    --badge-line:rgba(94,86,118,.22);
-    --badge-text:#7E7889;
-    --badge-arrow:#7E7889;
     /* flipped against dark: here the emphasis is the darker of the two */
-    --hero-body:#736E85;
+    --hero-body:#7D6BA6;                /* light mode: the plain words, a grey with a hint of purple */
     --hero-em:#3E3A4E;
     /* 1.27 x #5B4F6C = #746489, which holds 4.85:1 on this ground */
-    --logo-row-filter:brightness(1.27);
     --cred-ink:#746489;
+    --logo-hover-filter:url(#logoHoverLight); --logo-hover-ink:#3A1D96;
+    --logo-row-filter:url(#logoTintLight);   /* the same for light: --hero-body, #7D6BA6 */
     --glow-a:rgba(80,105,255,.07);--glow-b:rgba(120,80,255,.05);
     /* Inverted so the artwork's dark tail becomes the light one and the fade
        runs into the light ground instead of into black; the hue-rotate undoes
@@ -129,18 +129,30 @@
   .container{max-width:1200px;margin:0 auto;padding:0 24px}
 
   /* ---------- decorative grid + glow backgrounds ---------- */
+  /* The grid now runs the whole length of the page (it used to fade out after the
+     first 904px), so it keeps scrolling behind the stacked cards and you can see
+     the page moving even while a card is held in place. The two glows stay
+     pinned to the top 904px. The footer no longer draws its own copy of the
+     lines (that would double them): it only keeps its glow. */
   .grid-bg{
-    position:absolute;inset:0;height:904px;pointer-events:none;overflow:hidden;
+    position:absolute;inset:0;pointer-events:none;overflow:hidden;
     background-image:
       linear-gradient(var(--grid-line) 1px,transparent 1px),
       linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
     background-size:120.5px 120.5px;
     background-position:0 -30px;
-    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
-            mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
   }
+  /* The grid now stops after the case study cards (it used to run the full page).
+     It covers the intro and the cards, and fades out over the last 240px. */
+  .grid-zone{position:relative}
+  .grid-zone > .grid-bg{
+    -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 calc(100% - 240px),transparent 100%);
+            mask-image:linear-gradient(180deg,#000 0%,#000 calc(100% - 240px),transparent 100%);
+  }
+  /* the line grid is the fallback: once the tile canvas (script near the end of the page) is running it takes over */
+  html.grid-live .grid-zone > .grid-bg{background-image:none}
   .grid-bg::after{
-    content:"";position:absolute;inset:0;
+    content:"";position:absolute;inset:0 0 auto 0;height:904px;
     background:
       radial-gradient(720px 560px at 88% 6%,var(--glow-a),transparent 65%),
       radial-gradient(900px 700px at 105% 55%,var(--glow-b),transparent 70%);
@@ -154,6 +166,7 @@
             mask-image:linear-gradient(0deg,#000 0%,#000 62%,transparent 100%);
   }
   .grid-bg.bottom::after{
+    inset:auto 0 0 0;height:760px;
     background:
       radial-gradient(820px 620px at 92% 95%,var(--glow-a),transparent 65%),
       radial-gradient(700px 560px at 70% 110%,var(--glow-b),transparent 70%);
@@ -162,19 +175,95 @@
   /* ---------- nav ----------
      Same header component as about.html: 82px bar, 40px wordmark, 20px links
      (light / regular for the current page), theme toggle at the end. */
-  nav{position:relative;z-index:5;height:82px;display:flex;align-items:center}
-  nav .container{width:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
-  .logo{display:inline-flex;align-items:center;flex:0 0 auto}
-  .logo img{height:40px;width:auto;display:block;filter:var(--logo-filter)}
-  .nav-end{display:flex;align-items:center;gap:28px}
-  .nav-links{display:flex;align-items:center;gap:40px}
+  :root{--nav-h:82px}
+  /* The header is fixed to the top. Over the hero it is invisible; once the page
+     scrolls it turns into a 70%-opaque white bar with a blur, so the content
+     moving underneath stays visible but its words never fight with the nav. */
+  nav{
+    --navgap:40px;font-family:var(--font-ui);position:fixed;top:0;left:0;right:0;z-index:50;height:var(--nav-h);
+    display:flex;align-items:center;
+    transition:background-color .25s ease,box-shadow .25s ease,-webkit-backdrop-filter .25s ease,backdrop-filter .25s ease,opacity .3s ease,transform .3s ease;
+  }
+  /* at first glance there is no header: only the title and the case studies. It comes in once the case studies fill the screen (the script toggles .nav-hidden). It still opens for keyboard (Tab) focus, but not for a mouse click. */
+  nav.nav-hidden:not(:has(:focus-visible)){opacity:0;transform:translateY(-14px);pointer-events:none}
+  nav.scrolled{
+    background:rgba(255,255,255,.7);
+    -webkit-backdrop-filter:blur(16px) saturate(1.2);backdrop-filter:blur(16px) saturate(1.2);
+    box-shadow:0 1px 0 rgba(20,27,35,.06);
+  }
+  /* in the dark theme a white bar would glare, so it takes the page colour instead */
+  :root:not([data-theme="light"]) nav.scrolled{
+    background:color-mix(in srgb,var(--bg) 86%,transparent);   /* nearly solid black, so the cards behind it don't wash it out */
+    box-shadow:0 1px 0 rgba(255,255,255,.06);
+  }
+  html{scroll-padding-top:calc(var(--nav-h) + 16px)}
+  #cases{scroll-margin-top:calc(-1 * (var(--nav-h) + 16px) - 1px)}   /* the scroll hint's link lands exactly where the case studies pin and the header comes in, not a header's height short of it */
+  /* the logo sits on the left and every nav item on the right, 40px in from each edge (the same 40px the case study row keeps) */
+  nav .container{width:100%;max-width:none;display:flex;align-items:center;justify-content:space-between;gap:var(--navgap);padding:0 40px}
+  /* logo: the avatar bubble and "Eeman" from the hero's first line. The bubble and
+     the name are centred on one line (the hero sets the bubble about 4px lower than
+     its text), then --logo-lift raises the bubble by 8px. */
+  .nav-logo{--av:44px;--logo-lift:0px;display:flex;align-items:center;gap:12px;flex:0 0 auto;text-decoration:none;color:var(--bright)}
+  .nav-logo .lg-bubble{
+    flex:0 0 var(--av);width:var(--av);height:var(--av);display:flex;align-items:center;justify-content:center;
+    border-radius:50% 50% 0 50%;background:var(--avatar-frame);transform:translateY(calc(-1 * var(--logo-lift)))
+  }
+  .nav-logo .lg-shot{width:calc(var(--av) - 8px);height:calc(var(--av) - 8px);border-radius:50%;overflow:hidden;border:1px solid var(--avatar-stroke)}
+  .nav-logo img{display:block;width:100%;height:100%;object-fit:cover}
+  .nav-logo .lg-name{font-size:20px;font-weight:400;line-height:1;letter-spacing:-.02em}
+  .nav-logo:hover .lg-name,.nav-logo:focus-visible .lg-name{color:var(--accent)}
+
+  .nav-end{display:flex;align-items:center;gap:var(--navgap)}
+  .nav-links{display:flex;align-items:center;gap:var(--navgap)}
   .nav-links a{color:var(--ink);text-decoration:none;font-size:20px;font-weight:300;transition:color .2s}
   .nav-links a:hover{color:var(--bright)}
   .nav-links a.active{color:var(--bright);font-weight:400}
+  /* "Say Hi" is a button that looks like the links beside it */
+  .nav-links .nav-btn{background:none;border:0;padding:0;cursor:pointer;font-family:inherit;color:var(--ink);font-size:20px;font-weight:300;transition:color .2s}
+  .nav-links .nav-btn:hover,.nav-links .nav-btn:focus-visible{color:var(--bright)}
+
+  /* the contact and feedback modal: one template for both */
+  dialog.mdl{
+    margin:auto;padding:0;border:1px solid var(--line);border-radius:22px;background:var(--bg);color:var(--text);
+    width:min(520px,calc(100vw - 48px));max-height:min(86vh,720px);overflow:auto;box-shadow:0 24px 80px rgba(0,0,0,.35);
+  }
+  dialog.mdl::backdrop{background:rgba(10,8,20,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .mdl-in{padding:26px 28px 26px;display:flex;flex-direction:column;gap:18px}
+  .mdl-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .mdl-eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--cred-ink);margin:0;display:flex;align-items:center;gap:10px}
+  .mdl-eyebrow::before{content:"";width:26px;height:1px;background:currentColor;opacity:.6}
+  .mdl-x{width:32px;height:32px;display:grid;place-items:center;padding:0;cursor:pointer;border:1px solid var(--line);border-radius:9px;background:transparent;color:var(--ink);transition:background .15s ease,color .15s ease,border-color .15s ease}
+  .mdl-x:hover,.mdl-x:focus-visible{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .mdl-x svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+  .mdl-title{font-family:var(--font-display);font-size:clamp(26px,4vw,32px);font-weight:500;line-height:1.12;letter-spacing:-.02em;color:var(--heading);margin:0}
+  .mdl-text{font-size:16px;line-height:1.6;color:var(--text);margin:0}
+  .mdl-form{display:flex;flex-direction:column;gap:14px}
+  .mdl-field{display:flex;flex-direction:column;gap:6px}
+  .mdl-field label{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink)}
+  .mdl-field input,.mdl-field textarea{
+    font:400 16px/1.5 var(--font-ui);color:var(--bright);background:var(--tile);
+    border:1px solid var(--tile-line);border-radius:12px;padding:11px 14px;width:100%;
+  }
+  .mdl-field textarea{min-height:120px;resize:vertical}
+  .mdl-field input:focus,.mdl-field textarea:focus{outline:none;border-color:var(--accent)}
+  .mdl-field input[aria-invalid="true"],.mdl-field textarea[aria-invalid="true"]{border-color:#E5605B}   /* a missing or invalid field: red edge, no wording */
+  .mdl-field input[readonly]{color:var(--ink)}
+  .mdl-row{display:flex;gap:10px}
+  .mdl-row input{flex:1}
+  .mdl-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;cursor:pointer;
+    font:500 15px var(--font-ui);color:var(--muted);border:1px solid var(--line);border-radius:12px;background:transparent;
+    transition:background .15s ease,color .15s ease,border-color .15s ease;
+  }
+  .mdl-btn:hover,.mdl-btn:focus-visible{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+  .mdl-btn.primary{background:var(--ink);background:color-mix(in srgb,var(--ink) 70%,var(--bright));color:var(--bg);border-color:transparent}   /* a solid button: the old outline colour (a touch lightened) as the fill, and the modal's own background colour for the label */
+  .mdl-btn.primary:hover,.mdl-btn.primary:focus-visible{background:var(--ink);background:color-mix(in srgb,var(--ink) 30%,var(--bright));color:var(--bg);border-color:transparent}   /* lighter again on hover */
+  .mdl-note{font-size:13px;line-height:1.5;color:var(--ink);margin:0}
+  @media (max-width:480px){.mdl-in{padding:20px 18px 20px}}
 
   /* theme toggle - same button as the case study pages: 28px box, 1px stroke, 15px icon */
   .themetoggle{
-    display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;
+    display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;
     flex:0 0 auto;padding:0;border:1px solid var(--line);border-radius:7px;
     background:transparent;color:var(--ink);cursor:pointer;
     transition:background .15s ease,color .15s ease,border-color .15s ease;
@@ -187,160 +276,226 @@
   :root[data-theme="light"] .themetoggle .i-sun{display:none}
   :root[data-theme="light"] .themetoggle .i-moon{display:block}
   @media (max-width:680px){
-    nav{height:76px}          /* matches about.html so the bar does not jump between pages */
-    .nav-end{gap:16px}
-    .nav-links{gap:22px}
-    .logo img{height:30px}
+    :root{--nav-h:76px}
+    nav{--navgap:8px}
+    nav .container{padding:0 12px}
+    .nav-logo{--av:36px;gap:0}
+    .nav-logo .lg-name{display:none}
+    .nav-links a,.nav-links .nav-btn{font-size:13px;white-space:nowrap}
+    nav .themetoggle{width:32px;height:32px}          /* matches about.html so the bar does not jump between pages */
   }
+
+  /* ---------- phone header: a menu button on the right that opens a drawer from the side ----------
+     Up to 820px wide the four links go into the drawer (the script builds it and adds .nav-js to the page; without the script the links stay in the bar). */
+  .nav-burger{display:none;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-14px;   /* the three lines end 24px from the edge, like everything else */
+    padding:0;background:none;border:0;border-radius:10px;color:var(--ink);cursor:pointer}
+  .nav-burger svg,.drawer-x svg{width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round}
+  .nav-burger:hover,.nav-burger:focus-visible,.drawer-x:hover,.drawer-x:focus-visible{color:var(--bright)}
+  @media (max-width:820px){
+    nav .container{padding:0 24px}
+    html.nav-js .nav-links{display:none}
+    html.nav-js .nav-burger{display:flex}
+  }
+  .drawer-back{position:fixed;inset:0;z-index:70;background:rgba(3,1,7,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .3s ease,visibility 0s linear .3s}
+  .drawer{position:fixed;top:0;right:0;bottom:0;z-index:71;box-sizing:border-box;width:min(84vw,340px);padding:19px 24px 32px;display:flex;flex-direction:column;overflow-y:auto;background:var(--bg);border-left:1px solid var(--line);box-shadow:-24px 0 60px rgba(0,0,0,.35);transform:translateX(100%);visibility:hidden;transition:transform .32s cubic-bezier(.22,1,.36,1),visibility 0s linear .32s}
+  html.drawer-open{overflow:hidden}
+  html.drawer-open .drawer-back{opacity:1;visibility:visible;transition:opacity .3s ease}
+  html.drawer-open .drawer{transform:none;visibility:visible;transition:transform .32s cubic-bezier(.22,1,.36,1)}
+  .drawer-x{align-self:flex-end;display:flex;align-items:center;justify-content:center;width:44px;height:44px;margin-right:-16px;padding:0;background:none;border:0;border-radius:10px;color:var(--ink);cursor:pointer}
+  .drawer-links{display:flex;flex-direction:column;margin-top:20px}
+  .drawer-links a,.drawer-links button{display:block;width:100%;box-sizing:border-box;text-align:left;font-family:var(--font-ui);font-size:28px;font-weight:300;line-height:1.2;letter-spacing:-.02em;color:var(--ink);background:none;border:0;border-bottom:1px solid var(--line);padding:18px 0;text-decoration:none;cursor:pointer;transition:color .2s}
+  .drawer-links a:first-child,.drawer-links button:first-child{border-top:1px solid var(--line)}
+  .drawer-links a.active{color:var(--bright);font-weight:400}
+  .drawer-links a:hover,.drawer-links button:hover,.drawer-links a:focus-visible,.drawer-links button:focus-visible{color:var(--bright)}
+  @media (min-width:821px){.drawer,.drawer-back{display:none}}
+  @media (prefers-reduced-motion:reduce){.drawer,.drawer-back,html.drawer-open .drawer,html.drawer-open .drawer-back{transition:none}}
 
   /* ---------- hero ---------- */
   /* The hero's vertical rhythm is deliberately loose: each group gets enough
      air to read as its own beat rather than one dense block, and the run of
-     space before the wordmark is what pushes the first case study just under
-     the fold - a peek rather than a reveal. 52 / 80 / 180 are the three gaps. */
-  header.hero{position:relative;z-index:2;padding-top:52px}
+     space is kept short on purpose: the logo row is gone and the wordmark sits
+     close under the intro, so the first case study shows in the first fold. */
+  header.hero{position:relative;z-index:2;padding-top:73px}   /* the top of the greeting's letters is as far from the top edge as its left edge is from the left edge (80px); the gap under it (the tagline's margin-top) is set so the grid's lines fall between the lines of type */
   /* Set from the tagline below it - same face, size, weight and leading - and
      carrying the tagline em's --muted rather than --heading, so the greeting
      reads as the opening line of one statement instead of a label above it. */
-  .hero h1{font-family:var(--font-display);font-size:48px;font-weight:300;line-height:60px;color:var(--hero-em)}
-  /* Avatar bubble sitting inline in the h1, between "I'm" and "Eeman".
-     A 68px box against the 48px type, with the bottom-right corner squared off
-     so the ring reads as a speech bubble. The portrait is a 60px circle centred
-     inside, which leaves the 4px ring and the corner wedge. */
-  /* Avatar sits inline in the h1. It opens from zero width, so "Eeman" starts in
-     its natural position hard against "Hey! I'm" and is pushed right as the gap
-     appears - the portrait then fades in behind the widening window. */
-  /* --av is the one number the whole component is built from - the open
-     keyframe, the ring and the portrait inside it all read from it - so the
-     mobile step-down is a single value rather than four in sync. */
-  .hero .avatar{
-    --av:68px;
-    display:inline-flex;align-items:center;
-    width:0;margin:0;overflow:hidden;
-    vertical-align:middle;
-    animation:avatarOpen .55s cubic-bezier(.22,1,.36,1) 1.2s forwards;
-  }
-  /* The bubble is drawn in CSS rather than baked into the artwork, so its ring
-     can follow the theme; .shot carries the photo and its own stroke. */
-  .hero .avatar .bubble{
-    flex:0 0 var(--av);width:var(--av);height:var(--av);
-    display:flex;align-items:center;justify-content:center;
-    border-radius:50% 50% 0 50%;
-    background:var(--avatar-frame);
-    opacity:0;
-    /* starts while the gap is ~75% open, so the move still reads as leading the
-       reveal but the space never sits visibly empty */
-    animation:avatarIn .45s ease 1.4s forwards;
-  }
-  /* 8px inside the ring, which is the 4px band the bubble reads by */
-  .hero .avatar .shot{
-    width:calc(var(--av) - 8px);height:calc(var(--av) - 8px);
-    border-radius:50%;overflow:hidden;
-    border:1px solid var(--avatar-stroke);
-  }
-  .hero .avatar img{display:block;width:100%;height:100%;object-fit:cover}
-  @keyframes avatarOpen{to{width:var(--av);margin:0 6px}}
-  @keyframes avatarIn{to{opacity:1}}
-  @media (prefers-reduced-motion: reduce){
-    .hero .avatar{animation:none;width:var(--av);margin:0 6px}
-    .hero .avatar .bubble{animation:none;opacity:1}
-  }
+    .hero h1{font-family:var(--font-ui);font-size:22px;font-weight:300;letter-spacing:-.04em;line-height:32px;color:var(--hero-body)}
   .hero .tagline{
-    margin-top:24px;font-family:var(--font-display);
-    font-size:48px;font-weight:300;line-height:60px;color:var(--hero-body);
+    margin-top:28.5px;font-family:var(--font-ui);
+    font-size:40px;font-weight:300;letter-spacing:-.04em;line-height:52px;color:var(--hero-body);
   }
-  .hero .tagline em{font-style:italic;color:var(--hero-em)}
-  .cred{margin-top:80px}
-  .cred p{font-family:var(--font-ui);font-size:20px;letter-spacing:.02em;color:var(--cred-ink);margin-bottom:22px}
-  /* At full width the five fit on one line and nothing moves: the track drops
-     out of the layout with display:contents and the duplicate group is hidden,
-     leaving exactly the single static row this used to be. */
-  .logo-marquee{overflow:visible}
-  .logo-track{display:contents}
-  .logo-row{display:flex;align-items:center;gap:44px;flex-wrap:wrap}
-  .logo-row.dup{display:none}
-  /* the artwork is a single flat #5B4F6C, so the multiplier lands it exactly on
-     --cred-ink and the caption above reads as the same ink */
-  .logo-row img{display:block;width:auto;filter:var(--logo-row-filter)}
-  @keyframes logoScroll{to{transform:translateX(-50%)}}
+  /* the role is set in a serif: a system stack (Georgia first), so no new font file is loaded */
+  /* the intro is left-aligned, on the same 40px margin as the logo and the case studies */
+  .hero .tagline{text-align:left}
+  /* "product designer (4+ yrs)" is a fully black phrase (no underline); in the
+     dark theme the same role is pure white, since black would vanish. */
+  header.hero{--role-ink:#E3DFEA}   /* a shade or two under pure white, so the highlighted words stay bright without the harsh glare */
+  :root[data-theme="light"] header.hero{--role-ink:#3A1D96}   /* dark purple instead of black */
+  /* the other emphasised words ("Eeman", "design systems", "AI-powered") are black too */
+  .hero .k{color:var(--role-ink)}
+  .hero .tagline em{
+    font-style:normal;font-weight:300;color:var(--role-ink);
+  }
+  .hero .tagline .tc{color:var(--role-ink)}
 
-  /* ---------- portfolio marquee title ---------- */
-  /* Full-bleed as before, but the right padding reproduces where .container's
-     right gutter falls, so the wordmark ends on the same line as the theme
-     toggle. The 50% is of the parent's content width rather than 100vw, so a
-     visible scrollbar doesn't throw the alignment off by its own width. */
-  .portfolio-title{
-    /* 180px is right at desktop but is most of a phone screen. 12.5vw hits
-       exactly 180 at 1440 and reaches the 100px floor at 800, so the gap eases
-       down with the viewport instead of stepping at a breakpoint. */
-    position:relative;z-index:2;margin-top:clamp(100px,12.5vw,180px);
-    /* flex-end keeps the badge tucked against the left of the wordmark as one
-       group; on very wide screens the pair travels right with it rather than
-       the badge staying pinned to the left gutter */
-    --badge-size:139px;
-    display:flex;align-items:center;justify-content:flex-end;gap:56px;
-    padding-left:24px;
-    padding-right:max(24px,calc(50% - 600px + 24px));
+  /* ---------- "My work with AI": the screen after the case studies ----------
+     The same parallax as the first screen, once more: when the last case study has arrived the row stays where it is and fades out while this screen slides up over it
+     (the script below the case studies adds the extra scroll distance, --hs-hold, and sets the fade). The label is set like "Hey! I'm Eeman" and the headline like the tagline under it.
+     Without JS the row is a plain strip, so this is simply the next block down the page.
+     TODO(eeman): only the label and the headline are here so far; say what else belongs on this screen (projects, workflows, tools). */
+  .ai-sec{position:relative;z-index:3;background:var(--bg);--role-ink:#E3DFEA}   /* no minimum height: the last divider is the bottom of this screen and the footer starts right under it */
+  :root[data-theme="light"] .ai-sec{--role-ink:#3A1D96}
+  @media (min-width:821px){html.hs-on .ai-sec{margin-top:calc(-1 * var(--hs-hold,100vh))}}   /* it starts underneath the end of the case studies' scroll distance, so it rises over the row while the row is held */
+  .ai-in{padding:calc(var(--nav-h) + 40px) 40px 0}   /* 40px at both sides, the same as the header's logo and links, so the text and the lines line up with them */
+  .ai-sec .ai-line{margin:0;font-family:var(--font-ui);font-size:40px;font-weight:300;letter-spacing:-.04em;line-height:52px;color:var(--hero-body);text-align:left}
+  @media (min-width:821px){html.hs-on .projects{opacity:var(--cfade,1)}}   /* the row fades as this screen comes up over it */
+  .ai-sec .k{color:var(--role-ink)}   /* the highlighted words of the headline, like "Eeman" and "design systems" on the first screen */
+  /* the two AI case studies sit in the same fold as the headline, as rows between hairlines: the words on the left (title and overview, then key outcomes and role), the picture on the right.
+     The picture is as wide as the window height allows, so on a normal desktop window both rows and the headline fit without scrolling. */
+  .ai-sec{--ai-rule:rgba(231,236,241,.1)}
+  :root[data-theme="light"] .ai-sec{--ai-rule:rgba(52,46,100,.16)}
+  .ai-in{padding-top:calc(var(--nav-h) + 12px);padding-bottom:0}   /* 12px clear of the header bar: any less and the label runs into the header's lower edge */
+  /* above the first divider: only soft rays of light that come up off the divider line (see the glow below); no grid and no background colour. */
+  .ai-head{position:relative;isolation:isolate}
+  .ai-head::before,.ai-head::after{content:"";position:absolute;left:-40px;right:-40px;bottom:-36px;pointer-events:none}
+  /* just the dark gridlines of the first screen: 1px lines every 120.5px in the same dark shade (--grid-back), the vertical ones 16px left of the text. No tiles and no fill, and they stop at the divider. They sit above the glow and behind the words. */
+  .ai-head::before{
+    z-index:-1;top:calc(-1 * (var(--nav-h) + 12px));
+    background-image:linear-gradient(var(--grid-back) 1px,transparent 1px),linear-gradient(90deg,var(--grid-back) 1px,transparent 1px);
+    background-size:120.5px 120.5px;background-position:24px 0;
   }
-  .scroll-badge{position:relative;width:var(--badge-size);height:var(--badge-size);flex:0 0 auto}
-  .scroll-badge > svg{width:100%;height:100%;display:block}
-  .scroll-badge .ring{transform-origin:69.5px 69.5px;animation:spin 16s linear infinite}
-  /* Only the blank runs either side of the asterisks are tracked out, sized so
-     the string closes the 304.73 circumference. The words themselves stay at a
-     true letter-spacing:0. Measured, not guessed: at the asterisk's 26px the run
-     comes to 304.9 here, against 318.7 if the old 3.38px tracking were kept -
-     14px of overrun, which would lap the start of the first "Scroll". */
-  .scroll-badge .sep{letter-spacing:2.745px}
-  /* colours live in tokens rather than on the SVG attributes, so the badge can
-     sit back in dark mode instead of reading as a solid control */
-  .scroll-badge circle{stroke:var(--badge-line)}
-  .scroll-badge text{fill:var(--badge-text)}
-  .scroll-badge .arrow{stroke:var(--badge-arrow)}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  @media (prefers-reduced-motion: reduce){.scroll-badge .ring{animation:none}}
-  /* the floor tracks --badge-size, so the wordmark can never end up the smaller
-     of the two however narrow the screen gets */
-  .big-title{flex:0 1 auto;min-width:var(--badge-size);user-select:none;display:flex;justify-content:flex-end}
-  /* The original artwork, with its own top-to-bottom fade baked in. Only the
-     overall strength is theme-tuned - see --wordmark-filter. */
-  .big-title img{
-    display:block;width:min(100%,830px);height:auto;
-    filter:var(--wordmark-filter);
+  .ai-head::after{z-index:-2}
+  /* the glow is centred on the divider line, like light coming up off a horizon: strongest at the line, fading out above it and (more quickly) below it, as one smooth glow with no lines in it, spread evenly along the line and fading out toward the two ends. Two masks are multiplied together: the climb and the sideways fade. */
+  .ai-head::after{
+    bottom:-96px;height:170px;   /* 60px below the divider, 110px above it: the line passes through the brightest part */
+    background:linear-gradient(90deg,rgb(255,64,88),rgb(236,52,196),rgb(255,112,190),rgb(58,96,255));
+    -webkit-mask-image:linear-gradient(180deg,transparent 0,rgba(0,0,0,.35) 35%,#000 64.7%,rgba(0,0,0,.4) 82%,transparent 100%),linear-gradient(90deg,transparent 2%,#000 24%,#000 76%,transparent 98%);
+            mask-image:linear-gradient(180deg,transparent 0,rgba(0,0,0,.35) 35%,#000 64.7%,rgba(0,0,0,.4) 82%,transparent 100%),linear-gradient(90deg,transparent 2%,#000 24%,#000 76%,transparent 98%);
+    -webkit-mask-composite:source-in;mask-composite:intersect;
+    filter:blur(14px);opacity:.1;
+    clip-path:inset(0 0 59px 0);   /* the glow ends right under the divider line (the line itself, 1px, still sits in it and glows) */
   }
+  :root[data-theme="light"] .ai-head::after{opacity:.14}
+  .ai-cases{position:relative;z-index:1;margin-top:36px}   /* above the glow, so the dividers and the words stay crisp over it */
+  .ai-case{--ai-iw:clamp(300px,calc((50vh - 215px) * 1200 / 702),520px);display:grid;grid-template-columns:minmax(0,1fr) var(--ai-iw);gap:64px;align-items:center;--ai-pad:56px;padding:var(--ai-pad) 0;border-top:1px solid var(--ai-rule)}   /* the words are centred against the picture */
+  /* the words sit on a two-by-two grid: the title and the roles share the first row, and the overview and the key outcomes share the second, so the overview starts level with the first outcome. Both are set on a 28px line, so their lines match up. */
+  .ai-text{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);column-gap:40px;row-gap:36px;align-items:start}   /* 36px between the title and the overview, and between the roles and the outcomes */
+  .ai-a,.ai-b{display:contents}
+  .ai-case h3{grid-area:1/1}
+  .ai-case .ai-over{grid-area:2/1}
+  .ai-case .ai-roles{grid-area:1/2}
+  .ai-case .ai-b ul:not(.ai-roles){grid-area:2/2}
+  .ai-case h3{margin:0;font-family:var(--font-ui);font-size:32px;font-weight:300;letter-spacing:-.04em;line-height:40px;color:var(--role-ink)}   /* the project name is set like "create more use" in the headline: same font, weight, tracking and colour (a size smaller, so the longer name fits its column) */
+  .ai-case h3{display:flex;align-items:center;gap:12px}
+  .ai-case .case-mark{flex:0 0 auto;height:26px;width:auto;display:block}   /* the project's logomark before its title; each keeps its own colours */
+  .ai-case .ai-over{margin:0;font-style:italic;font-family:var(--font-ui);font-size:17px;font-weight:300;line-height:28px;letter-spacing:-.01em;color:var(--hero-body)}
+  .ai-case ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0}
+  .ai-case li{position:relative;padding-left:20px;font-family:var(--font-ui);font-size:17px;font-weight:300;line-height:28px;letter-spacing:-.01em;color:var(--role-ink)}
+  .ai-case li::before{content:"";position:absolute;left:0;top:14px;width:8px;height:1px;background:var(--hero-body)}
+  .ai-case .ai-tag{color:var(--hero-body)}   /* the bracketed note after an outcome */
+  .ai-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}   /* the "Overview" and "Key outcomes" headings are no longer shown, but screen readers still hear them */
+  /* my role: the words above the key outcomes, in the label grey, each item set off from the next by a bullet. Each item has an 18px strip on its left that holds the bullet; the first item of every row is pulled 18px out to the left, where the box clips its bullet, so a bullet never starts a row. */
+  .ai-case .ai-roles{display:flex;flex-direction:row;flex-wrap:wrap;gap:4px 0;margin:0;padding:0;overflow:hidden}
+  .ai-case .ai-roles li{position:relative;margin-left:-18px;padding:0 18px;font-size:14px;font-weight:300;line-height:20px;letter-spacing:0;color:var(--hero-body)}
+  .ai-case .ai-roles li::before{content:"\2022";position:absolute;left:0;top:0;width:18px;height:auto;background:none;text-align:center;color:color-mix(in srgb,var(--hero-body) 70%,transparent)}
+  .ai-case .ai-roles,.ai-case .ai-b ul:not(.ai-roles){margin-left:64px}   /* the roles and the key outcomes sit 64px in from their column's edge */
+  .ai-case .ai-roles{margin-right:-32px}   /* and the roles reach 32px past the column, so they still fit in two lines */
+  /* the picture: two phone screens, the same size as each other in both case studies. The front one (right) is in a phone mockup; the second (left) is just the screen with rounded corners, a little lower and tucked behind it.
+     There is no picture frame behind them. They stand on the section's bottom edge, flush with the right edge of the content, and run off it, so their lower parts are cut away there. Sizes are in container units, so everything scales with the picture's width:
+     --s is the width of one screen. Each screen is as wide-to-tall as the Fenzo screenshots (846:1490); the taller mockinterviews.dev ones are trimmed at the bottom, so nothing is cut from their sides. */
+  .ai-shot{--s:52cqw;--strip:#fff;position:relative;align-self:stretch;min-height:calc(var(--ai-iw) * 702 / 1200);container-type:inline-size}   /* the box keeps the height the picture always had, and grows with the words beside it */
+  .ai-shot .phone-clip{position:absolute;left:0;right:0;bottom:calc(-1 * var(--ai-pad,56px));height:min(calc(100% + 2 * var(--ai-pad,56px) - var(--shot-top,20px)),calc(86cqw + 32px - var(--shot-top,20px)));overflow:hidden}   /* from --shot-top (20px) under the row's top line to its bottom line, never so tall that the bottom of a screen comes into view */
+  .ai-shot .phone{position:absolute;z-index:2;right:0;top:0;box-sizing:border-box;width:calc(var(--s) + 4.8cqw + 2px);padding:2.4cqw;border-radius:9.4cqw;background:#08070d;border:1px solid rgba(255,255,255,.18);box-shadow:0 0 0 1px rgba(0,0,0,.65),inset 0 0 0 1px rgba(255,255,255,.05),-14px 8px 36px rgba(0,0,0,.45)}
+  .ai-shot .phone::before{content:"";position:absolute;z-index:2;top:4.4cqw;left:50%;width:12.6cqw;height:3.4cqw;transform:translateX(-50%);border-radius:99px;background:#000}   /* the camera pill */
+  .ai-shot .screen,.ai-shot .screen-back{box-sizing:border-box;width:var(--s);aspect-ratio:846/1490;overflow:hidden;border-radius:7cqw}
+  .ai-shot .screen{position:relative;background:var(--strip)}
+  .ai-shot .screen-back{position:absolute;z-index:1;left:0;top:8cqw;background:var(--strip);border-radius:calc(7cqw - 8px)}   /* its corners are 8px tighter than the phone's screen */
+  .ai-shot img{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:cover;object-position:50% 0;display:block}
+  .ai-shot .screen img{top:4.4cqw;height:calc(100% - 4.4cqw)}   /* a thin status strip in the screenshot's own colour, so the camera pill sits clear of its title */
+  .ai-shot .screen::after,.ai-shot .screen-back::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.1);pointer-events:none}   /* 10% black over the screens, so they aren't so bright against the dark page */
+  /* the link, centred at the bottom, over a fade into the page colour so it reads clearly on top of the screens. The fade is eased, many small steps along an S-shaped curve, so it has no visible start. It is lifted 16px off the bottom (solid colour fills the gap), which puts more of the dark behind the link */
+  .ai-shot .shot-cta{position:absolute;z-index:3;left:0;right:0;bottom:calc(-1 * var(--ai-pad,56px));display:flex;align-items:flex-end;justify-content:center;height:calc(clamp(150px,46cqw,190px) + 16px);padding-bottom:20px;box-sizing:border-box;background:linear-gradient(180deg,transparent 0,color-mix(in srgb,var(--bg) 2%,transparent) 7.5%,color-mix(in srgb,var(--bg) 7%,transparent) 15%,color-mix(in srgb,var(--bg) 16%,transparent) 22.5%,color-mix(in srgb,var(--bg) 26%,transparent) 30%,color-mix(in srgb,var(--bg) 38%,transparent) 37.5%,color-mix(in srgb,var(--bg) 50%,transparent) 45%,color-mix(in srgb,var(--bg) 62%,transparent) 52.5%,color-mix(in srgb,var(--bg) 74%,transparent) 60%,color-mix(in srgb,var(--bg) 84%,transparent) 67.5%,color-mix(in srgb,var(--bg) 93%,transparent) 75%,color-mix(in srgb,var(--bg) 98%,transparent) 82.5%,var(--bg) 90%) top/100% calc(100% - 16px) no-repeat,linear-gradient(var(--bg),var(--bg)) bottom/100% 17px no-repeat;pointer-events:none}
+  .ai-shot .live-view{pointer-events:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 8px;color:var(--ink);color:color-mix(in srgb,var(--ink) 30%,var(--bright));font:500 15px var(--font-ui);text-decoration:none;transition:color .15s ease}   /* a text link with an arrow, in the light shade the solid button used to be filled with */
+  .ai-shot .live-view span{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:5px}
+  .ai-shot .live-view:hover,.ai-shot .live-view:focus-visible{color:var(--bright)}
+  .ai-shot .live-view:focus-visible{outline:2px solid var(--bright);outline-offset:3px;border-radius:6px}
+  .ai-shot .live-view svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+  @media (max-width:1280px){
+    .ai-text{grid-template-columns:minmax(0,1fr);row-gap:16px}   /* too narrow for two columns of words beside the picture: stack them */
+    .ai-case h3,.ai-case .ai-over,.ai-case .ai-roles,.ai-case .ai-b ul:not(.ai-roles){grid-area:auto;margin-left:0;margin-right:0}
+  }
+  @media (max-width:1000px){
+    .ai-case{grid-template-columns:minmax(0,1fr);gap:28px;--ai-pad:36px}
+    .ai-case .ai-shot{width:100%;max-width:480px;justify-self:center;align-self:auto;min-height:0;aspect-ratio:1200/780;--shot-top:32px}   /* under the words, centred, and no bigger than a large phone */
+  }
+
+  /* the intro is centred on the page */
+  header.hero{padding-bottom:0}   /* the logo row below supplies the 56px */
+  header.hero .container{text-align:left;max-width:none;padding:0 40px 0 80px}   /* the headline starts 80px in: 40px further than the cards below it */
+  @media (max-width:820px){header.hero .container{padding:0 24px}}
 
   /* ---------- project cards ---------- */
   /* padding-bottom carries the whole gap to the footer now: the footer's own
      top padding is zero, so 40px is 40px rather than 40 stacked on 76. The
      footer is a snap stop, so its text lands just under the fold of that
      40 rather than a screen further down. */
-  .projects{position:relative;z-index:2;padding-top:40px;display:flex;flex-direction:column;gap:112px;padding-bottom:40px}
-  /* Scrolling the projects hands off from one card to the next - but proximity,
-     not mandatory, and the difference is the whole bug. mandatory must come to
-     rest on a snap point, and the first two were the top of the page and the
-     first card ~900px below it, with nothing between. Any scroll ending in the
-     first half of that gap was dragged back to 0: you pushed the page down and
-     it bounced to the top. mandatory suits a deck of equal full-height panels,
-     which this - a tall hero, then cards - is not.
-
-     scroll-snap-stop:always on the cards is what actually does the work.
-     proximity alone only pulls once you are near a card, but snap-stop forbids
-     the scroll passing over one, so a flick down from the hero still comes to
-     rest on the blue card rather than sailing past it. That is the handoff,
-     without the page ever fighting a deliberate scroll. The top needs no snap
-     point of its own now, so nothing tugs at the header. */
-  html{scroll-snap-type:y proximity}
-  footer{scroll-snap-align:start}
-  /* snapping is motion the reader did not ask for */
-  @media (prefers-reduced-motion: reduce){html{scroll-snap-type:none}}
+  /* ---------- case studies: one row, moved by the scroll ----------
+     The three cards sit side by side. While the row is on screen it drifts left
+     slowly on its own and stops while the pointer is over a card. Scrolling
+     down moves it too, and the page stays pinned until the last card has
+     arrived: only then do the sections below come up. Without JS (or before it
+     runs) the row is a plain strip that scrolls sideways. A card is as wide as
+     fits the window height: the 1200:702 stage + the 146px caption + the header
+     must all be on screen at once. The first card starts 40px from the left
+     edge, and the last stops 40px from the right. */
+  .hscroll{--edge:40px;--cw:min(calc(100vw - 2 * var(--edge)),max(480px,calc((100vh - 300px) * 1200 / 702)));position:relative;z-index:2}
+  .hpin{overflow-x:auto;padding:24px 0 40px;scrollbar-width:thin}
+  .projects{display:flex;align-items:flex-start;gap:24px;width:max-content;padding:0 var(--edge)}
   .card{
-    border-radius:28px;overflow:hidden;position:relative;
-    /* each card is both an anchor target for its case study's back button and a
-       snap position, and scroll-margin sets where both of them land. snap-stop
-       is what makes each one catch under proximity: the scroll may not pass
-       over a card without stopping, so one flick moves one project. */
-    scroll-margin-top:28px;scroll-snap-align:start;scroll-snap-stop:always;
-    box-shadow:var(--card-shadow);
+    flex:0 0 auto;width:var(--cw);position:relative;
+    border-radius:28px;overflow:hidden;box-shadow:var(--card-shadow);
+    transition:transform .35s cubic-bezier(.22,1,.36,1);
   }
+  @media (hover:hover){.card:hover{transform:translateY(-4px)}}
+  /* JS on: the strip becomes a pinned stage. The section is 100vh + the travel
+     tall (set by the script); the stage sticks while that distance is scrolled
+     and the row is moved with a transform. Only the cards take the pointer, so
+     the empty stage never blocks the hero above it. */
+  @media (min-width:821px){
+  html.hs-on .hscroll{height:var(--hs-h)}
+  html.hs-on .hpin{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:flex-start;padding:calc(var(--nav-h) + 24px) 0 0;pointer-events:none}   /* the cards sit 24px under the header, whatever the window height */
+  html.hs-on .projects{will-change:transform}
+  html.hs-on .card{pointer-events:auto}
+  }
+  /* on a phone the case studies are not a carousel: they stack, one under the other, each as wide as the screen allows (24px in from each side) */
+  @media (max-width:820px){
+    .hscroll{--edge:24px}
+    .hpin{overflow:visible;padding:24px 0 0}
+    .projects{flex-direction:column;align-items:stretch;gap:20px;width:auto}
+    .card{width:auto}
+  }
+  /* the whole card is one big link: an invisible anchor over it, with the arrow
+     button lifted above so it keeps its own hover. It is hidden from assistive
+     tech and the tab order because the arrow button is the real, labelled link. */
+  .card-hit{position:absolute;inset:0;z-index:1;border-radius:inherit}
+  .caption .go{position:relative;z-index:2}
+  /* One-line descriptions. Each card is a size container: once it is wide enough
+     for the longest line (about 540px of text) the line is held to one row. A
+     card between 1000 and 1100px wide trims its side padding and name column to
+     make that room; narrower than 1000px (and on phones) the line wraps. */
+  .card{container-type:inline-size}
+  @container (min-width:1000px) and (max-width:1099px){
+    .card .caption{padding:0 56px}
+    .card .caption .proj-name{width:240px}
+  }
+  /* a narrow card may need more than 146px for a wrapped line plus the pills */
+  @container (max-width:899px){
+    .card .caption{height:auto;min-height:146px}
+  }
+  @container (min-width:1000px){
+    .caption .proj-desc{white-space:nowrap}
+  }
+  @media (prefers-reduced-motion: reduce){.card{transition:none}.card:hover{transform:none}}
   /* The stage is now the export itself - shot, inset and body gradient all
      baked in - so the 73/30 padding that used to frame a live mock is gone.
      aspect-ratio pins it to the export's own 1200x702 body, which is what keeps
@@ -538,7 +693,7 @@
      up the 29px the border and padding take, so the description text starts
      where it always did. */
   .caption .proj-desc{
-    flex:1;font-family:var(--font-ui);font-size:20px;line-height:28px;
+    flex:1;font-family:var(--font-ui);font-size:16px;line-height:24px;
     font-weight:400;color:#fff;max-width:590px;
     border-left:1px solid var(--cap-rule);padding-left:28px;
   }
@@ -561,6 +716,24 @@
     fill:none;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;
   }
   .caption .go:hover{background:#fff;color:#111;border-color:#fff;transform:translateX(4px)}
+  /* The result line under each description. It sits inside .proj-desc so the
+     divider rule and the stacked mobile layout both keep treating name,
+     description and result as one block. Light theme inherits the per-card ink
+     from .proj-desc; dark theme lifts it one step above the description. */
+  /* the result line is a row of white pills; the text colour is each card's own deep colour (--pill-ink) */
+  .caption .proj-metric{
+    display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;
+    font-size:12px;line-height:16px;font-weight:400;letter-spacing:0;
+  }
+  .caption .proj-metric span{background:#fff;color:var(--pill-ink,#222);border-radius:999px;padding:4px 8px}
+  .card.blue{--pill-ink:#09275a}
+  .card.purple{--pill-ink:#1f1e64}
+  .card.teal{--pill-ink:#11231e}
+  :root[data-theme="light"] .card.blue{--pill-ink:#0247b9}
+  :root[data-theme="light"] .card.purple{--pill-ink:#3d3ac0}
+  :root[data-theme="light"] .card.teal{--pill-ink:#27564c}
+  /* in the dark theme the pills are dark glass with light type, with no edge or shadow, not white */
+  :root:not([data-theme="light"]) .caption .proj-metric span{background:rgba(6,2,14,.46);color:#E6E1F2}
 
   /* =======================================================
      Sentinel ERP schedule screen (CSS recreation)
@@ -775,7 +948,7 @@
      paragraph, same 60px clearance under the row. Edit the two together. */
   .contact{
     position:relative;z-index:2;
-    display:flex;align-items:flex-end;justify-content:space-between;gap:56px;flex-wrap:wrap;
+    display:flex;align-items:center;justify-content:space-between;gap:56px;flex-wrap:wrap;   /* the email and the social buttons are centred against the title and the paragraphs beside them */
     /* the clearance around this row is the footer's own padding - 76 above,
        96 below - so it lives in one place rather than being split across two
        elements the way it used to be */
@@ -791,7 +964,7 @@
     max-width:44ch;margin:16px 0 0;
   }
   .contact-copy{max-width:620px}
-  .contact-side{display:flex;flex-direction:column;align-items:flex-start;gap:26px;padding-bottom:8px}
+  .contact-side{display:flex;flex-direction:column;align-items:flex-start;gap:26px;padding-bottom:8px;position:relative;top:12px}   /* 12px below the centre line */
   .email-row{display:flex;align-items:center;gap:12px}
   .email-row .email{
     font-family:var(--font-ui);font-size:20px;color:var(--muted);
@@ -832,6 +1005,7 @@
   .socials .box{
     width:60px;height:60px;display:inline-flex;align-items:center;justify-content:center;
     border:1px solid var(--line);border-radius:15px;
+    -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);   /* the gridlines behind the icons are blurred so they do not cut across them */
     transition:background .15s ease,color .15s ease,border-color .15s ease;
   }
   .socials .cap{
@@ -845,32 +1019,72 @@
   @media (max-width:820px){
     footer{padding:76px 0 90px}
     .contact{gap:36px}
-    .contact-side{padding-bottom:0}
+    .contact-side{padding-bottom:0;top:0}
+  }
+  /* ---------- footer: the last screen ----------
+     A whole window high, dressed like the first screen (the same tile grid, the same two soft washes, and the soft glow along the bottom edge). On a wide screen it slides up over the "My work with AI" screen, which stays where it is and fades (the script near the end of the page sets that up). The text lines up with the first screen: 80px in from the left, the grid's lines 16px to the left of it. */
+  footer#contact{position:relative;z-index:4;overflow:hidden;box-sizing:border-box;min-height:calc(100vh - var(--nav-h));min-height:calc(100svh - var(--nav-h));margin:0;padding:0;background:var(--bg);display:flex;flex-direction:column;justify-content:center}   /* a whole window high, less the header's height; everything sits in the middle of it */
+  footer#contact::before{display:none}
+  footer#contact .grid-bg.bottom{
+    inset:0;top:0;bottom:0;height:auto;
+    -webkit-mask-image:none;mask-image:none;
+    background-color:var(--grid-tile);
+    background-image:
+      radial-gradient(720px 560px at 88% 6%,var(--glow-a),transparent 65%),
+      radial-gradient(900px 700px at 105% 55%,var(--glow-b),transparent 70%),
+      linear-gradient(var(--grid-back) 1px,transparent 1px),
+      linear-gradient(90deg,var(--grid-back) 1px,transparent 1px);
+    background-size:100% 100%,100% 100%,120.5px 120.5px,120.5px 120.5px;
+    background-position:0 0,0 0,64px 0,64px 0;
+  }
+  footer#contact .grid-bg.bottom::after{
+    content:"";position:absolute;inset:auto 0 0 0;height:205px;z-index:1;pointer-events:none;
+    background:linear-gradient(90deg,rgb(255,64,88),rgb(236,52,196),rgb(255,112,190),rgb(58,96,255));
+    -webkit-mask-image:linear-gradient(0deg,#000 8%,transparent);mask-image:linear-gradient(0deg,#000 8%,transparent);
+    filter:blur(12px);opacity:.11;
+  }
+  :root[data-theme="light"] footer#contact .grid-bg.bottom::after{opacity:.16}
+  footer#contact .contact{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,520px);column-gap:64px;row-gap:40px;align-items:center;justify-content:space-between;width:100%;box-sizing:border-box;max-width:none;margin:0;padding:0 40px 0 80px}
+  footer#contact .contact-copy{max-width:none;position:relative;top:-20px}   /* the words sit 20px above the middle line */
+  /* the headline is set like the first screen's tagline; the two paragraphs like "Hey! I'm Eeman" */
+  footer#contact .contact-title{font-family:var(--font-ui);font-size:40px;font-weight:300;letter-spacing:-.04em;line-height:52px;color:var(--role-ink,#E3DFEA)}   /* brighter than the paragraphs below it */
+  :root[data-theme="light"] footer#contact .contact-title{color:#3A1D96}
+  footer#contact .contact-lead{max-width:30em;margin:36px 0 0;font-family:var(--font-ui);font-size:22px;font-weight:300;letter-spacing:-.04em;line-height:32px;color:var(--hero-body)}
+  footer#contact .contact-lead + .contact-lead{margin-top:16px}
+  footer#contact .contact-side{position:static;top:auto;margin-top:40px;padding-bottom:0}
+  /* the contact box, open on the right */
+  .ft-form{box-sizing:border-box;width:100%;max-width:520px;justify-self:end;border:1px solid var(--line);border-radius:22px;background:color-mix(in srgb,var(--bg) 70%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);box-shadow:0 24px 80px rgba(0,0,0,.25)}
+  /* parallax: the footer slides up over the screen above (switched on by the script) */
+  .ft-hold{display:none}
+  @media (min-width:821px){
+    html.ft-par .ft-hold{display:block;height:calc(100vh - var(--nav-h) + var(--ft-dwell,0px))}
+    html.ft-par footer#contact{margin-top:calc(-1 * (100vh - var(--nav-h)))}
+    html.ft-par .ai-sec{position:sticky;top:24px}   /* it is held where it rests (24px down, as the auto-settle leaves it), so it doesn't creep up toward the header while the pause plays out */
+    html.ft-par .ai-sec .ai-in{opacity:var(--aifade,1)}
+  }
+  @media (max-width:820px){
+    footer#contact{padding:48px 0;justify-content:flex-start}
+    footer#contact .contact{grid-template-columns:minmax(0,1fr);padding:0 24px;row-gap:40px}
+    footer#contact .contact-copy{top:0}
+    footer#contact .contact-title{font-size:34px;line-height:40.1667px}
+    footer#contact .contact-lead{font-size:18.7px;line-height:28px}
+    .ft-form{justify-self:stretch;max-width:none}
   }
   /* ---------- responsive ---------- */
   @media (max-width:1100px){
     .caption .proj-name{width:200px}
-    .portfolio-title{gap:36px}
-  }
-  @media (max-width:480px){
-    /* badge and wordmark together would overrun the gutters at their full size */
-    .portfolio-title{--badge-size:104px;gap:20px}
   }
   @media (max-width:820px){
-    /* the greeting drops to the tagline's setting, and the avatar follows it
-       down by the same ratio it holds at full width */
-    .hero h1{font-size:34px;line-height:44px}
-    .hero .avatar{--av:48px}
-    .hero .tagline{font-size:34px;line-height:44px}
-    /* Below this width the five logos no longer fit on one line and used to
-       wrap to two. They stay on one line and travel instead. Each group carries
-       its own trailing gap, so a -50% translate lands group two exactly where
-       group one began and the loop has no seam. 30s across ~680px is roughly
-       23px/s - moving, but slow enough to read every mark. */
-    .logo-marquee{overflow:hidden}
-    .logo-track{display:flex;width:max-content;animation:logoScroll 30s linear infinite}
-    .logo-row{flex-wrap:nowrap;padding-right:44px}
-    .logo-row.dup{display:flex}
+    /* the greeting drops to the tagline's setting */
+    .hero h1{font-size:18.7px;line-height:28px}   /* the same size as "Worked with teams:" */
+    .hero .tagline{font-size:34px;line-height:40.1667px;margin-top:16px}
+    header.hero{padding-top:20px}   /* the letters start 28px from the top, like the 28px on the left */
+    .ai-in{padding:36px 24px 0}   /* as much room above the headline as below it */
+    .ai-sec .ai-line{font-size:34px;line-height:40.1667px}
+    .ai-cases{margin-top:36px}
+    .ai-case h3{font-size:26px;line-height:32px}
+    .ai-case .ai-over,.ai-case li{font-size:16px}
+    .hero .tagline .tag-br{display:none}   /* let the last line wrap naturally on narrow screens */
     /* Reordered rather than restacked: the name and the arrow share the top
        row, and the description drops below them across the full width. order
        is what moves the arrow up past the description without touching the
@@ -880,21 +1094,11 @@
     .caption .go{order:1;margin-left:auto}
     .caption .proj-desc{
       order:2;flex:0 0 100%;max-width:none;
-      font-size:14px;line-height:20px;border-left:0;padding-left:0;
+      font-size:16px;line-height:24px;border-left:0;padding-left:0;
     }
-    /* 112px of air reads as a gap on a phone, not a rhythm */
-    .projects{gap:48px}
+    .caption .proj-metric{margin-top:8px}
     .erp .row{grid-template-columns:repeat(4,1fr)}
     .lms .right{display:none}
-  }
-  /* Last, so it wins over the 820px block: with motion turned down the row has
-     no way to reveal what a fixed viewport clips, so it goes back to wrapping
-     rather than sitting still with three logos cut off. */
-  @media (prefers-reduced-motion: reduce){
-    .logo-marquee{overflow:visible}
-    .logo-track{display:contents;animation:none}
-    .logo-row{flex-wrap:wrap;padding-right:0}
-    .logo-row.dup{display:none}
   }
 /* ---------- touch targets ----------
    The toggle is the one square control in the bar; 36x36 on touch widths. */
@@ -905,7 +1109,7 @@
 
   /* =======================================================================
      ==  ported from Index-v2  =============================================
-     The testimonials section and the "Try Me!" cursor drawer, lifted across
+     The testimonials section, lifted across
      unchanged. Everything above this line is the page as it was.
      ======================================================================= */
 
@@ -914,6 +1118,14 @@
      page's own pair does. */
   :root, :root[data-theme="dark"]{
     --tile:rgba(255,255,255,.030);
+    --note-more:#CFC8DD;
+    --note-lit:rgba(205,195,255,.62);   /* the lit part of a card's edge */
+    --note-edge:rgba(255,255,255,.06);
+    --note-gl:rgba(0,0,0,.34);   /* the grid lines seen through a card */
+    --note-shadow:0 14px 24px -12px rgba(8,4,20,.4),0 3px 8px -4px rgba(8,4,20,.28);   /* a shadow along the bottom of each card (a wide soft one and a tight one close to the edge): the light comes from above */
+    --note-fill:linear-gradient(rgba(0,0,0,.1),rgba(0,0,0,.1));   /* the glass fill: plain black at 10% */
+    --note-spec-a:.46; --note-spec-top:rgba(255,255,255,.05);   /* the lit edge's strength and the faint even sheen along the top: the gradient itself is built on each card (see .note::after), because a var() inside a variable set on the page is worked out once for the whole page, not per card */
+    --note-bg:rgba(18,13,30,.36); --note-ring:#0E0A15;   /* glass: a see-through dark tint; the page behind it is blurred (backdrop-filter on .note), and the glow that follows the pointer still shows through */   /* the same two tints as --tile and --tile-hover, but solid, so the grid never shows through a card */
     --tile-hover:rgba(255,255,255,.055);
     --tile-line:var(--line);
     --tile-glare:rgba(255,255,255,.10);
@@ -929,6 +1141,15 @@
   }
   :root[data-theme="light"]{
     --tile:#FFFFFF;
+    --note-more:#3A1D96;
+    --note-lit:rgba(96,72,210,.5);
+    --note-edge:rgba(52,46,100,.2);
+    --note-gl:#EBEDEF;   /* light theme: the same shade as the grid lines on the page (--grid-back) */
+    --note-shadow:0 16px 28px -12px rgba(52,44,110,.36),0 3px 8px -4px rgba(52,44,110,.22);
+    --note-fill:linear-gradient(rgba(255,255,255,.42),rgba(255,255,255,.42));   /* light theme: white, strong enough that the cards stand off the tinted grid */
+    --note-spec-a:.95; --note-spec-top:rgba(255,255,255,.25);
+    --note-text:#4A2FA6; --note-strong:#34178C; --note-sub:#7D6BA6;   /* the cards' type: deep saturated purple where it was dark grey or black (the quotes, the bold phrases, the names); the small role lines stay grey */
+    --note-bg:rgba(255,255,255,.5); --note-ring:#FFFFFF;
     --tile-hover:#FFFFFF;
     --tile-line:var(--line);
     --tile-glare:rgba(62,58,78,.06);
@@ -1015,6 +1236,12 @@
      the set's own size - the extra width is the whole emphasis, and scaling
      the quote up as well made it read as a different component. */
   .tcard.wide{grid-column:span 2}
+  /* the two sub-labels that tell colleague feedback from mentoring feedback */
+  .praise-sub{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--cred-ink);margin:0 0 16px;
+  }
+  .praise-sub-2{margin-top:48px}
 
   /* ---- the row under the grid: the rating on the left, the source on the
      right. The stat is the part that does the persuading, so it leads. ---- */
@@ -1151,231 +1378,241 @@
      (not display:none) or Chrome drops the filter it defines */
   .lens-defs{position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
 
-  /* ---- the "Try Me!" drawer ----
-     A pull-tab against the right edge with the mode list behind it. The whole
-     component travels as one piece: closing translates it right by exactly the
-     panel's width, which parks the panel off-screen and leaves the tab flush
-     against the edge. That is why --tp-w is a single number rather than a
-     width on the panel and an offset on the dock - the two can never disagree.
-
-     top is set to where the tagline's first line starts: 82 nav + 52 hero
-     padding + 60 h1 line + 24 tagline margin. Recompute it if any of those
-     four move. */
-  .trydock{
-    --tp-w:218px;
-    position:fixed;right:0;top:218px;z-index:70;
-    display:flex;align-items:flex-start;
-    transition:transform .45s cubic-bezier(.22,1,.36,1);
-  }
-  .trydock.closed{transform:translateX(var(--tp-w))}
-  @media (max-width:820px){.trydock{top:202px}}   /* h1 drops to a 44px line */
-  /* and this page, unlike Index-v2, also drops the nav to 76px at 680 - so the
-     tagline, and the drawer pinned to it, come up another 6 */
-  @media (max-width:680px){.trydock{top:196px}}
-
-  /* The bookmark. It exists only in the collapsed state - open, the panel's
-     own header does the collapsing and a second copy of the same word turned
-     on its side would just be noise. It keeps its box in the flow either way
-     and hides on opacity rather than display, so the panel never jumps sideways
-     as it appears and it can fade in behind the closing slide. */
-  .trydock-tab{
-    flex:0 0 auto;margin-top:8px;padding:13px 0 17px;width:42px;
-    display:flex;flex-direction:column;align-items:center;gap:11px;
-    border:1px solid var(--line);border-right:0;border-radius:14px 0 0 14px;
-    background:color-mix(in srgb,var(--bg) 88%,transparent);
-    -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
-    box-shadow:-10px 18px 40px -22px rgba(0,0,0,.75);
-    color:var(--muted);cursor:pointer;
-    opacity:0;visibility:hidden;
-    transition:opacity .22s ease,visibility 0s linear .22s,color .2s ease,border-color .2s ease;
-  }
-  /* fades in a beat into the slide, so the panel is already on its way out */
-  .trydock.closed .trydock-tab{
-    opacity:1;visibility:visible;
-    transition:opacity .3s ease .16s,visibility 0s,color .2s ease,border-color .2s ease;
-  }
-  .trydock-tab:hover,.trydock-tab:focus-visible{color:var(--accent);border-color:var(--accent)}
-  /* The one run of vertical type on the page, and it earns it: a bookmark is
-     the shape. writing-mode rather than a rotate, so the box sizes itself to
-     the word. The cursor mark is a sibling above it rather than a child -
-     inside the rotated run it would be turned on its side with the glyphs,
-     and a sideways arrow is not a cursor. */
-  .trydock-tab .lbl{
-    writing-mode:vertical-rl;transform:rotate(180deg);
-    font-family:var(--font-ui);font-size:13px;font-weight:500;letter-spacing:.08em;
-  }
-  .trydock-tab svg{display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .trydock-tab .ico{width:15px;height:15px;fill:currentColor;stroke:none}
-  .trydock-tab .chev{width:16px;height:16px}
-
-  .trydock-panel{
-    flex:0 0 auto;width:var(--tp-w);margin-left:-1px;
-    border:1px solid var(--line);border-right:0;border-radius:16px 0 0 16px;
-    background:color-mix(in srgb,var(--bg) 88%,transparent);
-    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
-    box-shadow:-16px 24px 60px -28px rgba(0,0,0,.8);
-    padding:14px 14px 12px;
-    /* off-screen is not enough on its own - the buttons would still be in the
-       tab order. visibility takes them out, and is delayed by the length of
-       the slide so it does not blink away before the panel has left. */
-    visibility:visible;transition:visibility 0s;
-  }
-  .trydock.closed .trydock-panel{visibility:hidden;transition:visibility 0s linear .45s}
-  /* The header is the collapse control, not a caption - so it carries the name
-     and the arrow that puts the panel away, and the whole row is the hit area. */
-  .trydock-head{
-    display:flex;align-items:center;gap:9px;width:100%;
-    padding:2px 4px 11px;border:0;background:transparent;cursor:pointer;
-    border-bottom:1px solid var(--line-soft);margin-bottom:10px;
-    font-family:var(--font-ui);font-size:14px;font-weight:500;letter-spacing:.01em;
-    color:var(--muted);text-align:left;
-    transition:color .2s ease;
-  }
-  .trydock-head:hover,.trydock-head:focus-visible{color:var(--accent)}
-  .trydock-head svg{flex:0 0 auto;display:block;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-  .trydock-head .ico{width:15px;height:15px;fill:currentColor;stroke:none}
-  .trydock-head .chev{width:16px;height:16px;margin-left:auto;transition:transform .25s cubic-bezier(.22,1,.36,1)}
-  .trydock-head:hover .chev{transform:translateX(3px)}
-
-  /* the mode list. Same buttons the playground tile builds, laid out as rows
-     here and as pills there - the script writes one markup for both. */
-  .curdock{display:flex;flex-direction:column;gap:4px}
-  .curdock button{
-    display:flex;align-items:center;gap:10px;width:100%;
-    border:0;background:transparent;color:var(--ink);cursor:pointer;
-    border-radius:10px;padding:10px 11px;text-align:left;
-    font-family:var(--font-ui);font-size:14px;
-    transition:background .2s ease,color .2s ease;
-  }
-  .curdock button svg{width:15px;height:15px;flex:0 0 auto;display:block;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-  .curdock button:hover{background:var(--chip);color:var(--bright)}
-  .curdock button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
-  /* the tick only exists on the selected row, so the rows do not carry a
-     column of empty space waiting for it */
-  .curdock button .tick{margin-left:auto;width:14px;height:14px;opacity:0;transition:opacity .2s ease}
-  .curdock button[aria-pressed="true"] .tick{opacity:1}
-
-  /* the copy of the list that lives inside the playground tile - pills in a
-     row rather than a stacked menu, and it stays put on touch so the tile is
-     not an empty box there (the script swaps its contents for a note) */
-  .curdock.inline{
-    flex-direction:row;flex-wrap:wrap;justify-content:center;gap:6px;
-  }
-  .curdock.inline button{width:auto;border:1px solid var(--line);border-radius:999px;padding:8px 13px;font-size:13px}
-  .curdock.inline button .tick{display:none}
-  .curdock.inline .note{font-size:12.5px;color:var(--ink);text-align:center;line-height:1.5}
   /* no pointer to decorate, and no reason to run either loop */
-  @media (hover:none),(pointer:coarse){.trydock,.curlayer,#bubbleCanvas{display:none}}
-  @media (prefers-reduced-motion: reduce){.trydock{display:none}}
+  @media (hover:none),(pointer:coarse){.curlayer,#bubbleCanvas{display:none}}
+
+  /* ---------- the first screen: headline, testimonials that scroll by themselves, and the companies at the bottom edge ---------- */
+  .intro{position:relative;z-index:1;min-height:100vh;min-height:100svh;display:flex;flex-direction:column}
+  /* parallax: while you scroll the first screen stays exactly where it is, only fading, and the case studies slide up over it (the script turns .pinned on when the screen fits the window) */
+  .intro .hero,.intro .logos,.intro .note{opacity:var(--fade,1)}   /* the first screen fades as you scroll (see the parallax script) */
+  .intro.pinned{position:sticky;top:0}   /* no will-change here: it would make the first screen a backdrop root and the glass cards could not see the grid behind it */
+  /* a soft, still glow at the bottom of the first screen that rises behind the testimonial cards to about their middle (48px of padding under the cards + half the card's height): red, magenta, pink and blue. The glass cards blur it, so it shows through them as soft colour, strongest at the bottom. */
+  .intro::after{
+    content:"";position:absolute;left:0;right:0;bottom:0;height:205px;z-index:1;pointer-events:none;
+    background:linear-gradient(90deg,rgb(255,64,88),rgb(236,52,196),rgb(255,112,190),rgb(58,96,255));   /* red, magenta, pink, blue, left to right: it stays put, so each card picks up a different colour as it slides over it */
+    -webkit-mask-image:linear-gradient(0deg,#000 8%,transparent);mask-image:linear-gradient(0deg,#000 8%,transparent);   /* strongest at the bottom edge, gone by the middle of the cards */
+    filter:blur(12px);opacity:calc(.11*var(--fade,1));
+  }
+  :root[data-theme="light"] .intro::after{opacity:calc(.16*var(--fade,1))}
+  /* the testimonials: three cards in view at a time, drifting past continuously */
+  /* 120px under the logos when the window is tall enough; in a shorter window that gap gives way, so the whole first screen always fits (which is what lets it stay fixed while you scroll) */
+  .notes{position:relative;z-index:2;padding:clamp(24px,calc(100vh - 788px),260px) 0 48px;padding-top:clamp(24px,calc(100svh - 788px),260px)}   /* a fallback: the script below measures the real height of the first screen and sets this */
+  .notes-win{margin:0 0 -48px;padding:0 0 48px;overflow:hidden}   /* the extra 48px at the bottom (taken back by the negative margin, so nothing moves) keeps the cards' shadow from being cut off by overflow:hidden */   /* the full width of the screen: cards run right off both edges, with no empty margin at the sides */
+  .notes-row{--per:3;--gap:20px;--lead:80px;--trail:40px;display:flex;gap:var(--gap);padding-left:var(--lead);will-change:transform}   /* --lead lines the first card up with the headline; --trail is the space the third card leaves at the right at rest */
+  /* the cards drift left all the time (the script sets how far and how fast); the moment the pointer is on one, everything holds still so it can be read */
+    .notes-win{touch-action:pan-y}                      /* a sideways drag moves the cards; an up/down drag still scrolls the page */
+  .notes-win.dragging{cursor:grabbing}
+  .notes-row{-webkit-user-select:none;user-select:none}
+  .notes-row img{-webkit-user-drag:none;user-drag:none}
+  /* the testimonial card, sized like a review card on a wall of them: about three across, a coloured quote mark in the top left, comfortable type, and the person (round badge, name, role) along the bottom */
+  .note{
+    position:relative;overflow:hidden;flex:0 0 calc((100% - var(--trail) - (var(--per) - 1) * var(--gap)) / var(--per));margin:0;padding:34px 28px 26px;min-height:310px;
+    display:flex;flex-direction:column;gap:18px;
+    border:.5px solid var(--note-edge);border-radius:22px;background:var(--note-fill);
+    -webkit-backdrop-filter:blur(20px) saturate(1.5);backdrop-filter:blur(20px) saturate(1.5);box-shadow:var(--note-shadow),inset 0 0 28px rgba(255,255,255,.05);
+  }
+  /* the edge catches the light: a fine ring that is faint on its own and brightens where the glow that follows the pointer is near (the script sets --gx/--gy, the pointer's place on the card, and --ga, how bright the glow is) */
+  /* the glass edge, lit as the card travels across the screen: the white part waits in the middle of the card's top edge until the card's middle passes 57% of the screen width, then slides along the top edge, reaches the top right corner and almost fades out by 12% of the screen width (the script sets --px, how far along the top edge, and --pa, how strong) */
+  /* the grid shows through the glass: crisp 1px lines inside each card, the same as the grid's own, kept exactly in line with the grid behind the page (the script sets --gox/--goy every frame, since the cards move) */
+  .notes-row.align .note{
+    background:var(--note-fill),
+      linear-gradient(90deg,var(--note-gl) 0,var(--note-gl) .5px,transparent .5px,transparent calc(100% - .5px),var(--note-gl) calc(100% - .5px),var(--note-gl) 100%) var(--gox,0) 0/120.5px 100% repeat-x,
+      linear-gradient(180deg,var(--note-gl) 0,var(--note-gl) .5px,transparent .5px,transparent calc(100% - .5px),var(--note-gl) calc(100% - .5px),var(--note-gl) 100%) 0 var(--goy,0)/100% 120.5px repeat-y;
+  }
+  .note::after{
+    content:"";position:absolute;inset:-.5px;border-radius:inherit;padding:1px;pointer-events:none;background:radial-gradient(240px 140px at var(--px,50%) 0,rgba(255,255,255,calc(var(--note-spec-a)*var(--pa,1))),transparent 70%),linear-gradient(180deg,var(--note-spec-top),transparent 40%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  }
+  .note::before{
+    content:"";position:absolute;inset:-.5px;border-radius:inherit;padding:1px;pointer-events:none;
+    background:radial-gradient(190px 190px at var(--gx,-999px) var(--gy,-999px),var(--note-lit),transparent 72%);opacity:var(--ga,0);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  }
+  .note .qm{position:absolute;top:-22px;right:6px;font-family:var(--font-display);font-size:130px;line-height:1;font-weight:700;color:var(--quote-mark);pointer-events:none;user-select:none}   /* the big grey quote mark bled off the top right corner */
+  /* no icon on the card any more: the whole card is a link to the recommendations on LinkedIn, and over a card the mouse pointer turns into a black "in" circle with "Read full" and an arrow (see the script below). The link is invisible; it only shows a focus outline for keyboard users. */
+  .note .note-li{position:absolute;inset:0;z-index:3;border-radius:inherit;text-decoration:none}
+  .note .note-li:focus-visible{outline:2px solid var(--hero-body);outline-offset:-3px}
+  html.rf-on .note .note-li{cursor:none}
+  html.rf-on .notes-win.dragging .note-li{cursor:grabbing}
+  :root{--li-mask:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAAAERlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAA6ABAAMAAAABAAEAAKACAAQAAAABAAAAMKADAAQAAAABAAAAMAAAAADbN2wMAAAB9klEQVRoBe1X0XHCMAwlvf6XEbxBGSEj0A3YoN2ArNAJSjdoJwidADZINmg2gKc7zPnMswmoNe7VutNZkS356Vk4YTIpUhgoDFAGdrtdDW2h31CRDXRBF+fmBNAlNCRSyDQ3zEc8ALcIIXf8zTEgNwMgWwdoyJS2yvMUQoiJf5YD+XcKEFmcACtgPbKofuS6X13GCngfseOqqqosCqBY0e8r0vPW1cEwNDAnJ0A2UAFrRW6eN2gWvW+5qqwRGgHY3jY92mYIrSv+/8oAbSG0zRyExHr9g7UT4kyISHZrHX5PtbdXj+ctyw//OEHiDhoT42fCYhMLwFxtY2DL91YLjcn1X7/I2sUyY+6qAiQO2kIvkQ6LT/azZLAXmZ376VFAtNAaeokYLG5RBG3plAUsAUTAXCMGQS8sMGUBAkIjz+wUUhagAS+x0kJzP8m970j0PGCfLfTrsN8jxhNwhzl3mLkPQRtH1UFjYvxgLD53jdp8cj2y+MYuiIwbf9/ULdQDwBN7qcHXYG4NjcnUn0xdwCsD74D6dGxm3ryANUPl+M7N37YAsL91wDKzZ86YL2ULnQWHAocYWDaXsgC2v9pXClBTqExQTkBJoDq8nICaQmWCcgJKAtXh5QTUFCoT/PkTCP2llO/yhwg5F390RXKVqcJAYUDBwB5kn4jeYFIrJQAAAABJRU5ErkJggg==")}
+  /* the pointer that follows the mouse over the cards: a black circle with the LinkedIn "in", then "Read full" and a north-east arrow */
+  .rf{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;display:flex;align-items:center;gap:9px;height:30px;padding:0 13px 0 0;border-radius:15px;background:#000;color:#E3DFEA;font:500 13px/1 var(--font-ui);letter-spacing:.01em;white-space:nowrap;opacity:0;scale:.85;transform-origin:15px 50%;transition:opacity .15s,scale .22s cubic-bezier(.3,1.5,.5,1);box-shadow:0 6px 18px -6px rgba(0,0,0,.6)}
+  .rf.on{opacity:1;scale:1}
+  .rf-c{flex:0 0 30px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+  .rf-i{display:block;width:16px;height:16px;background:#fff;-webkit-mask:var(--li-mask) center/contain no-repeat;mask:var(--li-mask) center/contain no-repeat}
+  .rf-a{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  @media (prefers-reduced-motion:reduce){.rf,.rf.on{transition:opacity .15s}}
+  .note blockquote{margin:32px 0 0;position:relative;font-family:var(--font-ui);font-size:17px;line-height:1.6;font-weight:400;color:var(--note-text,var(--text))}
+  .note blockquote b{color:var(--note-strong,var(--bright));font-weight:500}
+  .note .by{display:flex;align-items:center;gap:14px;margin-top:auto;padding-top:6px}
+  /* the round badge: initials on a colour until there is a photo (put an <img> inside .pic and it fills the circle) */
+  .note .pic{width:48px;height:48px;flex:0 0 auto;border-radius:50%;overflow:hidden;display:grid;place-items:center;font-family:var(--font-display);font-size:17px;font-weight:600;color:#fff;box-shadow:0 0 0 2px var(--note-ring),0 0 0 3px var(--tile-line)}
+  .note .pic img{width:100%;height:100%;object-fit:cover;display:block}
+  .note .who b{display:block;font-size:16px;line-height:22px;font-weight:500;color:var(--note-strong,var(--bright))}
+  .note .who span{display:block;font-size:14px;line-height:20px;color:var(--note-sub,var(--ink))}
+  @media (max-width:1100px){.notes-row{--per:2;--trail:28px}}
+  @media (max-width:820px){.notes{padding-top:48px}.notes-row{--per:1;--lead:24px;--trail:56px}.note{padding:26px 24px 24px;min-height:280px}}
+  @media (prefers-reduced-motion:reduce){.notes-win{overflow-x:auto}}
+
+  /* the companies: one row, 32px high, 104px below the headline */
+  .logos{--ls:1;position:relative;z-index:2;display:flex;align-items:center;gap:28px;height:32px;padding:0 40px 0 80px;box-sizing:content-box;margin-top:104px}
+  /* "Worked with teams:" in the headline's type (face, weight, spacing, colour), scaled to fit the 32px row */
+  .logos-label{flex:0 0 auto;margin:0;font-family:var(--font-ui);font-size:calc(22px*var(--ls));font-weight:300;letter-spacing:-.04em;line-height:32px;color:var(--hero-body);white-space:nowrap}
+  .logo-row{flex:1 1 auto;min-width:0;height:32px;display:flex;align-items:center;flex-wrap:nowrap;gap:36px;overflow-x:auto;scrollbar-width:none}
+  .logo-row::-webkit-scrollbar{display:none}
+  .logo-row>*{flex:0 0 auto}
+  .logo-row img{display:block;width:auto;height:calc(var(--h)*var(--ls));filter:var(--logo-row-filter)}
+  .mi-logo{position:relative;top:1px;display:inline-flex;align-items:baseline;gap:6px;color:var(--hero-body);font:400 calc(18px*var(--ls))/1 var(--font-ui);letter-spacing:-.01em;white-space:nowrap}
+  .mi-t{position:relative;top:-3px}
+  /* each company logo is a link to the company's site (opens in a new tab) */
+  .logo-link{display:flex;align-items:center;color:inherit;text-decoration:none;border-radius:4px}
+  .logo-link:hover img,.logo-link:focus-visible img{filter:var(--logo-hover-filter)}   /* hover or focus: the logo turns the colour of "Eeman" in the headline */
+  .logo-link:hover .mi-logo,.logo-link:focus-visible .mi-logo,.logo-link:hover .ai-logo,.logo-link:focus-visible .ai-logo{color:var(--logo-hover-ink)}
+  .mi-logo,.ai-logo{transition:color .2s}
+  .logo-link:focus-visible{outline:2px solid var(--hero-body);outline-offset:4px}
+  /* AIPIXAL: the old image said AIPIXEL, so its mark is kept (the picture clipped to the mark) and the name is set as type beside it, in the label's colour */
+  .ai-logo{display:inline-flex;align-items:center;gap:calc(4px*var(--ls));color:var(--hero-body)}
+  .ai-mark{display:block;width:calc(22.2px*var(--ls));height:calc(24px*var(--ls));overflow:hidden;flex:0 0 auto}
+  .ai-t{font:300 calc(17.8px*var(--ls))/1 var(--font-ui);letter-spacing:.01em;white-space:nowrap}
+  .mi-logo svg{width:calc(20px*var(--ls));height:calc(20px*var(--ls));fill:currentColor;display:block}
+  @media (max-width:820px){.logos{--ls:.85;padding:0 0 0 24px;gap:16px}.logo-row{gap:28px;padding-right:24px}}
+  /* the scroll hint: two chevrons, right-aligned with the end of the companies row. They ripple downwards one after the other (a gentle fade and drift, with a pause between rounds), and go as soon as you start to scroll. Only where there is room beside the logos. */
+  .scroll-hint{position:absolute;right:79px;top:50%;margin-top:-16px;width:44px;height:44px;box-sizing:border-box;border-radius:22px;overflow:hidden;display:flex;flex-direction:row;align-items:center;justify-content:flex-end;color:var(--hero-em);cursor:pointer;text-decoration:none;-webkit-tap-highlight-color:transparent;border:1px solid transparent;background:transparent;transition:width .35s cubic-bezier(.3,.7,.2,1),border-color .25s,background-color .25s;opacity:clamp(0,calc((var(--fade,1) - .6)*2.5),1)}
+  :root[data-theme="light"] .scroll-hint{color:#3A1D96}
+  /* hover or focus: the circle grows to the left into a pill and "See work" fades in inside it; a faint line, not a bright one */
+  .scroll-hint:hover,.scroll-hint:focus-visible{width:122px;border-color:rgba(150,130,255,.28);border-color:color-mix(in srgb,currentColor 24%,transparent);background:rgba(150,130,255,.1);outline:none}
+  .sh-t{flex:0 0 auto;text-decoration:none;padding-left:18px;font-family:var(--font-ui);font-size:15px;font-weight:300;letter-spacing:-.01em;line-height:1;white-space:nowrap;opacity:0;transition:opacity .2s}
+  .scroll-hint:hover .sh-t,.scroll-hint:focus-visible .sh-t{opacity:1;transition:opacity .25s .12s}
+  .sh-c{flex:0 0 42px;height:42px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
+  /* the chevrons ripple in once, one after the other, and then stay put: the top one settles fainter than the bottom one */
+  .scroll-hint svg{display:block;width:22px;height:10px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:0;animation:hintA 1.5s ease-out 1.4s 1 forwards}
+  .scroll-hint svg+svg{animation-name:hintB;animation-delay:1.65s}
+  @keyframes hintA{0%{opacity:0;transform:translateY(-6px)}45%{opacity:.85}100%{opacity:.4;transform:none}}
+  @keyframes hintB{0%{opacity:0;transform:translateY(-6px)}45%{opacity:1}100%{opacity:.95;transform:none}}
+  @media (max-width:1100px){.scroll-hint{display:none}}
+  @media (prefers-reduced-motion:reduce){.scroll-hint svg{animation:none;opacity:.4}.scroll-hint svg+svg{opacity:.95}.scroll-hint,.sh-t{transition:none}}
+
+/* the pointer is a Figma-style arrowhead (black fill, 0.5px white edge) instead of the system arrow. Links keep the hand, text keeps the text cursor, and the drag and zoom cursors stay as they are. */
+:root{--cursor-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 3L19 12.4L11.6 13.9L8 20.9Z' fill='%23000' stroke='%23fff' stroke-width='.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,default}
+html{cursor:var(--cursor-arrow)}
+button,summary{cursor:var(--cursor-arrow)}
 </style>
 </head>
 <body>
+<!-- paints the company logos (flat one-colour artwork) in exactly the colour of the "Worked with teams:" label: the artwork's shape is kept, its colour is replaced. One per theme, since SVG filters cannot read CSS colours. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="logoTintDark" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 .553  0 0 0 0 .506  0 0 0 0 .584  0 0 0 1 0"/></filter>
+  <filter id="logoTintLight" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 .490  0 0 0 0 .420  0 0 0 0 .651  0 0 0 1 0"/></filter>
+  <filter id="logoHoverDark" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 .890  0 0 0 0 .875  0 0 0 0 .918  0 0 0 1 0"/></filter>
+  <filter id="logoHoverLight" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0 0 0 0 .227  0 0 0 0 .114  0 0 0 0 .588  0 0 0 1 0"/></filter>
+</svg>
 <!-- #work is the whole page, not the project list: the nav's "Work" tab is the
      current page, so it returns to the top rather than jumping past the hero to
      the wordmark. about.html links here as index.html#work and lands the same. -->
 <div class="wrap" id="work">
-  <div class="grid-bg"></div>
-
-  <nav>
+  <nav class="nav-hidden">
     <div class="container">
-      <a class="logo" href="index.html" aria-label="Eeman – home"><img src="assets/logo-eeman.png" alt="eeman"></a>
+      <a class="nav-logo" href="#work" aria-label="Eeman, back to the top">
+        <span class="lg-bubble"><span class="lg-shot"><img src="assets/dp-photo.png" alt="" width="40" height="40"></span></span>
+        <span class="lg-name">Eeman</span>
+      </a>
       <span class="nav-end">
         <div class="nav-links">
           <a href="#work" class="active" aria-current="page">Work</a>
           <a href="about.html">About</a>
+          <a href="assets/Eeman-Butt-Product-Designer.pdf" target="_blank" rel="noopener">Resume</a>
+          <button type="button" class="nav-btn" id="sayHi" aria-haspopup="dialog">Contact</button>
         </div>
-        <button type="button" class="themetoggle" id="themeToggle" aria-label="Switch to light theme" title="Switch theme">
-          <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
-          <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
-        </button>
       </span>
     </div>
   </nav>
 
+  <!-- the background grid lives in this zone only: it covers the intro and the case study cards, and stops after the last card -->
+  <div class="grid-zone">
+  <div class="grid-bg"></div>
+
+  <div class="intro">
   <header class="hero">
     <div class="container">
-      <h1>Hey! I&rsquo;m <span class="avatar"><span class="bubble"><span class="shot"><img src="assets/dp-photo.png" alt="Eeman" width="60" height="60"></span></span></span> Eeman</h1>
-      <p class="tagline">UX fundamentalist with <em>great designs</em><br>And the metrics to prove it.</p>
-      <div class="cred">
-        <p>4 years experience across industries</p>
-        <!-- Two identical groups. Below 820px the track travels one whole group
-             and repeats, so the second is what keeps the line unbroken; above
-             it the track collapses out of the layout and the copy is hidden. -->
-        <div class="logo-marquee">
-          <div class="logo-track">
-            <div class="logo-row">
-              <img src="assets/logo-fenzo.png" alt="fenzo" style="height:20px">
-              <img src="assets/logo-educative.png" alt="educative" style="height:26px">
-              <img src="assets/logo-fixel.png" alt="fixel" style="height:22px">
-              <img src="assets/logo-reloadux.png" alt="reloadux" style="height:17px">
-              <img src="assets/logo-aipixel.png" alt="AIPIXEL" style="height:27px">
-            </div>
-            <div class="logo-row dup" aria-hidden="true">
-              <img src="assets/logo-fenzo.png" alt="" style="height:20px">
-              <img src="assets/logo-educative.png" alt="" style="height:26px">
-              <img src="assets/logo-fixel.png" alt="" style="height:22px">
-              <img src="assets/logo-reloadux.png" alt="" style="height:17px">
-              <img src="assets/logo-aipixel.png" alt="" style="height:27px">
-            </div>
-          </div>
-        </div>
-      </div>
+      <h1>Hey! I&rsquo;m <span class="k">Eeman</span></h1>
+      <p class="tagline">Architect turned <em>product designer (4+ yrs)</em><span class="tc">,</span><br>specializing in <span class="k">design systems</span> &amp;<br class="tag-br"> <span class="k">AI-powered</span> workflows</p>
     </div>
 
-    <div class="portfolio-title">
-      <div class="scroll-badge" aria-hidden="true">
-        <svg viewBox="0 0 139 139">
-          <!-- Baseline radius 48.5, not the ring's mid-radius: glyphs grow outward
-               from the baseline, so the type only sits centred in the 38.75-67.75
-               band once the baseline is dropped by half a cap height. -->
-          <defs><path id="circ" d="M69.5,69.5 m-48.5,0 a48.5,48.5 0 1,1 97,0 a48.5,48.5 0 1,1 -97,0"/></defs>
-          <!-- outer + inner circles -->
-          <circle cx="69.5" cy="69.5" r="68.5" fill="none" stroke="rgba(184,174,197,.35)" stroke-width="1.5"/>
-          <circle cx="69.5" cy="69.5" r="38" fill="none" stroke="rgba(184,174,197,.35)" stroke-width="1.5"/>
-          <!-- rotating text ring -->
-          <g class="ring">
-            <!-- No textLength here: forcing one makes lengthAdjust pad the gaps
-                 between glyphs, which is letter-spacing by another name. The run
-                 is sized to the 304.84 circumference with the separator padding
-                 instead, so the tracking stays a true zero. -->
-            <text fill="#8b7f9e" font-size="13" letter-spacing="0" font-family="'IBM Plex Sans',sans-serif">
-              <textPath href="#circ">Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300" font-size="26">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan>Scroll to view<tspan class="sep">&#160;&#160;&#160;&#160;&#160;<tspan font-weight="300" font-size="26">&#8727;</tspan>&#160;&#160;&#160;&#160;&#160;</tspan></textPath>
-            </text>
-          </g>
-          <!-- center arrow: one path whose shaft ends exactly on the chevron's
-               apex, so the round cap and the round join land on the same point
-               and the tip reads as a point rather than a blob -->
-          <g class="arrow" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
-            <path d="M69.5 50V89M60.5 78.5 69.5 89 78.5 78.5"/>
-          </g>
-        </svg>
-      </div>
-      <div class="big-title" role="heading" aria-level="2">
-        <img src="assets/portfolio.svg" alt="Portfolio">
-      </div>
-    </div>
   </header>
 
-  <main class="projects container">
+  <!-- Testimonials under the headline. Note 1 is Feeha's quote, shortened. -->
+  <section class="logos" aria-label="Companies I have worked with">
+    <p class="logos-label">Worked with teams:</p>
+    <div class="logo-row">
+      <a class="logo-link" href="https://fenzo.ai/" target="_blank" rel="noopener noreferrer" aria-label="fenzo (opens in a new tab)"><img src="assets/logo-fenzo.png" alt="fenzo" style="--h:18px"></a>
+      <a class="logo-link" href="https://www.educative.io/" target="_blank" rel="noopener noreferrer" aria-label="educative (opens in a new tab)"><img src="assets/logo-educative.png" alt="educative" style="--h:24px"></a>
+      <a class="logo-link" href="https://www.mockinterviews.dev/" target="_blank" rel="noopener noreferrer" aria-label="Mock Interviews (opens in a new tab)"><span class="mi-logo" role="img" aria-label="Mock Interviews"><svg viewBox="96 96 1008 1008" aria-hidden="true"><path d="M936 96.3H264A167.8 167.8 0 0 0 96.3 264.1v671.5a168 168 0 0 0 167.7 168h671.6a168 168 0 0 0 168-168V264c0-92.5-75.1-167.7-167.6-167.7zM359.6 613.1l145.7 145.3c7 7.5 7 19 0 26.2l-49.7 49.6a18.3 18.3 0 0 1-25.9 0L208.6 613.1a18 18 0 0 1 0-26.2l221.1-221.1c7.2-7.5 19-7.5 26.2 0l49.7 49.3c7.1 7.1 7.1 19 0 26.2l-146 145.6c-7.1 7.1-7.1 19 0 26.2zm632.1-.3L770.3 834.2c-7.2 7.2-19 7.2-26.2 0l-49.4-49.6a18 18 0 0 1 0-26.2l145.7-145.6a18.3 18.3 0 0 0 0-25.9L694.7 441.3c-7-7.1-7-19 0-26.2l49.7-49.3a18.1 18.1 0 0 1 26.2 0l221.1 221.1a18.3 18.3 0 0 1 0 25.9z"/></svg><span class="mi-t">Mock Interviews</span></span></a>
+      <a class="logo-link" href="https://tkxel.com/" target="_blank" rel="noopener noreferrer" aria-label="tkxel (opens in a new tab)"><img src="assets/logo-fixel.png" alt="tkxel" style="--h:20px"></a>
+      <a class="logo-link" href="https://aipixal.tech/" target="_blank" rel="noopener noreferrer" aria-label="AIPIXAL (opens in a new tab)"><span class="ai-logo"><span class="ai-mark"><img src="assets/logo-aipixel.png" alt="" style="--h:24px"></span><span class="ai-t">AIPIXAL</span></span></a>
+    </div>
+    <!-- a nudge to scroll: two chevrons that ripple in once and then stay put, at the right-hand end of the companies row where the first screen is empty. Hover or focus stretches a circle round them into a "See work" pill; click scrolls down to the case studies. -->
+    <a class="scroll-hint" href="#cases" aria-label="See work: scroll down to the case studies"><span class="sh-t" aria-hidden="true">See work</span><span class="sh-c"><svg viewBox="0 0 24 11" aria-hidden="true"><path d="M2 2l10 7 10-7"/></svg><svg viewBox="0 0 24 11" aria-hidden="true"><path d="M2 2l10 7 10-7"/></svg></span></a>
+  </section>
 
-    <!-- ============ Card 1 — Sentinel ERP (blue) ============ -->
-    <section class="card blue" id="sentinel-erp">
-      <div class="stage" role="img" aria-label="Sentinel ERP sites dashboard: site and industry-vertical breakdowns, a contracts chart, and a table of sites with supervisors, officer counts and monthly revenue."></div>
-      <div class="caption">
-        <div class="proj-name">SENTINEL ERP</div>
-        <p class="proj-desc">All-in-one ERP solution to ensure visibility, track attendance, &amp; monitor performance</p>
-        <a class="go" href="Sentinel-ERP.html" aria-label="Open Sentinel ERP case study"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a>
-      </div>
-    </section>
+  <section class="notes" aria-label="What colleagues and seniors say">
+        <div class="notes-win"><div class="notes-row" id="notesRow">
+      <!-- Cards 2 and 3 are Ahsan Zia (the last two sentences of a longer quote) and Feeha Rashid. To add a card, copy a <figure class="note">; to use a photo, put <img src="..." alt=""> inside the round .pic badge. -->
+      <!-- TODO(eeman): Sumit Mehrotra's quote goes here: only his name, role and photo are in so far. Check he is happy with a quote on a public page. -->
+      <figure class="note">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <a class="note-li" href="https://www.linkedin.com/in/eeman-butt/details/recommendations/" target="_blank" rel="noopener noreferrer" aria-label="Read full: the recommendations on LinkedIn (opens in a new tab)"></a>
+        <blockquote>Sumit&rsquo;s testimonial is coming soon.</blockquote>
+        <figcaption class="by"><span class="pic" style="background:linear-gradient(135deg,#7fb4ff,#3f6fe0)" aria-hidden="true"><img src="assets/sumit-mehrotra.jpg" alt="" width="96" height="96"></span><span class="who"><b>Sumit Mehrotra</b><span>VP Product &middot; Educative</span></span></figcaption>
+      </figure>
+      <figure class="note">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <a class="note-li" href="https://www.linkedin.com/in/eeman-butt/details/recommendations/" target="_blank" rel="noopener noreferrer" aria-label="Read full: the recommendations on LinkedIn (opens in a new tab)"></a>
+        <blockquote>What I appreciate most is <b>her problem-solving approach and ability to consistently deliver quality work</b>. She&rsquo;s definitely someone you can trust to take ownership and get things done.</blockquote>
+        <figcaption class="by"><span class="pic" style="background:linear-gradient(135deg,#a9744f,#5b3a24)" aria-hidden="true"><img src="assets/ahsan-zia.jpg" alt="" width="96" height="96"></span><span class="who"><b>Ahsan Zia</b><span>Product Designer &middot; Tkxel</span></span></figcaption>
+      </figure>
+      <figure class="note">
+        <span class="qm" aria-hidden="true">&ldquo;</span>
+        <a class="note-li" href="https://www.linkedin.com/in/eeman-butt/details/recommendations/" target="_blank" rel="noopener noreferrer" aria-label="Read full: the recommendations on LinkedIn (opens in a new tab)"></a>
+        <blockquote>Her ability to translate complex security service requirements into <b>a seamless and user-friendly digital experience</b> was instrumental in the project&rsquo;s success.</blockquote>
+        <figcaption class="by"><span class="pic" style="background:linear-gradient(135deg,#e0a458,#8a5a1f)" aria-hidden="true"><img src="assets/feeha-rashid.jpg" alt="" width="96" height="96"></span><span class="who"><b>Feeha Rashid</b><span>Business Analyst &middot; Tkxel</span></span></figcaption>
+      </figure>
+    </div></div>
+  </section>
 
-    <!-- ============ Card 2 — Syntax DS (purple) ============ -->
+  </div>
+  <div class="intro-dwell" aria-hidden="true"></div>
+
+  <section class="hscroll" id="cases" aria-label="Case studies">
+  <div class="hpin">
+  <main class="projects">
+
+    <!-- Order is strongest evidence first: Syntax DS (measured results), then
+         Sentinel ERP, then Code Widgets. Colour classes travel with each card,
+         so nothing else in the CSS or JS depends on position. -->
+
+    <!-- ============ Card 1 — Syntax DS (purple) ============ -->
     <section class="card purple" id="syntax-ds">
       <div class="stage" role="img" aria-label="Syntax design system: a button specification sheet across four sizes and five states, alongside course-card components and the theme colour tables."></div>
       <div class="caption">
         <div class="proj-name">Syntax DS</div>
-        <p class="proj-desc">Making Educative’s design system (Syntax) scalable through homogenization of components</p>
+        <p class="proj-desc">Making Educative’s design system scalable through homogenization<span class="proj-metric"><span>188 → 74 colors</span><span>design time 3–5 days → 1–2</span></span></p>
         <a class="go" href="Syntax-DS.html" aria-label="Open Syntax DS case study"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a>
       </div>
+      <a class="card-hit" href="Syntax-DS.html" tabindex="-1" aria-hidden="true"></a>
+    </section>
+
+    <!-- ============ Card 2 — Sentinel ERP (blue) ============ -->
+    <section class="card blue" id="sentinel-erp">
+      <div class="stage" role="img" aria-label="Sentinel ERP sites dashboard: site and industry-vertical breakdowns, a contracts chart, and a table of sites with supervisors, officer counts and monthly revenue."></div>
+      <div class="caption">
+        <div class="proj-name">SENTINEL ERP</div>
+        <!-- Platform reach, anonymised and rounded. Revenue, growth and ranking
+             are deliberately left out (see Sentinel-ERP.html, Impact). This is
+             company scale, not a design outcome. -->
+        <p class="proj-desc">All-in-one ERP to ensure visibility, track attendance &amp; monitor performance<span class="proj-metric"><span>170+ franchises</span><span>5,000+ active users today</span></span></p>
+        <a class="go" href="Sentinel-ERP.html" aria-label="Open Sentinel ERP case study"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a>
+      </div>
+      <a class="card-hit" href="Sentinel-ERP.html" tabindex="-1" aria-hidden="true"></a>
     </section>
 
     <!-- ============ Card 3 — Code Widgets (teal) ============ -->
@@ -1383,145 +1620,70 @@
       <div class="stage" role="img" aria-label="Educative lesson page: a course sidebar beside a lesson with an embedded multi-file code editor and its test-case results panel."></div>
       <div class="caption">
         <div class="proj-name">Code Widgets</div>
-        <p class="proj-desc">Bringing consistency to Educative code widgets through audits and revamps of their existing states</p>
+        <p class="proj-desc">Bringing consistency to code widgets through audits and UI revamps<span class="proj-metric"><span>+12% retention on Code Test widget</span><span>4 widgets, 1 shared anatomy</span></span></p>
         <a class="go" href="Code-Widgets-Revamp.html" aria-label="Open Code Widgets case study"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a>
       </div>
+      <a class="card-hit" href="Code-Widgets-Revamp.html" tabindex="-1" aria-hidden="true"></a>
     </section>
   </main>
+  </div>
+  </section>
 
-  <section class="praise container" id="praise">
-    <div class="sec-head">
-      <div>
-        <p class="sec-kicker">Kind words</p>
-        <h2 class="sec-title">Hear what other<br>designers have to say</h2>
+  <!-- ============ My work with AI ============ -->
+  <section class="ai-sec" id="ai" aria-label="My work with AI">
+    <div class="ai-in">
+      <div class="ai-head">
+        <h2 class="ai-vh">My work with AI</h2>
+        <p class="ai-line">I use AI to <span class="k">create more use</span> out of AI</p>
       </div>
-      <p class="sec-lead">From 1:1 sessions with UX community members and junior designers on Topmate.</p>
-    </div>
-
-    <div class="praise-grid" id="praiseGrid">
-      <figure class="tcard wide">
-        <span class="qm" aria-hidden="true">&ldquo;</span>
-        <div class="stars" aria-label="Rated 5 out of 5">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-        </div>
-        <blockquote>I had a really helpful session with eeman around transitioning from graphic design to UI/UX. They explained things in a very clear and relatable way, <b>without any jargon</b>. I felt comfortable asking even basic questions, and they gave honest, practical advice based on real experience. I left the call with more clarity on how to move forward and what to focus on next. Would definitely recommend them to anyone starting out in UI/UX.</blockquote>
-        <figcaption class="by">
-          <span class="pic" style="background:linear-gradient(135deg,#7775ff,#3d3ac0)" aria-hidden="true">SK</span>
-          <span class="who"><b>Sourav Kumar</b><span>Jul 2025</span></span>
-        </figcaption>
-      </figure>
-
-      <figure class="tcard">
-        <span class="qm" aria-hidden="true">&ldquo;</span>
-        <div class="stars" aria-label="Rated 5 out of 5">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-        </div>
-        <blockquote>Eeman was super comfortable to talk and gave me <b>a clear plan on what I should do to prepare for my interview</b>! Really appreciated her insights and for sure will book another session soon. &lt;3</blockquote>
-        <figcaption class="by">
-          <span class="pic" style="background:linear-gradient(135deg,#f2a7c3,#b45a82)" aria-hidden="true">AU</span>
-          <span class="who"><b>Amna Usman</b><span>Feb 2025</span></span>
-        </figcaption>
-      </figure>
-
-      <figure class="tcard phone">
-        <span class="qm" aria-hidden="true">&ldquo;</span>
-        <div class="stars" aria-label="Rated 5 out of 5">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-        </div>
-        <blockquote>I had a great session with Eeman where we discussed my questions in depth. She was incredibly helpful, sharing real examples and insights around <b>the design thinking process, building design systems, and handling feedback from marketing and development teams</b>. Her guidance was clear and thoughtful. Looking forward to connecting again for more learning!</blockquote>
-        <figcaption class="by">
-          <span class="pic" style="background:linear-gradient(135deg,#5eb5a1,#2f665a)" aria-hidden="true">MT</span>
-          <span class="who"><b>Muhammad Taif</b><span>Jul 2025</span></span>
-        </figcaption>
-      </figure>
-
-      <figure class="tcard">
-        <span class="qm" aria-hidden="true">&ldquo;</span>
-        <div class="stars" aria-label="Rated 5 out of 5">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-        </div>
-        <blockquote>I had a great session with Eeman! As someone new to UX, her advice really helped me understand how to get started the right way. She explained everything in a simple and clear way, shared useful tools, and gave <b>practical tips I can actually use</b>. Highly recommend her to anyone starting their UX journey!</blockquote>
-        <figcaption class="by">
-          <span class="pic" style="background:linear-gradient(135deg,#99E1FF,#3763e4)" aria-hidden="true">MH</span>
-          <span class="who"><b>Muhammad Hasan</b><span>Aug 2025</span></span>
-        </figcaption>
-      </figure>
-
-      <figure class="tcard">
-        <span class="qm" aria-hidden="true">&ldquo;</span>
-        <div class="stars" aria-label="Rated 5 out of 5">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-        </div>
-        <blockquote>I had the pleasure of an insightful session with Eeman, and it was incredibly valuable. She shared <b>actionable tips on how to prepare for a design interview</b>, which boosted my confidence. Her innovative ideas and industry expertise also sparked new perspectives on design thinking. Thank you for the guidance and inspiration!</blockquote>
-        <figcaption class="by">
-          <span class="pic" style="background:linear-gradient(135deg,#f4b26a,#c07430)" aria-hidden="true">MU</span>
-          <span class="who"><b>Malik Umer</b><span>Feb 2025</span></span>
-        </figcaption>
-      </figure>
-    </div>
-
-    <div class="praise-foot">
-      <div class="rating">
-        <div class="stars" aria-hidden="true">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/></svg>
-        </div>
-        <span class="score">5.0</span>
-        <span class="of">out of 5<b>across 14 rated sessions</b></span>
+      <div class="ai-cases">
+        <article class="ai-case" id="fenzo-test-practice">
+          <div class="ai-text">
+            <div class="ai-a">
+              <h3><svg class="case-mark" viewBox="0 0 19.35 28" aria-hidden="true" focusable="false"><path d="M13.1247 14.2434V0H11.922L6.56258 14.2434L1.20313 0H-0.000244141V27.9993L19.3478 15.5901V14.2434H13.1247ZM9.21571 18.1382C8.65292 18.1382 8.19712 17.683 8.19712 17.1209C8.19712 16.5588 8.65228 16.1023 9.21571 16.1023C9.77915 16.1023 10.233 16.5575 10.233 17.1209C10.233 17.6843 9.77785 18.1382 9.21571 18.1382Z" fill="#C0562F"/></svg><span>Fenzo Test Practice</span></h3>
+              <span class="ai-vh">Overview</span>
+              <p class="ai-over">Exam prep for tests like the SAT that targets weak areas with personalized primers and finds patterns in mistakes, with granular AI feedback.</p>
+            </div>
+            <div class="ai-b">
+              <ul class="ai-roles" aria-label="My role"><li>Ideation</li><li>User research</li><li>Competitive analysis</li><li>A/B testing</li><li>AI prototyping</li><li>Iteration</li><li>Audits</li><li>Responsive screens</li><li>Accessibility</li></ul>
+              <span class="ai-vh">Key outcomes</span>
+              <ul><li>1k+ purchases in 1st month of launch <span class="ai-tag">(success)</span></li><li>User requests for other specialized exams like GCSE <span class="ai-tag">(suggestion)</span></li><li>Unable to easily locate past test performances <span class="ai-tag">(area of improvement)</span></li></ul>
+            </div>
+          </div>
+          <div class="ai-shot" style="--strip:#f9fafb"><div class="phone-clip" role="img" aria-label="Fenzo Test Practice on a phone: the SAT test prep plan, with the diagnostic screen behind it"><div class="screen-back"><img src="assets/fenzo-diagnostic.png" alt="" width="850" height="1492" loading="lazy"></div><div class="phone"><div class="screen"><img src="assets/fenzo-test-prep.png" alt="" width="846" height="1490" loading="lazy"></div></div></div><div class="shot-cta"><a class="live-view" href="https://fenzo.ai/test-prep" target="_blank" rel="noopener noreferrer" aria-label="View live product: Fenzo Test Practice (opens in a new tab)"><span>View live product</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a></div></div>
+        </article>
+        <article class="ai-case" id="mockinterviews-dev">
+          <div class="ai-text">
+            <div class="ai-a">
+              <h3><svg class="case-mark" viewBox="0 0 1200 1200" aria-hidden="true" focusable="false"><path fill="#fff" d="M505.6 441.3c7.1-7.1 7.1-19 0-26.2l-49.7-49.3c-7.1-7.5-19-7.5-26.2 0L208.6 586.9a18 18 0 0 0 0 26.2l221.1 221.1a18.3 18.3 0 0 0 25.9 0l49.7-49.6a18.7 18.7 0 0 0 0-26.2L359.6 613c-7.1-7.1-7.1-19 0-26.2l146-145.6zM770.6 365.8c-7.5-7.5-19-7.5-26.2 0L694.7 415c-7 7.1-7 19 0 26.2l145.7 145.6a18.3 18.3 0 0 1 0 25.9L694.7 758.4a18 18 0 0 0 0 26.2l49.4 49.6c7.1 7.2 19 7.2 26.2 0l221.4-221.4a18.3 18.3 0 0 0 0-25.9l-221-221.1z"/><path fill="#3e23c5" d="M936 96.3H264A167.8 167.8 0 0 0 96.3 264.1v671.5a168 168 0 0 0 167.7 168h671.6a168 168 0 0 0 168-168V264c0-92.5-75.1-167.7-167.6-167.7zM359.6 613.1l145.7 145.3c7 7.5 7 19 0 26.2l-49.7 49.6a18.3 18.3 0 0 1-25.9 0L208.6 613.1a18 18 0 0 1 0-26.2l221.1-221.1c7.2-7.5 19-7.5 26.2 0l49.7 49.3c7.1 7.1 7.1 19 0 26.2l-146 145.6c-7.1 7.1-7.1 19 0 26.2zm632.1-.3L770.3 834.2c-7.2 7.2-19 7.2-26.2 0l-49.4-49.6a18 18 0 0 1 0-26.2l145.7-145.6a18.3 18.3 0 0 0 0-25.9L694.7 441.3c-7-7.1-7-19 0-26.2l49.7-49.3a18.1 18.1 0 0 1 26.2 0l221.1 221.1a18.3 18.3 0 0 1 0 25.9z"/></svg><span>mockinterviews.dev</span></h3>
+              <span class="ai-vh">Overview</span>
+              <p class="ai-over">AI interview practice for software engineers of all levels, simulating real MAANG+ coding questions, with question-level analysis, feedback &amp; next steps.</p>
+            </div>
+            <div class="ai-b">
+              <ul class="ai-roles" aria-label="My role"><li>Competitive analysis</li><li>Branding</li><li>Ideation</li><li>Design</li><li>Pre-mortem</li><li>Post-mortem</li><li>Usability testing</li><li>Responsive screens</li><li>Accessibility</li></ul>
+              <span class="ai-vh">Key outcomes</span>
+              <ul><li>5/5 students clicked interactive demo first <span class="ai-tag">(validated &ndash; user needs preempted)</span></li><li>3/5 users could not find response analysis <span class="ai-tag">(room for improvement)</span></li><li>4/5 were impressed with widget interactivity</li></ul>
+            </div>
+          </div>
+          <div class="ai-shot"><div class="phone-clip" role="img" aria-label="mockinterviews.dev on a phone: the feedback for a past mock interview, with its detailed feedback screen behind it"><div class="screen-back"><img src="assets/mockinterviews-feedback.png" alt="" width="750" height="1610" loading="lazy"></div><div class="phone"><div class="screen"><img src="assets/mockinterviews-attempts.png" alt="" width="750" height="1624" loading="lazy"></div></div></div><div class="shot-cta"><a class="live-view" href="https://www.mockinterviews.dev/" target="_blank" rel="noopener noreferrer" aria-label="View live product: mockinterviews.dev (opens in a new tab)"><span>View live product</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h13M12.5 6.5 18 12l-5.5 5.5"/></svg></a></div></div>
+        </article>
       </div>
-      <!-- The public profile, deliberately: the testimonials list at
-           topmate.io/dashboard/... is the logged-in owner view and would put a
-           visitor on a login screen. Swap this if Topmate ever exposes a
-           public permalink for the reviews themselves. -->
-      <a class="tm-btn" href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer">
-        Read all 14 on Topmate
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 16 16 8M9.4 8H16v6.6"/></svg>
-      </a>
     </div>
   </section>
+  <div class="ft-hold" aria-hidden="true"></div>
+  </div>
 
   <footer id="contact">
     <div class="grid-bg bottom"></div>
-    <div class="contact container">
+    <div class="contact">
       <div class="contact-copy">
-        <h2 class="contact-title">Contact Me</h2>
+        <h2 class="contact-title">Thank you for the visit!</h2>
         <p class="contact-lead">If you&rsquo;re looking for a collab on your next big project, drop me a message. I&rsquo;d love to chat or meet up over coffee!</p>
-      </div>
+        <p class="contact-lead">Open to product design roles. I specialize in AI-automated workflows and design system management.</p>
+        <!-- TODO(eeman): add seniority and location/remote preference to the
+             line above if you want them; only the role and specialities you
+             gave are stated. -->
       <div class="contact-side">
-        <div class="email-row">
-          <span class="email-ico" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3.6 7.2l7.3 5.1a2 2 0 0 0 2.2 0l7.3-5.1"/></svg>
-          </span>
-          <a class="email" href="mailto:ebutt732@gmail.com">ebutt732@gmail.com</a>
-          <button type="button" class="copybtn" data-copy="ebutt732@gmail.com" aria-label="Copy email address" title="Copy email address">
-            <svg class="i-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 5.8V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7a2.5 2.5 0 0 0 2.5 2.5h.2"/></svg>
-            <svg class="i-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
-          </button>
-          <span class="copied-note" role="status" aria-live="polite">Copied</span>
-        </div>
         <div class="socials">
           <a href="https://www.linkedin.com/in/eeman-butt" target="_blank" rel="noopener noreferrer" title="LinkedIn">
             <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.3 10.7V17M7.3 7.5v.02M11.3 17v-6.3M11.3 13.6a2.6 2.6 0 0 1 5.2 0V17"/></svg></span>
@@ -1540,6 +1702,8 @@
           </a>
         </div>
       </div>
+      </div>
+      <div class="ft-form" id="ftForm"></div>
     </div>
   </footer>
   <div class="end-space"></div>
@@ -1569,24 +1733,6 @@
     <em id="glassLabel"></em>
   </div>
 </div>
-<aside class="trydock" id="tryDock">
-  <!-- the collapsed-state bookmark: opens the panel -->
-  <button type="button" class="trydock-tab" id="tryTab" aria-expanded="false" aria-controls="tryPanel">
-    <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
-    <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.6l13 7.4-5.6 1.6-1.6 5.6z"/></svg>
-    <span class="lbl">Try Me!</span>
-  </button>
-  <div class="trydock-panel" id="tryPanel">
-    <!-- and the open-state header: same name, horizontal, closes the panel -->
-    <button type="button" class="trydock-head" id="tryClose" aria-expanded="true" aria-controls="tryPanel">
-      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3.6l13 7.4-5.6 1.6-1.6 5.6z"/></svg>
-      Try Me!
-      <svg class="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 5.5 16 12l-6.5 6.5"/></svg>
-    </button>
-    <div class="curdock" id="curDock" role="group" aria-label="Cursor effect"></div>
-  </div>
-</aside>
-
 <script>
 /* Build the Sentinel ERP schedule mock (used in cards 1 & 2) */
 (function(){
@@ -1715,7 +1861,7 @@
   }
   function apply(theme){
     root.setAttribute('data-theme', theme);
-    try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+    try{ localStorage.setItem('eeman-theme-v3', theme); }catch(e){}
     label();
   }
   // dark is the default and the page never follows the OS on its own; the
@@ -1808,56 +1954,6 @@ var FINE    = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
       dock.appendChild(b);
     });
   });
-
-  /* ---- the drawer ----
-     Open on every load, no exceptions and nothing remembered: the panel is the
-     invitation to try the cursor effects at all, so a visitor who collapsed it
-     once should still be offered it the next time they come back. Only the
-     mode itself persists. State is written straight onto the element - the
-     slide is CSS, so nothing here has to know how far the panel travels. */
-  (function(){
-    var dock = document.getElementById('tryDock');
-    var tab = document.getElementById('tryTab');     // bookmark: opens
-    var shut = document.getElementById('tryClose');  // header: closes
-    if (!dock || !tab || !shut) return;
-    function apply(open){
-      dock.classList.toggle('closed', !open);
-      tab.setAttribute('aria-expanded', open ? 'true' : 'false');
-      shut.setAttribute('aria-expanded', open ? 'true' : 'false');
-      tab.setAttribute('aria-label', 'Open the cursor effects panel');
-      tab.setAttribute('title', 'Open the cursor effects panel');
-      shut.setAttribute('aria-label', 'Collapse the cursor effects panel');
-      shut.setAttribute('title', 'Collapse the cursor effects panel');
-    }
-    var autoDone = false;
-    tab.addEventListener('click', function(){ apply(true); autoDone = true; });
-    shut.addEventListener('click', function(){ apply(false); autoDone = true; });
-
-    /* Fold down once the Portfolio wordmark has gone past. The hero is the
-       drawer's own room - it is anchored to the tagline and there is nothing
-       under it there - but the case studies start immediately below the
-       wordmark, and a fixed panel over the right of the rail would sit on top
-       of them. So the trigger is the wordmark clearing the drawer's own top
-       edge, measured live rather than hard-coded: that is the exact moment the
-       panel stops having empty page beneath it.
-
-       It folds once. After that the reader's clicks are the only thing that
-       moves it - otherwise the panel would keep snapping shut under someone who
-       had just opened it, which is the opposite of "only display it again on
-       click". */
-    var mark = document.querySelector('.portfolio-title');
-    window.addEventListener('scroll', function(){
-      if (autoDone) return;
-      var past = mark
-        ? mark.getBoundingClientRect().bottom <= dock.getBoundingClientRect().top
-        : window.scrollY > 900;      // no wordmark on the page: fall back to a depth
-      if (!past) return;
-      autoDone = true;
-      if (!dock.classList.contains('closed')) apply(false);
-    }, { passive: true });
-
-    apply(true);
-  })();
 
   /* ---- the magnifier ---- */
   var fr = document.getElementById('glassFrame');
@@ -2165,10 +2261,518 @@ var FINE    = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
     start();
   }
 
-  var saved;
-  try { saved = localStorage.getItem(STORE); } catch (e) {}
-  set(MODES.some(function(m){ return m.id === saved; }) ? saved : 'off');
+  /* The "Try Me!" drawer is gone, so there is no way to switch effects; always start (and stay) on the default cursor, even if an earlier visit saved another mode. */
+  set('off');
 })();
 </script>
+<script>
+/* Case studies: one row that is moved by the page, and only by the page: it no longer drifts by itself. The pinned section is scrolled in four stretches:
+   1. a pause (DW px of scrolling in which nothing moves) with the first card in view,
+   2. the travel: the row crosses from the first card to the last (p goes from 0 to 1),
+   3. a pause with the last card in view, so you can rest at either end,
+   4. the hold, while "My work with AI" slides up over the row.
+   The row follows the scroll a little behind it (eased), which gives the movement some weight. A phone doesn't use any of this: the case studies stack. */
+(function(){
+  var sec=document.querySelector('.hscroll'), pin=sec&&sec.querySelector('.hpin'), track=sec&&sec.querySelector('.projects');
+  if(!sec||!pin||!track||track.children.length<2) return;
+  var root=document.documentElement, cards=[].slice.call(track.children);
+  var calm=matchMedia('(prefers-reduced-motion: reduce)'), mob=matchMedia('(max-width:820px)');
+  var RATIO=1.1, DWELL=.35, cfade=1;   /* DWELL: each pause is this fraction of the window height */
+  var max=0, travel=0, hold=0, dw=0, xCur=0, xTar=0, jump=true, raf=0, last=0;
+  root.classList.add('hs-on');
+  function clamp(v,a,b){return v<a?a:v>b?b:v}
+  function measure(){
+    pin.scrollLeft=0; jump=true;
+    if(mob.matches){ hold=0; travel=0; max=0; dw=0; cfade=1; sec.style.removeProperty('--hs-h'); sec.style.removeProperty('--cfade'); sec.style.marginTop=''; root.style.removeProperty('--hs-hold'); track.style.transform=''; return }
+    max=Math.max(0,track.offsetWidth-root.clientWidth);
+    travel=Math.max(320,Math.round(max*RATIO));
+    hold=window.innerHeight;   /* after the last card has arrived the row stays put for one more window-height of scrolling, while "My work with AI" slides up over it */
+    dw=Math.round(window.innerHeight*DWELL);
+    sec.style.setProperty('--hs-h',(window.innerHeight+dw+travel+dw+hold)+'px');
+    root.style.setProperty('--hs-hold',hold+'px');
+    /* before the stage pins, the cards would sit one header-height below the hero: pull the section up so they sit 24px under it, as before */
+    var gap=parseFloat(getComputedStyle(pin).paddingTop)||0;
+    sec.style.marginTop=(-Math.max(0,Math.round(gap-24)))+'px';
+  }
+  function update(now){
+    raf=0; if(mob.matches){ last=0; return }
+    var dt=last?clamp(now-last,0,64):16; last=now;
+    var s=-sec.getBoundingClientRect().top;
+    var p=travel>0?clamp((s-dw)/travel,0,1):0;
+    /* the hold: the same fade as the first screen (gone by 70% of the way), unless the visitor asked for less motion */
+    var q=hold>0?clamp((s-dw-travel-dw)/hold,0,1):0, cf=calm.matches?1:1-clamp(q/.7,0,1);
+    if(cf!==cfade){cfade=cf; sec.style.setProperty('--cfade',cf.toFixed(3))}
+    xTar=p*max;
+    if(calm.matches||jump){ xCur=xTar; jump=false } else xCur+=(xTar-xCur)*(1-Math.exp(-dt/110));
+    if(Math.abs(xTar-xCur)<.3) xCur=xTar;
+    track.style.transform='translate3d('+(-xCur).toFixed(2)+'px,0,0)';
+    if(xCur!==xTar) raf=requestAnimationFrame(update); else last=0;
+  }
+  function kick(){if(!raf) raf=requestAnimationFrame(update)}
+  /* keyboard: a focused card is brought into view by moving the page */
+  pin.addEventListener('scroll',function(){if(pin.scrollLeft) pin.scrollLeft=0});
+  track.addEventListener('focusin',function(e){
+    if(mob.matches) return;
+    pin.scrollLeft=0;
+    var c=e.target.closest&&e.target.closest('.card'); if(!c) return;
+    /* the browser scrolls the focused link into view itself, just after this event: wait a frame, then correct it */
+    requestAnimationFrame(function(){requestAnimationFrame(function(){
+      pin.scrollLeft=0;
+      var vw=root.clientWidth, left=c.offsetLeft-xTar;
+      if(left>=0&&left+c.offsetWidth<=vw) return;
+      var tx=clamp(c.offsetLeft-40,0,max), p=max>1?clamp(tx/max,0,1):0;
+      window.scrollTo({top:sec.getBoundingClientRect().top+(window.pageYOffset||root.scrollTop)+dw+p*travel,behavior:'auto'});
+    })});
+  });
+  window.addEventListener('scroll',kick,{passive:true});
+  /* sections settle by themselves: the page never rests half way between two screens. There are three such moves: the first screen to the case studies, the case studies to "My work with AI" (the hold), and that screen to the footer.
+     When scrolling stops inside one, the page carries on by itself: going down it finishes the move once a fifth of the way in, going up once it is a fifth of the way back; short of that it returns to where it was. Several short scrolls in a row add up, so a slow mouse wheel still gets through.
+     Each move runs from a (the screen you are leaving) to b (the next one fully arrived); rest is where it settles. */
+  var lastY=window.pageYOffset||root.scrollTop, dir=0, idle=0, GAP=24, pushed=0, pushedAt=0, ft=document.getElementById('contact');
+  function moves(y){
+    var vh=window.innerHeight, nav=parseFloat(getComputedStyle(root).getPropertyValue('--nav-h'))||82;
+    var top=sec.getBoundingClientRect().top+y, base=top+travel+2*dw, list=[];
+    if(!calm.matches) list.push({a:Math.max(0,top-vh),b:top,rest:top});
+    if(hold>0) list.push({a:base,b:base+hold,rest:base+Math.max(0,hold-GAP)});   /* "My work with AI" rests GAP px short of the very top, which leaves that much more air under the header */
+    if(ft&&!calm.matches){
+      var f=ft.getBoundingClientRect().top+y, end=Math.min(f-nav,root.scrollHeight-vh);   /* the footer rests just under the header */
+      list.push({a:Math.max(0,f-vh),b:end,rest:end});
+    }
+    return list;
+  }
+  function snap(){
+    if(mob.matches||root.classList.contains('drawer-open')) return;
+    var y=window.pageYOffset||root.scrollTop;
+    moves(y).some(function(m){
+      var len=m.b-m.a; if(!(len>1)||y<=m.a+2||y>=m.b-2) return false;
+      if(Math.abs(y-m.rest)<2||(dir>0&&y>m.rest)) return true;
+      var from=dir>0?m.a:m.rest, to=dir>0?m.rest:m.a, now=Date.now();
+      var moved=Math.abs(y-from)+(now-pushedAt<1500?pushed:0);
+      if(moved>=len*.2){ pushed=0 } else { pushed=moved; pushedAt=now; to=from }
+      window.scrollTo({top:to,behavior:calm.matches?'auto':'smooth'});
+      return true;
+    });
+  }
+  window.addEventListener('scroll',function(){
+    var y=window.pageYOffset||root.scrollTop; if(y!==lastY){dir=y>lastY?1:-1;lastY=y}
+    clearTimeout(idle); idle=setTimeout(snap,120);
+  },{passive:true});
+  window.addEventListener('resize',function(){measure();kick()});
+  window.addEventListener('load',function(){measure();kick()});
+  measure(); update(performance.now());
+})();
+</script>
+<script>
+/* Tile grid. The page behind the hero and the case studies is a grid of 120.5px squares drawn on a canvas that
+   sits behind everything. A soft glow follows the pointer, with a brighter shade at its centre and a fading trail behind it,
+   so the grid lights up where you are. Only on the first screen: nothing is drawn below
+   the top of the testimonial cards. Touch screens and "reduce motion" get the still grid. */
+(function(){
+  var zone=document.querySelector('.grid-zone'); if(!zone) return;
+  var root=document.documentElement, T=120.5, GAP=1;
+  /* the grid hangs off the headline: its first vertical line is 16px left of the text, and its horizontal lines are placed in the gaps between lines of type (see geom) */
+  var GX=0, GYp=0;
+  var cv=document.createElement('canvas'); cv.setAttribute('aria-hidden','true');
+  cv.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:-1;pointer-events:none';
+  document.body.insertBefore(cv,document.body.firstChild);
+  var g=cv.getContext('2d'); if(!g) return;
+  var W=0,H=0,dpr=1, pal={tile:'#F2F4F6',back:'#E1E5EA',glow:'120,100,230',ga:.1,core:'255,255,255',ca:.3};
+  var calm=matchMedia('(prefers-reduced-motion: reduce)'), fine=matchMedia('(hover:hover) and (pointer:fine)');
+  var P={x:0,y:0,in:false}, raf=0, last=0;
+  var GL={x:0,y:0,a:0}, TR=[], TL={x:0,y:0}, GR=100;   /* GL: the glow that follows the pointer (position, and how bright it is now); TR: the spots it leaves behind as it moves (position, how bright each still is); GR: its radius: it fades out to nothing at the edge */
+  /* a soft glow round the pointer, drawn on the tiles, so the grid lights up where you are */
+  /* a radial fade drawn with many small steps on a cosine curve: it reaches zero at the edge with no slope, so there is no visible ring or edge */
+  function soft(x,y,r,col,al,pw){
+    var gr=g.createRadialGradient(x,y,0,x,y,r), n=14, k, t;
+    for(k=0;k<=n;k++){ t=k/n; gr.addColorStop(t,'rgba('+col+','+(al*Math.pow(.5+.5*Math.cos(Math.PI*t),pw)).toFixed(5)+')') }
+    g.fillStyle=gr; g.fillRect(x-r,y-r,r*2,r*2);
+  }
+  function blob(x,y,al,core){
+    soft(x,y,GR,pal.glow,al,1.3);
+    if(core>0) soft(x,y,GR*.5,pal.core,core*pal.ca,1.6);   /* the brighter shade at the centre */
+  }
+  function glow(){
+    var i; for(i=0;i<TR.length;i++) blob(TR[i].x,TR[i].y,pal.ga*.3*TR[i].a);   /* the trail: soft spots left along the way, each fading out */
+    if(GL.a>=.01) blob(GL.x,GL.y,pal.ga*GL.a,GL.a);                                  /* and the glow at the pointer */
+  }
+  function hash(i,j){ var h=(Math.imul(i,374761393)+Math.imul(j,668265263))|0; h=Math.imul(h^(h>>>13),1274126177); return ((h^(h>>>16))>>>0)/4294967296 }
+  function css(n){return getComputedStyle(root).getPropertyValue(n).trim()}
+  function colours(){pal.tile=css('--grid-tile')||css('--bg')||pal.tile; pal.back=css('--grid-back')||pal.back; pal.core=css('--grid-core')||pal.core; pal.ca=parseFloat(css('--grid-core-a'))||pal.ca; pal.glow=css('--grid-glow')||pal.glow; pal.ga=parseFloat(css('--grid-glow-a'))||pal.ga}
+  function clamp(v,a,b){return v<a?a:v>b?b:v}
+  function key(c,r){return c+'_'+r}
+  function size(){dpr=Math.min(2,window.devicePixelRatio||1); W=root.clientWidth; H=window.innerHeight; cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr); g.setTransform(dpr,0,0,dpr,0,0); geom(); draw()}
+  function geom(){
+    var h=document.querySelector('.hero h1'), hero=document.querySelector('header.hero'); if(!h) return;
+    GX=Math.round(h.getBoundingClientRect().left-16);
+    if(hero) hero.style.paddingTop='';
+    var bp=phase(); if(bp===null){ GYp=h.getBoundingClientRect().top+(window.pageYOffset||0); return }
+    /* the headline keeps its margins; the grid slides to where its lines sit in the gaps between lines of type, and snaps onto the top edge of the screen when that is within a few pixels of it */
+    var m=((bp%T)+T)%T; if(m<4||m>T-4) bp=0;
+    GYp=bp;
+  }
+  /* where, on the page, the repeating horizontal lines fall (their distance below the top of the page, mod one tile) when they are as clear of the type as they can be */
+  function phase(){
+    var bands=[], rg=document.createRange(), sy=window.pageYOffset||0, seen={};
+    heroText.forEach(function(el){
+      var f=parseFloat(getComputedStyle(el).fontSize)||40, tw=document.createTreeWalker(el,NodeFilter.SHOW_TEXT), tn, rs=[];
+      while((tn=tw.nextNode())){ if(!tn.nodeValue.trim()) continue; rg.selectNodeContents(tn); rs=rs.concat([].slice.call(rg.getClientRects())) }   /* only the words: the portrait that slides in beside the name is not type */
+      rs.forEach(function(q){ if(q.width<2||q.height<f) return; var k=Math.round(q.top); if(seen[k]) return; seen[k]=1;
+        bands.push([q.top+sy+.245*f, q.top+sy+1.225*f]) });   /* the ink of each line of type: ascenders reach .78em above the baseline, descenders .2em below it */
+    });
+    if(!bands.length) return null;
+    var best=-1e9, bp=0, ph, i, sc, n, d;
+    for(ph=0;ph<T;ph+=.5){
+      sc=1e9;
+      for(i=0;i<bands.length;i++){
+        n=bands[i][0]+(((ph-bands[i][0])%T)+T)%T;                    /* first line at or below the top of the ink */
+        d=n<=bands[i][1]?-Math.min(n-bands[i][0],bands[i][1]-n):Math.min(n-bands[i][1],bands[i][0]-(n-T));
+        if(d<sc) sc=d;
+      }
+      if(sc>best){ best=sc; bp=ph }
+    }
+    return bp;
+  }
+  function gy(){ return GYp-(window.pageYOffset||0) }
+  function fade(){var b=zone.getBoundingClientRect().bottom; cv.style.opacity=clamp((b-120)/360,0,1)*(window.__introFade==null?1:window.__introFade)}   /* the grid fades out with the first screen (see the parallax script) */
+  /* one box round the whole headline (all four lines, with a little air): the tiles behind it tilt only a little, so the words behind don't pile up under the type */
+  var heroText=[].slice.call(document.querySelectorAll('.hero h1, .hero .tagline'));
+  var rowEl=document.querySelector('.projects');
+  var secEl=document.querySelector('.hscroll');
+  function rowTop(){ return rowEl?rowEl.getBoundingClientRect().top:1e9 }
+  var notesEl=document.querySelector('.notes');
+  var winEl=document.querySelector('.notes-win');
+  function draw(){
+    var y0=gy(), r0=Math.floor((0-y0)/T), r1=Math.ceil((H-y0)/T), c0=Math.floor((0-GX)/T), c1=Math.ceil((W-GX)/T), r, c, k;
+    /* the grid belongs to the intro only: it stops at the top edge of the case study cards, so nothing is drawn behind (or between, or under) them */
+    g.clearRect(0,0,W,H);
+    var cut=Math.min(H,rowTop()); if(secEl&&secEl.getBoundingClientRect().top<=.5) cut=0;   /* once the row has pinned there is no grid at all */
+    if(cut<=0) return;
+    g.save(); g.beginPath(); g.rect(0,0,W,cut); g.clip();
+    g.fillStyle=pal.back; g.fillRect(0,0,W,H);
+    g.fillStyle=pal.tile; g.beginPath();
+    for(r=r0;r<=r1;r++) for(c=c0;c<=c1;c++) g.rect(GX+c*T+GAP/2,y0+r*T+GAP/2,T-GAP,T-GAP);
+    g.fill();
+    glow();   /* the glow also goes behind the (glass) testimonial cards, which blur it */
+    g.restore();
+  }
+  function step(now){
+    raf=0; var dt=last?clamp(now-last,0,48):16; last=now; var busy=false, i;
+    /* the glow follows the pointer a little behind it, and fades in and out */
+    if(P.in){ if(GL.a<.02){GL.x=P.x;GL.y=P.y;TL.x=P.x;TL.y=P.y} else { var f=1-Math.exp(-dt/70); GL.x+=(P.x-GL.x)*f; GL.y+=(P.y-GL.y)*f } GL.a+=(1-GL.a)*(1-Math.exp(-dt/140));
+      if(Math.hypot(GL.x-TL.x,GL.y-TL.y)>20){ TR.push({x:GL.x,y:GL.y,a:1}); TL.x=GL.x; TL.y=GL.y; if(TR.length>70) TR.shift() } }
+    else GL.a*=Math.exp(-dt/260);
+    for(i=TR.length-1;i>=0;i--){ TR[i].a*=Math.exp(-dt/380); if(TR[i].a<.03) TR.splice(i,1) }   /* each spot fades out in about a second */
+    if(GL.a>.02||TR.length) busy=true; if(GL.a<=.02) GL.a=0;
+    draw();
+    if(P.in||busy) raf=requestAnimationFrame(step); else last=0;
+  }
+  function kick(){ if(!raf&&fine.matches&&!calm.matches) raf=requestAnimationFrame(step) }
+  window.addEventListener('pointermove',function(e){ if(e.pointerType==='touch') return; P.x=e.clientX; P.y=e.clientY; P.in=true; kick() },{passive:true});
+  window.addEventListener('mouseout',function(e){ if(!e.relatedTarget){ P.in=false; kick() } });
+  window.addEventListener('scroll',function(){ fade(); if(raf) return; draw() },{passive:true});
+  window.addEventListener('resize',function(){ size(); fade() });
+  new MutationObserver(function(){ colours(); draw() }).observe(root,{attributes:true,attributeFilter:['data-theme']});
+  colours(); size(); fade(); root.classList.add('grid-live');
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){geom();draw()});
+  window.addEventListener('load',function(){geom();draw()});
+  window.__glow=GL; window.__gridpos=function(){ return {x:GX,y:gy(),t:T} };
+  window.__tiles={step:step,poke:function(x,y){P.x=x;P.y=y;P.in=true},leave:function(){P.in=false},draw:draw,fade:fade};
+})();
+</script>
+<script>
+/* the testimonials drift left all the time, three cards in view (two on a tablet, one on a phone), edge to edge. The last card is repeated before the first, and the first few after the last, so both sides of the screen are always full of cards; when the track has slid by exactly one set it starts again from the same picture with no visible jump. The cards sit still while the pointer is over them (nothing about them changes: they are not buttons), and they can be grabbed and dragged either way to skim through; let go and they coast a little, then carry on drifting. Nothing moves for visitors who asked for less motion (the strip scrolls by hand instead). */
+(function(){
+  var row=document.getElementById('notesRow'); if(!row) return;
+  var win=row.parentNode, base=[].slice.call(row.children).filter(function(n){return n.classList.contains('note')});
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var SPEED=45, from=0, dist=1, pos=0, vel=0, hover=false, drag=null, last=0;   /* SPEED: pixels a second; vel: pixels a millisecond (coasting after a drag) */
+  function clone(n){ var c=n.cloneNode(true); c.setAttribute('data-clone',''); c.setAttribute('aria-hidden','true'); [].forEach.call(c.querySelectorAll('a'),function(a){a.tabIndex=-1}); return c }
+  function paint(){ pos=((pos%dist)+dist)%dist; row.style.transform='translate3d('+(from-pos)+'px,0,0)' }
+  function build(){
+    [].slice.call(row.querySelectorAll('[data-clone]')).forEach(function(n){row.removeChild(n)});
+    row.style.transform='none'; row.classList.add('align');
+    var cs=getComputedStyle(row), per=parseInt(cs.getPropertyValue('--per'))||3, gap=parseFloat(cs.columnGap)||20;
+    var step=base[0].getBoundingClientRect().width+gap, before=2;                      /* two repeats ahead of the first card fill the space to its left */
+    for(var k=0;k<before;k++) row.insertBefore(clone(base[(base.length-1-k+base.length*3)%base.length]),row.firstChild);
+    for(k=0;k<per+2;k++) row.appendChild(clone(base[k%base.length]));
+    dist=base.length*step; from=-before*step; paint();
+  }
+  function tick(now){
+    var dt=last?Math.min(48,now-last):16; last=now;
+    if(!drag){
+      if(!hover) pos+=SPEED*dt/1000;
+      if(vel){ pos+=vel*dt; vel*=Math.exp(-dt/240); if(Math.abs(vel)<.004) vel=0 }
+    }
+    paint(); place(); requestAnimationFrame(tick);
+  }
+  /* every frame, tell each card (1) where the grid lines fall inside it, so the soft lines in the glass line up with the grid behind the page, and (2) where the pointer's glow is, for the lit edge. The cards move, so this is done each frame. */
+  var litOn=false;
+  function place(){
+    var gl=window.__glow, gp=window.__gridpos&&window.__gridpos(); if(!gp) return;
+    var on=gl&&gl.a>.01, ns=row.children, i, n, b, T=gp.t, vw=window.innerWidth, u, t, cx;
+    for(i=0;i<ns.length;i++){ n=ns[i]; b=n.getBoundingClientRect();
+      if(b.right<-200||b.left>vw+200) continue;
+      n.style.setProperty('--gox',((((gp.x-b.left)%T)+T)%T)+'px'); n.style.setProperty('--goy',((((gp.y-b.top)%T)+T)%T)+'px');
+      cx=(b.left+b.width/2)/vw;                                   /* where the card's middle is, as a fraction of the screen width */
+      t=Math.min(1,Math.max(0,(.85-cx)/.4)); t=t*t*(3-2*t);       /* the slide along the top edge: starts as the card nears the right of the screen (at 85%), eases in and out, done by 45% */
+      u=Math.min(1,Math.max(0,(.85-cx)/.73));                     /* the fade: gradual from the same start, almost out by 12% */
+      n.style.setProperty('--px',((.5+.5*t)*b.width).toFixed(1)+'px'); n.style.setProperty('--pa',(1-.88*Math.pow(u,1.3)).toFixed(3));
+      if(on){ n.style.setProperty('--gx',(gl.x-b.left)+'px'); n.style.setProperty('--gy',(gl.y-b.top)+'px'); n.style.setProperty('--ga',gl.a.toFixed(3)) }
+      else if(litOn) n.style.setProperty('--ga',0) }
+    litOn=on;
+  }
+  win.addEventListener('pointerenter',function(e){ if(e.pointerType==='mouse') hover=true });
+  win.addEventListener('pointerleave',function(){ hover=false });
+  win.addEventListener('pointerdown',function(e){ if(e.button>0) return; vel=0; drag={id:e.pointerId,x:e.clientX,lx:e.clientX,lt:e.timeStamp,moved:false} });
+  win.addEventListener('pointermove',function(e){
+    if(!drag||e.pointerId!==drag.id) return;
+    if(!drag.moved){ if(Math.abs(e.clientX-drag.x)<4) return; drag.moved=true; try{win.setPointerCapture(e.pointerId)}catch(x){} win.classList.add('dragging') }
+    var dx=e.clientX-drag.lx, dt=e.timeStamp-drag.lt; pos-=dx;
+    if(dt>0) vel=vel*.6+(-dx/dt)*.4;
+    drag.lx=e.clientX; drag.lt=e.timeStamp; paint();
+  });
+  function end(e){
+    if(!drag||e.pointerId!==drag.id) return;
+    if(!drag.moved||e.timeStamp-drag.lt>90) vel=0;       /* held still before letting go: no coasting */
+    vel=Math.max(-2,Math.min(2,vel)); drag=null; win.classList.remove('dragging');
+  }
+  win.addEventListener('pointerup',end); win.addEventListener('pointercancel',end);
+  win.addEventListener('dragstart',function(e){ e.preventDefault() });
+  build(); window.addEventListener('load',build);
+  var t; window.addEventListener('resize',function(){ clearTimeout(t); t=setTimeout(build,150) });
+  requestAnimationFrame(tick);
+})();
+</script>
+<script>
+/* The pointer over the testimonial cards: a black circle with the LinkedIn "in", with "Read full" and a north-east arrow beside it. It follows the mouse (a little behind it) while the mouse is over a card, hides while the carousel is being dragged, and only exists for a real mouse: touch screens just tap through the card's link. */
+(function(){
+  var win=document.querySelector('.notes-win');
+  if(!win||!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+  var rf=document.createElement('div'); rf.className='rf'; rf.setAttribute('aria-hidden','true');
+  rf.innerHTML='<span class="rf-c"><i class="rf-i"></i></span><span class="rf-t">Read full</span><svg class="rf-a" viewBox="0 0 12 12"><path d="M3 9l6-6M4 3h5v5"/></svg>';
+  document.body.appendChild(rf);
+  var calm=matchMedia('(prefers-reduced-motion: reduce)').matches, x=0, y=0, tx=0, ty=0, raf=0, on=false;
+  function frame(){
+    var k=calm?1:.4; x+=(tx-x)*k; y+=(ty-y)*k;
+    rf.style.transform='translate3d('+(x-15).toFixed(1)+'px,'+(y-15).toFixed(1)+'px,0)';
+    raf=(on&&(Math.abs(tx-x)>.3||Math.abs(ty-y)>.3))?requestAnimationFrame(frame):0;
+  }
+  function show(v){ if(v===on) return; on=v; rf.classList.toggle('on',v) }
+  win.addEventListener('pointermove',function(e){
+    if(e.pointerType!=='mouse') return;
+    var over=!win.classList.contains('dragging')&&e.target.closest&&e.target.closest('.note');
+    tx=e.clientX; ty=e.clientY;
+    if(over){ if(!on){ x=tx; y=ty } show(true); if(!raf) raf=requestAnimationFrame(frame) } else show(false);
+  });
+  win.addEventListener('pointerleave',function(){ show(false) });
+  window.addEventListener('scroll',function(){ show(false) },{passive:true});
+  document.documentElement.classList.add('rf-on');
+})();
+</script>
+<script>
+/* Parallax on the first screen. As you scroll down, the first screen (headline, companies, testimonials and the grid behind them) stays fixed in place and only fades out, while the case studies slide up over it: by the time the cards reach the top of the window it has gone. When the first screen is taller than the window (a phone, a short window) it can't be held in place, so it simply scrolls away and fades as it goes. Nothing happens for visitors who asked for less motion. */
+(function(){
+  var intro=document.querySelector('.intro'); if(!intro) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var notes=intro.querySelector('.notes'), hero=intro.querySelector('header.hero'), dwell=document.querySelector('.intro-dwell');
+  /* the gap above the testimonial cards is as big as it needs to be (up to 260px) so the cards sit at the bottom of the window, and it shrinks (to 24px) in short windows so that the whole first screen fits and can be held in place */
+  function fit(){
+    if(!notes) return;
+    notes.style.paddingTop='';
+    if(matchMedia('(max-width:820px)').matches) return;   /* phones keep their own 48px */
+    intro.style.minHeight='0';   /* measure the content itself, not the window-high box around it */
+    var base=intro.offsetHeight-(parseFloat(getComputedStyle(notes).paddingTop)||0);
+    intro.style.minHeight='';
+    notes.style.paddingTop=Math.min(260,Math.max(24,window.innerHeight-base))+'px';
+  }
+  function update(){
+    var vh=window.innerHeight, h=intro.offsetHeight, y=window.pageYOffset||document.documentElement.scrollTop||0, pin=h<=vh+1;
+    intro.classList.toggle('pinned',pin);
+    /* a pause: while the first screen is held, the page scrolls through a little empty space (DW px) before the case studies start to rise and the screen starts to fade */
+    var dw=(pin&&!matchMedia('(max-width:820px)').matches)?Math.round(vh*.35):0;
+    var pull=dw?-(parseFloat((document.querySelector('.hscroll')||{style:{}}).style.marginTop)||0):0;   /* the case studies are pulled up this far to sit under the header, so the pause is that much longer: they start to rise exactly when the fade does */
+    if(dwell&&dwell._h!==dw+pull){ dwell.style.height=(dw+pull)+'px'; dwell._h=dw+pull }
+    var span=Math.max(260,(pin?vh:h)*.7), p=Math.min(1,Math.max(0,(y-dw)/span));
+    intro.style.setProperty('--fade',(1-p).toFixed(3));   /* not opacity on .intro itself: that would cut the glass cards off from the grid behind them (so they could not blur it); the parts inside fade instead */
+    intro.style.pointerEvents=p>.85?'none':'';
+    window.__introFade=1-p; if(window.__tiles&&window.__tiles.fade) window.__tiles.fade();
+  }
+  function req(){ update() }   /* cheap enough to run on every scroll event */
+  window.addEventListener('scroll',req,{passive:true});
+  window.addEventListener('resize',function(){fit();update()}); window.addEventListener('load',function(){fit();update()});
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){fit();update()});
+  if(window.ResizeObserver&&hero) new ResizeObserver(function(){fit();update()}).observe(hero);
+  fit(); update();
+})();
+</script>
+<script>
+/* header: hidden until the case studies pin; .scrolled turns it into the frosted bar */
+(function(){
+  var nav=document.querySelector('nav'), row=document.querySelector('.hscroll'); if(!nav) return;
+  /* the header appears once the case studies fill the screen (the row has pinned) and stays from there down */
+  function set(){nav.classList.toggle('scrolled',(window.scrollY||document.documentElement.scrollTop)>8);var hide=!!row&&row.getBoundingClientRect().top>2;nav.classList.toggle('nav-hidden',hide);
+    /* a click on a nav link leaves focus inside the header; let go of it so the header can't hang around above the cards */
+    if(hide&&nav.contains(document.activeElement)&&!document.activeElement.matches(':focus-visible')) document.activeElement.blur()}
+  window.addEventListener('scroll',set,{passive:true}); set();
+})();
+</script>
+<script>
+/* phone header: the four links go into a drawer that slides in from the right, opened by a menu button at the right end of the bar (shown up to 820px wide). The drawer is built here from the bar's own links, so the two always match. */
+(function(){
+  var links=document.querySelector('.nav-links'), end=links&&links.parentNode; if(!links||!end) return;
+  var root=document.documentElement, mq=matchMedia('(max-width:820px)'), NS='http://www.w3.org/2000/svg', opener=null;
+  function el(t,c){var e=document.createElement(t);if(c)e.className=c;return e}
+  function icon(d){var sv=document.createElementNS(NS,'svg');sv.setAttribute('viewBox','0 0 24 24');sv.setAttribute('aria-hidden','true');sv.setAttribute('focusable','false');var pa=document.createElementNS(NS,'path');pa.setAttribute('d',d);sv.appendChild(pa);return sv}
+  var burger=el('button','nav-burger'); burger.type='button'; burger.setAttribute('aria-label','Open menu'); burger.setAttribute('aria-expanded','false'); burger.setAttribute('aria-controls','navDrawer'); burger.setAttribute('aria-haspopup','dialog');
+  burger.appendChild(icon('M4 7h16M4 12h16M4 17h16')); end.appendChild(burger);
+  var back=el('div','drawer-back'); back.setAttribute('aria-hidden','true');
+  var dr=el('div','drawer'); dr.id='navDrawer'; dr.setAttribute('role','dialog'); dr.setAttribute('aria-modal','true'); dr.setAttribute('aria-label','Menu'); dr.setAttribute('aria-hidden','true');
+  var x=el('button','drawer-x'); x.type='button'; x.setAttribute('aria-label','Close menu'); x.appendChild(icon('M6 6l12 12M18 6L6 18')); dr.appendChild(x);
+  var list=el('div','drawer-links'); list.setAttribute('role','group'); list.setAttribute('aria-label','Main menu');
+  [].slice.call(links.children).forEach(function(n){
+    var c;
+    if(n.tagName==='A'){ c=el('a',n.classList.contains('active')?'active':''); c.href=n.getAttribute('href'); c.textContent=n.textContent; ['target','rel'].forEach(function(k){if(n.getAttribute(k)) c.setAttribute(k,n.getAttribute(k))}); if(n.getAttribute('aria-current')) c.setAttribute('aria-current',n.getAttribute('aria-current')); c.addEventListener('click',function(){setOpen(false,true)}) }
+    else { c=el('button'); c.type='button'; c.textContent=n.textContent; c.addEventListener('click',function(){ setOpen(false,true); setTimeout(function(){n.click()},60) }) }   /* "Contact" closes the drawer, then opens the message window */
+    list.appendChild(c);
+  });
+  dr.appendChild(list); document.body.appendChild(back); document.body.appendChild(dr); root.classList.add('nav-js');
+  function focusables(){return [].slice.call(dr.querySelectorAll('a[href],button'))}
+  function setOpen(v,keepFocus){
+    if(v===root.classList.contains('drawer-open')) return;
+    root.classList.toggle('drawer-open',v); burger.setAttribute('aria-expanded',v?'true':'false'); dr.setAttribute('aria-hidden',v?'false':'true');
+    if(v){ opener=document.activeElement; x.focus() } else if(!keepFocus&&opener&&opener.focus){ opener.focus() }
+  }
+  burger.addEventListener('click',function(){setOpen(true)});
+  x.addEventListener('click',function(){setOpen(false)});
+  back.addEventListener('click',function(){setOpen(false)});
+  document.addEventListener('keydown',function(e){
+    if(!root.classList.contains('drawer-open')) return;
+    if(e.key==='Escape'){ e.preventDefault(); setOpen(false) }
+    else if(e.key==='Tab'){ var f=focusables(), a=f[0], z=f[f.length-1]; if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()} else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()} }
+  });
+  var close=function(){ if(!mq.matches) setOpen(false,true) };
+  if(mq.addEventListener) mq.addEventListener('change',close); else if(mq.addListener) mq.addListener(close);
+})();
+</script>
+<script>
+/* parallax for the footer: on a wide screen, if the "My work with AI" screen fits in the window, it stays pinned at the top while the footer slides up over it, fading as the footer arrives. (When the window is too short to hold that screen, or on a phone, or with reduced motion, the footer just follows it down the page.) */
+(function(){
+  var ai=document.querySelector('.ai-sec'), ft=document.getElementById('contact'); if(!ai||!ft) return;
+  var root=document.documentElement, wide=matchMedia('(min-width:821px)'), calm=matchMedia('(prefers-reduced-motion: reduce)');
+  function clamp(v,a,b){return v<a?a:v>b?b:v}
+  function update(){
+    var on=wide.matches&&!calm.matches&&ai.offsetHeight<=window.innerHeight+1;
+    root.classList.toggle('ft-par',on);
+    if(!on){ ai.style.removeProperty('--aifade'); root.style.removeProperty('--ft-dwell'); return }
+    root.style.setProperty('--ft-dwell',Math.round(window.innerHeight*.35)+'px');   /* a pause: the page scrolls through this much empty space, with "My work with AI" held in view, before the footer starts to rise */
+    var vh=window.innerHeight, p=clamp(1-ft.getBoundingClientRect().top/vh,0,1);
+    ai.style.setProperty('--aifade',(1-clamp(p/.7,0,1)).toFixed(3));
+  }
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('resize',update); window.addEventListener('load',update);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(update);
+  update();
+})();
+</script>
+<dialog class="mdl" id="mdl" aria-labelledby="mdlTitle"></dialog>
+<script>
+/* "Say Hi" opens this modal. The form sends the message straight to the inbox, with no email app in between.
+   A static site has no server of its own, so it hands the message to Web3Forms (web3forms.com), which emails it to you.
+   The access key below is Web3Forms' public key for your inbox; it is meant to sit in a page's code. If messages stop
+   arriving, check that address is still confirmed at web3forms.com. */
+(function(){
+  var ACCESS_KEY='5f5f6821-1d62-4fa2-aa39-121e2c7f0bc7', FORM_ENDPOINT='https://api.web3forms.com/submit', NS='http://www.w3.org/2000/svg';
+  var dlg=document.getElementById('mdl'); if(!dlg) return;
+  var closeTimer=0, inlineTimer=0;   /* closeTimer closes the window 3 seconds after a message is sent; inlineTimer puts the footer's form back to blank a few seconds after one is sent */
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+  function field(id,label){var f=el('div','mdl-field'),l=el('label',null,label);l.htmlFor=id;f.appendChild(l);return f}
+  function input(id,label,type,auto){var f=field(id,label),i=el('input');i.id=id;i.type=type;if(auto)i.autocomplete=auto;f.appendChild(i);return {f:f,i:i}}
+  function open(){ render(dlg,false) }
+  /* the same form in two places: in the modal (host = the dialog) and open in the footer (inline) */
+  function render(host,inline){
+    var P=inline?'ftf':'mdl';
+    clearTimeout(inline?inlineTimer:closeTimer); host.textContent='';
+    var inn=el('div','mdl-in'), top=el('div','mdl-top');
+    var h=el('h2','mdl-title','Say Hi'); h.id=inline?'ftTitle':'mdlTitle'; top.appendChild(h);
+    var x=el('button','mdl-x'); x.type='button'; x.setAttribute('aria-label','Close');
+    var sv=document.createElementNS(NS,'svg'); sv.setAttribute('viewBox','0 0 24 24'); sv.setAttribute('aria-hidden','true');
+    var pa=document.createElementNS(NS,'path'); pa.setAttribute('d','M5 5l14 14M19 5L5 19'); sv.appendChild(pa); x.appendChild(sv);
+    x.addEventListener('click',function(){dlg.close()}); if(!inline) top.appendChild(x); inn.appendChild(top);
+    var form=el('form','mdl-form'); form.setAttribute('novalidate','');
+    var EMAIL_OK=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var em=input(P+'Email','Your email','email','email'), sb=input(P+'Subject','Subject','text');
+    /* the email is checked as it is typed: if the address looks complete but its domain cannot receive email, the field is marked red (no wording). The domain (only the part after the @) is looked up with a public DNS service; if that lookup cannot be made, nothing is flagged. A mailbox itself cannot be checked from a web page, so there is no "verified" state. */
+    var verdict='', seq=0, timer=0, cache={};
+    function dns(name,type){
+      var c=window.AbortController?new AbortController():null, t=c?setTimeout(function(){c.abort()},4000):0;
+      return fetch('https://cloudflare-dns.com/dns-query?name='+encodeURIComponent(name)+'&type='+type,{headers:{Accept:'application/dns-json'},signal:c?c.signal:undefined})
+        .then(function(r){return r.json()}).then(function(d){clearTimeout(t);return d},function(e){clearTimeout(t);throw e});
+    }
+    function lookup(domain){
+      if(cache[domain]) return cache[domain];
+      return cache[domain]=dns(domain,'MX').then(function(d){
+        var a=(d.Answer||[]).filter(function(x){return x.type===15});
+        if(a.length) return a.every(function(x){return /^\d+\s+\.?$/.test(String(x.data).trim())})?'bad':'ok';   /* a "null MX" says the domain takes no mail */
+        if(d.Status===3) return 'bad';                                                                           /* no such domain */
+        return dns(domain,'A').then(function(d2){return (d2.Answer&&d2.Answer.length)?'ok':'bad'});             /* no MX records: mail may go to the domain itself */
+      }).catch(function(){return 'unknown'});
+    }
+    function mark(){
+      var v=em.i.value.trim(), id=++seq; clearTimeout(timer); verdict='';
+      if(!EMAIL_OK.test(v)) return;
+      timer=setTimeout(function(){
+        lookup(v.split('@')[1].toLowerCase()).then(function(r){
+          if(id!==seq) return; verdict=r;
+          if(r==='bad') em.i.setAttribute('aria-invalid','true');
+        });
+      },350);
+    }
+    em.i.addEventListener('input',mark); em.i.addEventListener('change',mark);
+    form.appendChild(em.f); form.appendChild(sb.f);
+    var ms=field(P+'Msg','Message'), mi=el('textarea'); mi.id=P+'Msg'; mi.placeholder='What would you like to talk about?'; ms.appendChild(mi); form.appendChild(ms);
+    var hp=el('input'); hp.type='text'; hp.name='_honey'; hp.tabIndex=-1; hp.autocomplete='off'; hp.setAttribute('aria-hidden','true'); hp.style.cssText='position:absolute;left:-9999px;opacity:0;height:0;width:0'; form.appendChild(hp);   /* a trap for bots: people never fill this in */
+    var go=el('button','mdl-btn primary','Send message'); go.type='submit'; form.appendChild(go);
+    var st=el('p','mdl-note'); st.setAttribute('role','status'); form.appendChild(st);
+    /* a missing or invalid field is marked with a red edge and focused: no wording */
+    function bad(i){i.setAttribute('aria-invalid','true');i.focus();return false}
+    [em.i,mi].forEach(function(i){i.addEventListener('input',function(){i.removeAttribute('aria-invalid')})});
+    form.addEventListener('submit',function(e){
+      e.preventDefault(); if(hp.value) return;
+      var mail=em.i.value.trim(), subj=sb.i.value.trim()||'Hi from your portfolio', msg=mi.value.trim();
+      st.textContent='';
+      if(!EMAIL_OK.test(mail)||verdict==='bad') return bad(em.i);
+      if(!msg) return bad(mi);
+      go.disabled=true; go.textContent='Sending…';
+      /* the email app never opens: if the message cannot be sent, the form says so and stays as it is */
+      function fail(why){
+        if(window.console) console.warn('Say Hi: the message was not sent.',why);
+        st.textContent='I could not send that just now. Please try again in a moment.';
+        go.disabled=false; go.textContent='Send message';
+      }
+      if(!ACCESS_KEY) return fail('The Web3Forms access key has not been added yet (see the note above this script).');
+      if(!window.fetch) return fail('no fetch');
+      fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({access_key:ACCESS_KEY,email:mail,subject:subj+' (from your portfolio)',from_name:'Portfolio Say Hi',message:msg})})
+        .then(function(r){return r.json()})
+        .then(function(d){
+          if(d&&(d.success===true||d.success==='true')){
+            /* sent: "Thanks!" in italics with an upright emoji, no cross, no button; the window closes by itself after 3 seconds */
+            h.textContent=''; var tw=el('em',null,'Thanks!'); var em2=el('span',null,' \uD83D\uDE4C'); em2.style.fontStyle='normal'; h.appendChild(tw); h.appendChild(em2);
+            x.remove();
+            form.textContent=''; form.appendChild(el('p','mdl-text','I\u2019ve received your message, and will get back to you shortly. Have a nice day!'));
+            if(inline) inlineTimer=setTimeout(function(){render(host,true)},6000); else closeTimer=setTimeout(function(){dlg.close()},3000);
+          } else fail(d);
+        },fail);
+    });
+    inn.appendChild(form); host.appendChild(inn);
+    if(!inline){ if(!dlg.open) dlg.showModal(); em.i.focus() }
+  }
+  var hi=document.getElementById('sayHi');
+  if(hi) hi.addEventListener('click',open);
+  var ftHost=document.getElementById('ftForm'); if(ftHost) render(ftHost,true);   /* the footer's contact box is open for anyone to use */
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+})();
+</script>
+<!-- TRIAL: soft fairy dust that falls from the pointer (delete the script line below to remove it) -->
+<script src="assets/fairy-dust.js" defer></script>
 </body>
 </html>

@@ -374,9 +374,6 @@ section.sec > h2{margin-bottom:16px; max-width:32ch;}
 }
 body.lb-open{overflow:hidden;}
 
-footer{border-top:1px solid var(--line); margin-top:40px; padding:24px 0 48px;}
-footer .wrap{display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; align-items:baseline;}
-footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
 /* ---------- touch targets ----------
    On touch widths every control grows to at least 36px, and the square ones
    to a full 36x36. Icons scale with them so the glyph does not sit lost in
@@ -392,6 +389,11 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
   .botbar .nextproj{min-height:36px; padding-top:0; padding-bottom:0;}
   .topbar .name{font-size:.9rem;}    /* ~2px taller than the desktop wordmark */
 }
+
+/* the pointer is a Figma-style arrowhead (black fill, 0.5px white edge) instead of the system arrow. Links keep the hand, text keeps the text cursor, and the drag and zoom cursors stay as they are. */
+:root{--cursor-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 3L19 12.4L11.6 13.9L8 20.9Z' fill='%23000' stroke='%23fff' stroke-width='.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,default}
+html{cursor:var(--cursor-arrow)}
+button,summary{cursor:var(--cursor-arrow)}
 </style>
 
 <script>
@@ -400,8 +402,11 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
    only a remembered explicit choice of "light" moves it. */
 (function(){
   var t;
-  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
-  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  try{ t = localStorage.getItem('eeman-theme-v3'); }catch(e){}
+  var sys = matchMedia('(prefers-color-scheme: light)');
+  document.documentElement.setAttribute('data-theme', t === 'light' || t === 'dark' ? t : (sys.matches ? 'light' : 'dark'));
+  /* with no choice made on the toggle, the page follows the system's light / dark setting, live */
+  if(sys.addEventListener) sys.addEventListener('change', function(e){ var c; try{ c = localStorage.getItem('eeman-theme-v3'); }catch(x){} if(c !== 'light' && c !== 'dark') document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark'); });
 })();
 </script>
 </head>
@@ -410,7 +415,7 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
 <header class="topbar">
   <div class="bar">
     <span class="lead">
-      <a class="back" href="index.html#sentinel-erp" aria-label="Back to work"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
+      <a class="back" href="index.html#sentinel-erp" aria-label="Back to case studies"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
       <span class="name">Sentinel ERP</span>
     </span>
     <nav class="tabs" aria-label="Sections">
@@ -434,13 +439,17 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
 
   <!-- ================= HERO ================= -->
   <section class="hero" id="overview">
-    <div class="eyebrow">UX Designer · Web, Mobile &amp; Tablet</div>
+    <div class="eyebrow">UX Associate · Web, Mobile &amp; Tablet</div>
     <h1>Security operations, without the cognitive load.</h1>
     <p class="sub">A franchise-based security services ERP – real-time visibility for owners,
     zero-memory shifts for officers in the field.</p>
 
+    <!-- Title and company per the author: this project was done at Tkxel, where
+         about.html lists the role as "UX Associate". The author's own wording
+         was "associate UX/UI designer"; if you prefer that, change it here, in
+         the eyebrow above and on about.html so all three match. -->
     <dl class="meta">
-      <div><dt>Role</dt><dd>UX Designer</dd></div>
+      <div><dt>Role</dt><dd>UX Associate · Tkxel</dd></div>
       <div><dt>Team</dt><dd>4 UX · 4 BA · 25+ Devs</dd></div>
       <div><dt>Platforms</dt><dd>Web, Mobile, Tablet</dd></div>
       <div><dt>Scale</dt><dd>1000+ screens shipped</dd></div>
@@ -456,6 +465,8 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
   <section class="sec">
     <span class="secnum">01 / PROJECT OVERVIEW</span>
     <h2>One system, three very different jobs</h2>
+    <p class="muted" style="max-width:62ch;">On a team of four UX designers, I owned the web designs for the
+    scheduler and shift assignment, and the mobile runsheets, which I designed using the web runsheets as the reference point.</p>
     <p class="muted" style="max-width:62ch;">Sentinel runs security operations for a franchised
     company. Three roles, three very different jobs:</p>
     <ul class="personas">
@@ -539,15 +550,24 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
   <section class="sec" id="impact">
     <span class="secnum">04 / IMPACT</span>
     <h2>A system trusted daily, at scale</h2>
+    <!-- Anonymised on request: the first two tiles are rounded, platform-level
+         scale figures ("today"), worded in my own words, not copied from the
+         company's site. Revenue per franchise, growth and the franchise ranking
+         are deliberately NOT shown: they are easy to search and would identify
+         the real company. These tiles describe the platform's reach, not an
+         effect of your design.
+         TODO(eeman): still needed: a design outcome you can defend (task
+         time, missed checkpoints, usability-test findings) to back the
+         "designed to cut cognitive load" bullet. -->
     <div class="statband">
-      <div><span class="num">1000+</span><div class="lbl">screens shipped across web, mobile &amp; tablet</div></div>
+      <div><span class="num">170+</span><div class="lbl">franchises on the platform today</div></div>
+      <div><span class="num">5,000+</span><div class="lbl">active users today</div></div>
       <div><span class="num">3</span><div class="lbl">user roles served end-to-end</div></div>
-      <div><span class="num">31</span><div class="lbl">person cross-functional team</div></div>
       <div><span class="num">24/7</span><div class="lbl">used daily in high-stakes field ops</div></div>
     </div>
     <ul class="scan ok">
       <li><b>Real-time visibility</b> replaced fragmented, after-the-fact reporting for Franchise Owners.</li>
-      <li><b>Cognitive load down</b> for officers – one task, one screen, no memorizing the shift.</li>
+      <li><b>Designed to cut cognitive load</b> for officers – one task, one screen, no memorizing the shift.</li>
       <li><b>Built to scale</b> – the franchise model can grow without the operational picture fragmenting.</li>
     </ul>
   </section>
@@ -586,7 +606,7 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
 <nav class="botbar" aria-label="Case study navigation">
   <div class="bar">
     <span class="cur">Sentinel ERP &bull; 2024</span>
-    <a class="nextproj" href="Syntax-DS.html" aria-label="Next project: Syntax DS">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
+    <a class="nextproj" href="Code-Widgets-Revamp.html" aria-label="Next project: Code Widgets">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
   </div>
 </nav>
 
@@ -661,11 +681,11 @@ footer p{font-size:.8rem; color:var(--muted); margin:0; max-width:50ch;}
   }
   function apply(theme){
     root.setAttribute('data-theme', theme);
-    try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+    try{ localStorage.setItem('eeman-theme-v3', theme); }catch(e){}
     label();
   }
-  // dark is the default and the page never follows the OS on its own; the
-  // toggle is the only thing that moves it, and the choice is remembered
+  // the page follows the system setting until the toggle is used; after that
+  // the choice is remembered
   btn.addEventListener('click', function(){
     apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   });

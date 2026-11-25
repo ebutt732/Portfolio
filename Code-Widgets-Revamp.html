@@ -415,17 +415,24 @@ body.lb-open{overflow:hidden;}
   .botbar .nextproj{min-height:36px; padding-top:0; padding-bottom:0;}
   .topbar .name{font-size:.9rem;}    /* ~2px taller than the desktop wordmark */
 }
+
+/* the pointer is a Figma-style arrowhead (black fill, 0.5px white edge) instead of the system arrow. Links keep the hand, text keeps the text cursor, and the drag and zoom cursors stay as they are. */
+:root{--cursor-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 3L19 12.4L11.6 13.9L8 20.9Z' fill='%23000' stroke='%23fff' stroke-width='.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,default}
+html{cursor:var(--cursor-arrow)}
+button,summary{cursor:var(--cursor-arrow)}
 </style>
 <script>
 /* Resolve the theme before first paint so data-theme is always set and the
    toggle icon never disagrees with what is on screen. */
 (function(){
   var t;
-  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
+  try{ t = localStorage.getItem('eeman-theme-v3'); }catch(e){}
+  var sys = matchMedia('(prefers-color-scheme: light)');
   if(t !== 'light' && t !== 'dark'){
-    t = 'dark';
+    t = sys.matches ? 'light' : 'dark';   /* no choice made yet: follow the system setting */
   }
   document.documentElement.setAttribute('data-theme', t);
+  if(sys.addEventListener) sys.addEventListener('change', function(e){ var c; try{ c = localStorage.getItem('eeman-theme-v3'); }catch(x){} if(c !== 'light' && c !== 'dark') document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark'); });
 })();
 </script>
 </head>
@@ -433,7 +440,7 @@ body.lb-open{overflow:hidden;}
   <header class="topbar">
     <div class="bar">
       <span class="lead">
-        <a class="back" href="index.html#code-widgets" aria-label="Back to work"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
+        <a class="back" href="index.html#code-widgets" aria-label="Back to case studies"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
         <span class="name">Code Widgets</span>
       </span>
       <nav class="tabs" aria-label="Sections">
@@ -463,7 +470,7 @@ body.lb-open{overflow:hidden;}
 
       <dl class="meta">
         <div><dt>Role</dt><dd>Product Designer</dd></div>
-        <div><dt>Initiative</dt><dd>Code Widget Revamp</dd></div>
+        <div><dt>Initiative</dt><dd>Code Widget Revamp · Educative</dd></div>
         <div><dt>Scope</dt><dd>4 widgets</dd></div>
         <div><dt>Platforms</dt><dd>Web, Mobile, Tablet</dd></div>
       </dl>
@@ -526,11 +533,11 @@ body.lb-open{overflow:hidden;}
       <p class="prose">Consistency in developer interfaces isn't cosmetic. Every visual mismatch is a moment of re-orientation that pulls attention away from the code.</p>
       <p class="prose">Developers hit these widgets constantly, so the fragmentation had real costs:</p>
 
-      <div class="pain closed">
-        <li><b>Constant context switching</b></li>
-        <li><b>Friction from inconsistency</b></li>
-        <li><b>No shared foundation</b></li>
-      </div>
+      <ul class="pain closed">
+        <li><b>Constant context switching</b> – a learner can move between Sandpack, Code, Code Tab and Code Test inside a single lesson, re-learning the interface each time.</li>
+        <li><b>Friction from inconsistency</b> – button styles, placement and icons all differed, so actions like Run or Submit were never predictable by position alone.</li>
+        <li><b>No shared foundation</b> – each widget had its own theme, tabs and file tree with hardcoded styling, and no guidelines to design the next feature against.</li>
+      </ul>
 
       <div class="pull">
         A unified design = an intuitive experience
@@ -685,7 +692,14 @@ body.lb-open{overflow:hidden;}
     <!-- 04 · IMPACT -->
     <section class="cp" id="impact">
       <div class="eyebrow">04 · Impact</div>
-
+      <!-- TODO(eeman): retention figures are as you gave them (12% on Code Test
+           widget, 3% on Code widget). Still needed to make them defensible:
+           what "retention" measures, the period compared, and whether the
+           lifts are relative or percentage points. The "thumbs-up" and
+           suggestions line has no number; add one if you have it. "CTW" was
+           read as Code Test widget. -->
+      <p class="prose"><b>12% higher retention</b> on the Code Test widget and <b>3%</b> on the Code widget after the revamp.</p>
+      <p class="prose">Thumbs-up clicks rose across all the widgets, and learners engaged more and left more suggestions on what to improve next.</p>
 
       <h3 class="subhead" style="margin-top:8px; margin-bottom:24px;">Who benefited</h3>
 
@@ -757,7 +771,7 @@ body.lb-open{overflow:hidden;}
   <nav class="botbar" aria-label="Case study navigation">
     <div class="bar">
       <span class="cur">Code Widgets &bull; 2026</span>
-      <a class="nextproj" href="Sentinel-ERP.html" aria-label="Next project: Sentinel ERP">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
+      <a class="nextproj" href="Syntax-DS.html" aria-label="Next project: Syntax DS">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
     </div>
   </nav>
 
@@ -832,11 +846,11 @@ body.lb-open{overflow:hidden;}
     }
     function apply(theme){
       root.setAttribute('data-theme', theme);
-      try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+      try{ localStorage.setItem('eeman-theme-v3', theme); }catch(e){}
       label();
     }
-    // dark is the default and the page never follows the OS on its own; the
-    // toggle is the only thing that moves it, and the choice is remembered
+    // the page follows the system setting until the toggle is used; after that
+    // the choice is remembered
     btn.addEventListener('click', function(){
       apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
     });

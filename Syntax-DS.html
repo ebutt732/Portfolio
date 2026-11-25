@@ -380,15 +380,23 @@ figure figcaption{
   transition:opacity .3s ease;
 }
 body.lb-open{overflow:hidden;}
+
+/* the pointer is a Figma-style arrowhead (black fill, 0.5px white edge) instead of the system arrow. Links keep the hand, text keeps the text cursor, and the drag and zoom cursors stay as they are. */
+:root{--cursor-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 3L19 12.4L11.6 13.9L8 20.9Z' fill='%23000' stroke='%23fff' stroke-width='.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,default}
+html{cursor:var(--cursor-arrow)}
+button,summary{cursor:var(--cursor-arrow)}
 </style>
 
 <script>
 /* Resolve the theme before first paint so data-theme is always set and the
-   toggle icon never disagrees with what is on screen. Dark is the default. */
+   toggle icon never disagrees with what is on screen. It follows the system setting until the toggle is used. */
 (function(){
   var t;
-  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
-  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  try{ t = localStorage.getItem('eeman-theme-v3'); }catch(e){}
+  var sys = matchMedia('(prefers-color-scheme: light)');
+  document.documentElement.setAttribute('data-theme', t === 'light' || t === 'dark' ? t : (sys.matches ? 'light' : 'dark'));
+  /* with no choice made on the toggle, the page follows the system's light / dark setting, live */
+  if(sys.addEventListener) sys.addEventListener('change', function(e){ var c; try{ c = localStorage.getItem('eeman-theme-v3'); }catch(x){} if(c !== 'light' && c !== 'dark') document.documentElement.setAttribute('data-theme', e.matches ? 'light' : 'dark'); });
 })();
 </script>
 </head>
@@ -397,7 +405,7 @@ body.lb-open{overflow:hidden;}
 <header class="topbar">
   <div class="bar">
     <span class="lead">
-      <a class="back" href="index.html#syntax-ds" aria-label="Back to work"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
+      <a class="back" href="index.html#syntax-ds" aria-label="Back to case studies"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg></a>
       <span class="name">Syntax</span>
     </span>
     <nav class="tabs" aria-label="Sections">
@@ -431,7 +439,7 @@ body.lb-open{overflow:hidden;}
       <div><dt>Initiative</dt><dd>Syntax · Educative</dd></div>
       <div><dt>Scope</dt><dd>128 components · FAT10</dd></div>
       <div><dt>Platforms</dt><dd>Web, Mobile, Tablet</dd></div>
-      <div><dt>Q1 outcome</dt><dd>43% of core components unified</dd></div>
+      <div><dt>Outcome</dt><dd>100% of core components unified by Q2 (43% in Q1)</dd></div>
     </dl>
 
     <figure class="heroshot">
@@ -520,7 +528,7 @@ body.lb-open{overflow:hidden;}
 
     <div class="example">
       <h3 class="phase">Example 01: Company logos</h3>
-      <p class="muted" style="max-width:62ch;">Logos appeared in six treatments across course
+      <p class="muted" style="max-width:62ch;">Logos appeared in eight treatments across course
       pages, landing pages and modals. We unified them down to two canonical variants, vertical
       and horizontal, and applied them everywhere. One design day, one engineering day.</p>
       <figure class="shotfig">
@@ -528,7 +536,7 @@ body.lb-open{overflow:hidden;}
           <img src="logos-before-after.png?v=1" width="1724" height="970"
                alt="Company logos before and after. Before: eight different logo strips, one per page, each with its own wording, logo set, size and alignment. After: two canonical treatments, shown in light and dark mode.">
         </span>
-        <figcaption>Company logos: six treatments converged into two</figcaption>
+        <figcaption>Company logos: eight treatments converged into two</figcaption>
       </figure>
     </div>
 
@@ -608,9 +616,17 @@ body.lb-open{overflow:hidden;}
     <span class="secnum">05 / IMPACT</span>
     <h2>A system people reach for</h2>
     <div class="statband">
-      <div><span class="num">43%</span><div class="lbl">of FAT10 components unified in Q1</div></div>
+      <div><span class="num">100%</span><div class="lbl">of FAT10 components unified: 43% in Q1, the rest in Q2</div></div>
       <div><span class="num">1–2 days</span><div class="lbl">design time, down from 3–5</div></div>
-      <div><span class="num">40%</span><div class="lbl">CSS color-token bloat removed</div></div>
+      <!-- TODO(eeman): this tile used to say "40% CSS color-token bloat removed".
+           You told me 40% was the average of the palette and token reductions,
+           but this page's own numbers give 188 → 74 colors (-61%) and 115 → 84
+           tokens (-27%), which average 44%, not 40%. Rather than publish a
+           figure a reader can disprove from the same page, the tile now shows
+           the verified -61%. If your original percentages were different
+           numbers, send them and I will restore the average with an honest
+           label ("average reduction across color palette and tokens"). -->
+      <div><span class="num">61%</span><div class="lbl">fewer colors in the palette: 188 → 74</div></div>
       <div><span class="num">100%</span><div class="lbl">WCAG coverage on shipped components</div></div>
     </div>
     <ul class="scan ok">
@@ -642,7 +658,7 @@ body.lb-open{overflow:hidden;}
 <nav class="botbar" aria-label="Case study navigation">
   <div class="bar">
     <span class="cur">Syntax &bull; 2025</span>
-    <a class="nextproj" href="Code-Widgets-Revamp.html" aria-label="Next project: Code Widgets">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
+    <a class="nextproj" href="Sentinel-ERP.html" aria-label="Next project: Sentinel ERP">Next project <span class="ar" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 12h15M13 6l6 6-6 6"/></svg></span></a>
   </div>
 </nav>
 
@@ -712,11 +728,11 @@ body.lb-open{overflow:hidden;}
   }
   function apply(theme){
     root.setAttribute('data-theme', theme);
-    try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+    try{ localStorage.setItem('eeman-theme-v3', theme); }catch(e){}
     label();
   }
-  // dark is the default and the page never follows the OS on its own; the
-  // toggle is the only thing that moves it, and the choice is remembered
+  // the page follows the system setting until the toggle is used; after that
+  // the choice is remembered
   btn.addEventListener('click', function(){
     apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   });

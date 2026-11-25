@@ -27,7 +27,10 @@
   /* timeline rail markers: the current role is blue, the past ones green. Each
      theme carries its own pair so both stay legible on their own ground. */
   --dot-blue:#7CA4FF; --dot-green:#45D492;
-  --grid-line:rgba(231,236,241,.05);
+  --hero-em:#b8aec5;
+  --pill-grey:#B3AEC0;   /* the grey for the past roles' date pills, about as bright as the blue is */
+  --hero-body:#8d8195; --role-ink:#E3DFEA;   /* the home page's headline colours: the plain words and the highlighted ones */
+  --grid-line:#030107; --grid-tile:#0A0716;   /* the lines and the tiles: the same two colours as the home page's grid */
   --glow-a:rgba(80,105,255,.16); --glow-b:rgba(120,80,255,.10);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px -12px rgba(0,0,0,.5);
   --logo-filter:none;
@@ -46,7 +49,9 @@
   /* darkened against the light ground - the dark-theme pair would sit at roughly
      2:1 here, well under the 4.5:1 these need as small, thin-stroked marks */
   --dot-blue:#2C5FD0; --dot-green:#17784A;
-  --grid-line:rgba(20,27,35,.055);
+  --pill-grey:#5E5A70;
+  --hero-body:#7D6BA6; --role-ink:#3A1D96;
+  --grid-line:rgba(20,27,35,.055); --grid-tile:transparent;
   --glow-a:rgba(80,105,255,.07); --glow-b:rgba(120,80,255,.05);
   --shadow:none;
   /* the wordmark ships as light purple for dark backgrounds; darken rather than
@@ -77,10 +82,17 @@ b,strong{color:var(--bright); font-weight:600;}
   background-image:
     linear-gradient(var(--grid-line) 1px,transparent 1px),
     linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-color:var(--grid-tile);
   background-size:120.5px 120.5px;
   background-position:0 -30px;
   -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
           mask-image:linear-gradient(180deg,#000 0%,#000 62%,transparent 100%);
+}
+.grid-bg.top::after{display:none;}   /* its washes are painted by .intro::before instead (over the lines) */
+.grid-bg.top{
+  height:100vh; height:100svh;   /* the tiled ground runs the whole first screen, right down to the fold */
+  background-image:none;         /* its lines are drawn by .intro::before (see below), so they can sit above the bottom glow */
+  -webkit-mask-image:none; mask-image:none;
 }
 .grid-bg::after{
   content:""; position:absolute; inset:0;
@@ -91,26 +103,48 @@ b,strong{color:var(--bright); font-weight:600;}
 
 /* ---------- header: logo left, nav right, theme toggle at the end ----------
    No bar background and no bottom stroke - the header sits directly on the page. */
-.topbar{position:relative; z-index:5;}
-.topbar .bar{
-  max-width:1200px; margin:0 auto; padding:0 24px;
-  height:82px; display:flex; align-items:center; justify-content:space-between; gap:24px;
+/* The header is fixed to the top and, once the page scrolls, becomes a 70%-white frosted bar
+   (the same behaviour as the home page). Logo removed; the items sit in one centred row,
+   the same gap between each. */
+:root{--nav-h:82px;}
+body{padding-top:var(--nav-h);}
+.topbar{
+  --navgap:40px; position:fixed; top:0; left:0; right:0; z-index:50;
+  transition:background-color .25s ease, box-shadow .25s ease, -webkit-backdrop-filter .25s ease, backdrop-filter .25s ease;
 }
-.topbar .logo{display:inline-flex; align-items:center; flex:0 0 auto;}
-.topbar .logo img{height:40px; width:auto; display:block; filter:var(--logo-filter);}
-.topbar .endgrp{display:flex; align-items:center; gap:28px;}
-.topbar .tabs{display:flex; align-items:center; gap:40px;}
-.topbar .tabs a{
+/* fixed to the top with no background while the page is at the top; once it scrolls the bar fills in at 70% (the script adds .scrolled), and at 90% once the library is under it (.over) */
+.topbar.scrolled{background:rgba(255,255,255,.7); -webkit-backdrop-filter:blur(16px) saturate(1.2); backdrop-filter:blur(16px) saturate(1.2); box-shadow:0 1px 0 rgba(20,27,35,.06);}
+:root:not([data-theme="light"]) .topbar.scrolled{background:rgba(0,0,0,.7); box-shadow:0 1px 0 rgba(255,255,255,.06);}
+.topbar.over{background:rgba(255,255,255,.9);}
+:root:not([data-theme="light"]) .topbar.over{background:rgba(0,0,0,.9);}
+.topbar .bar{
+  max-width:none; margin:0; padding:0 40px;
+  height:var(--nav-h); display:flex; align-items:center; justify-content:space-between; gap:var(--navgap);
+}
+/* logo: the avatar bubble and "Eeman" from the home page's first line, on the left; every nav item on the right */
+:root{--avatar-frame:#5E5676;--avatar-stroke:#000;}
+:root[data-theme="light"]{--avatar-frame:#BDB7D1;--avatar-stroke:#fff;}
+.nav-logo{--av:44px;--logo-lift:0px;display:flex; align-items:center; gap:12px; flex:0 0 auto; text-decoration:none; color:var(--bright);}
+.nav-logo .lg-bubble{flex:0 0 var(--av); width:var(--av); height:var(--av); display:flex; align-items:center; justify-content:center; border-radius:50% 50% 0 50%; background:var(--avatar-frame); transform:translateY(calc(-1 * var(--logo-lift)));}
+.nav-logo .lg-shot{width:calc(var(--av) - 8px); height:calc(var(--av) - 8px); border-radius:50%; overflow:hidden; border:1px solid var(--avatar-stroke);}
+.nav-logo img{display:block; width:100%; height:100%; object-fit:cover;}
+.nav-logo .lg-name{font-size:20px; font-weight:400; line-height:1; letter-spacing:-.02em;}
+.nav-logo:hover .lg-name, .nav-logo:focus-visible .lg-name{color:var(--accent);}
+
+.topbar .endgrp{display:flex; align-items:center; gap:var(--navgap);}
+.topbar .tabs{display:flex; align-items:center; gap:var(--navgap);}
+.topbar .tabs a, .topbar .nav-btn{
   color:var(--ink); text-decoration:none; font-size:20px; font-weight:300;
   transition:color .2s ease;
 }
-.topbar .tabs a:hover{color:var(--bright);}
+.topbar .nav-btn{background:none; border:0; padding:0; cursor:pointer; font-family:inherit;}
+.topbar .tabs a:hover, .topbar .nav-btn:hover, .topbar .nav-btn:focus-visible{color:var(--bright);}
 .topbar .tabs a.active{color:var(--bright); font-weight:400;}
 
 /* theme toggle - same button as the case study pages: 28px box, 1px stroke,
    15px icon, sitting at the end of the bar. */
 .themetoggle{
-  display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px;
+  display:inline-flex; align-items:center; justify-content:center; width:32px; height:32px;
   flex:0 0 auto; padding:0; border:1px solid var(--line); border-radius:7px;
   background:transparent; color:var(--ink); cursor:pointer;
   transition:background .15s ease, color .15s ease, border-color .15s ease;
@@ -126,7 +160,31 @@ b,strong{color:var(--bright); font-weight:600;}
 
 /* ---------- section rhythm ---------- */
 section{padding:0 0 78px;}
-main > section:first-child{padding-top:56px;}   /* gap from the header to the first title */
+/* the first screen: the page holds still while the library slides up over it (see the script near the end) */
+.intro{position:relative; z-index:1; min-height:calc(100vh - var(--nav-h)); min-height:calc(100svh - var(--nav-h));}
+.intro.pinned{position:sticky; top:var(--nav-h);}
+.intro > .wrap{opacity:var(--fade,1);}   /* it fades as you scroll */
+/* the same soft, still glow as the bottom of the home page's first screen: red, magenta, pink and blue, left to right, strongest at the bottom edge and gone about 200px up. It fades out with the first screen as you scroll. */
+.intro::after{
+  content:""; position:absolute; left:0; right:0; bottom:0; height:205px; z-index:1; pointer-events:none;
+  background:linear-gradient(90deg,rgb(255,64,88),rgb(236,52,196),rgb(255,112,190),rgb(58,96,255));
+  -webkit-mask-image:linear-gradient(0deg,#000 8%,transparent); mask-image:linear-gradient(0deg,#000 8%,transparent);
+  filter:blur(18px); opacity:calc(.06*var(--fade,1));   /* softer and fainter than the home page's */
+}
+/* the gridlines of the first screen: drawn here, above the glow (and under the text), lined up with the page grid, and fading with the first screen as you scroll */
+.intro::before{
+  content:""; position:absolute; left:0; right:0; top:calc(-1 * var(--nav-h)); bottom:0; z-index:2; pointer-events:none;   /* from the very top of the page, so the lines also run behind the header */
+  /* crisp 1px lines: a 241px square holds two tiles (the lines fall on whole pixels, 120px and 121px apart, instead of the half-pixels of a 120.5px tile that blur into 2px) */
+  /* on top of the lines, the two soft blue-violet washes the page has always had at the top right: on the home page they sit over the grid and tint it, so the lines are fainter there than they were here. They are painted here, over the lines, to match. */
+  background-image:
+    radial-gradient(720px 560px at 88% 6%,var(--glow-a),transparent 65%),
+    radial-gradient(900px 700px at 105% 55%,var(--glow-b),transparent 70%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='241' height='241'%3E%3Cpath d='M0 0h1v241H0zM120 0h1v241h-1zM0 0h241v1H0zM0 120h241v1H0z' fill='%23030107'/%3E%3C/svg%3E");
+  background-size:100% 100%, 100% 100%, 241px 241px; background-position:0 0, 0 0, var(--gx,80px) 0; background-repeat:no-repeat, no-repeat, repeat;   /* placed as on the home page: the first vertical line is 16px left of where the text starts (--gx, set by the script below), and a horizontal line sits on the top edge of the page */
+  opacity:var(--fade,1);
+}
+.intro .wrap > section:first-child{padding-top:32px;}   /* gap from the header to the first section */
+#nutshell{padding-bottom:124px;}   /* room under the paragraph for the "Background:" and "Toolkit:" labels that sit above the timeline and the toolkit */
 .eyebrow{
   font-family:'IBM Plex Mono',ui-monospace,monospace; font-weight:500;
   font-size:14px; letter-spacing:.18em; text-transform:uppercase;
@@ -147,25 +205,39 @@ main > section:first-child{padding-top:56px;}   /* gap from the header to the fi
    grid uses, so the two boxes stay identical at every width. That grid is
    parked in _parked/about-skills.html for now - if it comes back with a
    different column count or gap, this wants the same change. */
-.nutshell{display:grid; grid-template-columns:calc((100% - 88px) / 5) 1fr; gap:44px; align-items:start;}
+.nutshell{display:grid; grid-template-columns:auto 1fr; gap:44px; align-items:start;}
 /* the photo is the frame here - no chrome of its own, just the same box.
    about-dp.png carries its own rounded corners, measured at a 26px radius on a
    340px square = 7.6%. The frame's 12px clip was tighter than that, so the
    image's transparent corners showed as notches inside a squarer box; as a
    percentage the two curves now track each other at any rendered size. */
-.nutshell .portrait{aspect-ratio:1/1; border:0; background:none; box-shadow:none; border-radius:7.6%;}
-.nutshell p{font-size:20px; line-height:1.62; color:var(--ink); max-width:62ch;}
+/* the photo is a square as tall as the text beside it, from the top of "Me; In a Nutshell" to the bottom of the paragraph (the script near the end measures it and sets --ph and --pt; the numbers here are only what shows before it runs) */
+.nutshell .portrait{width:var(--ph,174px); height:var(--ph,174px); margin-top:var(--pt,16px); border:0; background:none; box-shadow:none; border-radius:7.6%;}
+.nutshell .bio{font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif; font-size:22px; font-weight:300; letter-spacing:.01em; line-height:32px; color:var(--hero-body); max-width:none;}   /* the size, leading and colour of "Hey! I'm Eeman" on the home page, but with a little added letter-spacing so the letters are not so close together */
+.nutshell .bio strong{font-weight:300; color:var(--role-ink);}
+.nutshell .nutshell-text{position:relative; top:4px;}   /* the label and the paragraph together sit 4px lower than the photo's top edge */
+.nutshell .eyebrow{font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif; position:relative; top:12px;}   /* "Me; In a Nutshell" sits above the paragraph, in IBM Plex Sans (still all caps) rather than the mono the other section labels use */   /* and the emphasised words are lighter in weight but brighter in colour, as the highlighted words are there */
 
 
 /* ---------- experience ---------- */
-.job{display:grid; grid-template-columns:260px 34px 1fr; column-gap:24px; padding-bottom:46px;}
+/* a vertical timeline: the dates in pills on the left, a line with a dot for each entry, and the company and role on the right */
+.timeline{list-style:none; margin:0; padding:0; --rail-line:#5D486A;}
+.job{
+  display:grid; grid-template-columns:190px 34px 1fr; column-gap:20px; align-items:start;
+  grid-template-areas:"when rail what"; padding-bottom:20px;
+}
 .job:last-child{padding-bottom:0;}
-.job .org{font-family:'Archivo','IBM Plex Sans',sans-serif; font-size:1.18rem; font-weight:600; color:var(--bright); line-height:1.35;}
-.job .when{font-size:1rem; color:var(--ink); margin-top:2px;}
-/* the rail: a dot on the row's first line, a dashed line running to the next role */
-.job .rail{position:relative; display:flex; justify-content:center;}
+.job .when{
+  grid-area:when; justify-self:start; --tone:var(--pill-grey);
+  font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif; font-size:13px; font-weight:500; letter-spacing:.04em; text-transform:uppercase; line-height:28px; white-space:nowrap;
+  padding:0 14px; border-radius:999px; color:var(--tone);
+  background:rgba(150,150,170,.14); background:color-mix(in srgb,var(--tone) 14%,transparent);   /* the type colour at 14% behind it */
+}
+.job.now .when{--tone:var(--dot-blue);}   /* the current role's pill stays blue; the past ones are grey */
+/* the rail: a dot on the row's first line, and a line running down to the next entry */
+.job .rail{grid-area:rail; align-self:stretch; position:relative; display:flex; justify-content:center;}
 .job .rail .dot{
-  position:relative; z-index:1; margin-top:6px; width:20px; height:20px; flex:0 0 20px;
+  position:relative; z-index:1; margin-top:4px; width:20px; height:20px; flex:0 0 20px;
   border-radius:50%; border:1px solid var(--muted); color:var(--muted);
   display:flex; align-items:center; justify-content:center; background:var(--ground);
 }
@@ -178,47 +250,66 @@ main > section:first-child{padding-top:56px;}   /* gap from the header to the fi
 .job .rail .dot.now::after{content:""; width:7px; height:7px; border-radius:50%; background:currentColor;}
 .job .rail .dot.now svg{display:none;}
 .job .rail::after{
-  content:""; position:absolute; top:14px; bottom:-46px; left:50%; width:0;
-  border-left:1px dashed var(--line);
+  /* a single, solid 1px line in dark purple, from the bottom of this dot to the top of the next (the 20px gap between entries, less the dot's own offset) */
+  content:""; position:absolute; top:24px; bottom:-24px; left:50%; width:1px; margin-left:-.5px;
+  background:var(--rail-line);
 }
-.job:last-child .rail::after{bottom:8px;}
-.job h3{font-size:1.12rem; font-weight:700; color:var(--bright); margin-bottom:10px;}
-.job ul{list-style:none; margin:0; padding:0;}
-.job li{position:relative; padding:0 0 6px 22px; font-size:1rem; line-height:1.55; color:var(--ink);}
-.job li::before{content:"•"; position:absolute; left:4px; color:var(--ink);}
+.job:last-child .rail::after{display:none;}
+.job .what{grid-area:what;}
+.job .org{font-family:'Archivo','IBM Plex Sans',sans-serif; font-size:1.18rem; font-weight:400; color:var(--bright); line-height:28px;}
+.job .role{font-size:1rem; font-weight:400; color:var(--ink); line-height:1.5; margin-top:2px;}
 
-/* ---------- view full CV ---------- */
-/* Sized off the touch target rather than the type: 52px tall and its own line,
-   so it is reachable on a phone without becoming a banner on a desktop. It
-   borrows the bordered-pill treatment the socials and the theme toggle already
-   use, so it reads as this page's control rather than a new one. */
-.cv-btn{
-  display:inline-flex; align-items:center; gap:12px;
-  margin-top:34px; min-height:52px; padding:0 22px;
-  border:1px solid var(--line); border-radius:12px;
-  color:var(--muted); text-decoration:none;
-  font-family:'IBM Plex Sans',sans-serif; font-size:16px; font-weight:500;
-  transition:background .15s ease, color .15s ease, border-color .15s ease;
+/* ---------- timeline and toolkit side by side ---------- */
+.duo{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); column-gap:64px; align-items:start; padding-bottom:78px;}
+.duo > section{padding-bottom:0;}
+#toolkit{justify-self:end; width:max-content; margin-right:134px; position:relative; display:flex; flex-direction:column;}   /* 134px kept clear on the right for the chevrons (and the pill they open into); the second column of icons sits 24px further right than it did, with the first column where it was */   /* the toolkit is two columns of five, its right edge on the right edge of the paragraph above (and the chevrons under it) */
+#experience{position:relative;}
+#experience > .eyebrow,#toolkit .eyebrow{position:absolute; top:-46px; left:0; margin:0;}   /* the label hangs above the icons, so the first row of icons starts level with the first entry of the timeline */
+@media (max-width:1100px){
+  #toolkit{justify-self:stretch; width:auto; margin-right:0;}
+  #experience > .eyebrow,#toolkit .eyebrow{position:static; margin:0 0 26px;}
+  .duo{grid-template-columns:1fr; row-gap:56px;}   /* below this the toolkit column is too narrow for five icons in a line, so it goes under the timeline */
 }
-.cv-btn:hover, .cv-btn:focus-visible{
-  background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);
+
+
+/* ---------- the chevrons under the toolkit: the same component as the home page, leading to the library ---------- */
+.scroll-hint{
+  --pw:126px; position:absolute; right:-214px; top:306px; display:flex; flex-direction:row; align-items:center; justify-content:flex-end;
+  width:44px; height:44px; margin:0; box-sizing:border-box;   /* level with the last toolkit name ("Replit"): 306px down from the top of the timeline and toolkit, and 56px past the right edge of the paragraph above (pulled back to 24px on windows too narrow to leave room) */
+  border-radius:22px; overflow:hidden;
+  color:var(--hero-em); text-decoration:none; cursor:pointer; -webkit-tap-highlight-color:transparent;
+  border:1px solid transparent; background:transparent;
+  transition:width .35s cubic-bezier(.3,.7,.2,1),border-color .25s,background-color .25s;
+  opacity:clamp(0,calc((var(--fade,1) - .6)*2.5),1);
 }
-.cv-btn .cv-ico{display:flex; flex:0 0 auto;}
-.cv-btn .cv-ico svg{
-  width:19px; height:19px; display:block;
-  fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;
-}
-/* the format and weight sit back from the label - useful before you tap, not
-   part of the call to action */
-.cv-btn .cv-meta{
-  font-family:'IBM Plex Mono',ui-monospace,monospace;
-  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
-  color:var(--ink); white-space:nowrap;
-}
-.cv-btn:hover .cv-meta, .cv-btn:focus-visible .cv-meta{color:inherit;}
+:root[data-theme="light"] .scroll-hint{color:#3A1D96;}
+/* hover or focus: the circle grows to the left into a pill and "My Library" fades in inside it; a faint line, not a bright one */
+.scroll-hint:hover,.scroll-hint:focus-visible{width:var(--pw); border-color:rgba(150,130,255,.28); border-color:color-mix(in srgb,currentColor 24%,transparent); background:rgba(150,130,255,.1); outline:none;}
+.sh-t{flex:0 0 auto; padding-left:14px; font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif; font-size:15px; font-weight:300; letter-spacing:-.01em; line-height:1; white-space:nowrap; text-decoration:none; opacity:0; transition:opacity .2s;}
+.scroll-hint:hover .sh-t,.scroll-hint:focus-visible .sh-t{opacity:1; transition:opacity .25s .12s;}
+.sh-c{flex:0 0 42px; height:42px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px;}
+/* the chevrons ripple in once, one after the other, and then stay put: the top one settles fainter than the bottom one */
+.scroll-hint svg{display:block; width:22px; height:10px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; opacity:0; animation:hintA 1.5s ease-out 1.4s 1 forwards;}
+.scroll-hint svg+svg{animation-name:hintB; animation-delay:1.65s;}
+@keyframes hintA{0%{opacity:0; transform:translateY(-6px);} 45%{opacity:.85;} 100%{opacity:.4; transform:none;}}
+@keyframes hintB{0%{opacity:0; transform:translateY(-6px);} 45%{opacity:1;} 100%{opacity:.95; transform:none;}}
+@media (max-width:1320px){.scroll-hint{right:-158px;}}
+@media (max-width:1100px){.scroll-hint{position:relative; right:auto; top:auto; margin:40px 0 0 0;}}
+@media (prefers-reduced-motion:reduce){.scroll-hint svg{animation:none; opacity:.4;} .scroll-hint svg+svg{opacity:.95;} .scroll-hint,.sh-t{transition:none;}}
+
+/* ---------- the library panel: slides up over the first screen ---------- */
+.libpanel{position:relative; z-index:3; background:var(--ground); border-radius:28px 28px 0 0; box-shadow:0 -28px 60px -24px rgba(0,0,0,.55); padding:56px 0 78px;}   /* no stroke: the paintings start straight away */
+:root[data-theme="light"] .libpanel{box-shadow:0 -28px 60px -28px rgba(52,44,110,.25);}
+.libpanel .wrap{z-index:auto;}
+#library{scroll-margin-top:var(--nav-h);}   /* the chevrons land with the panel just under the header, not behind it */
 
 /* ---------- toolkit ---------- */
-.toolkit{display:flex; flex-wrap:wrap; gap:24px;}
+/* two vertical columns of five: each row of icons lines up with an entry of the timeline beside it (the timeline's entries are 74px apart; icons are 64px with 10px between) */
+.toolkit{display:grid; grid-template-columns:repeat(2,max-content); grid-template-rows:repeat(5,64px); grid-auto-flow:column; column-gap:68px; row-gap:10px; justify-content:start;}
+.toolkit .tk{display:flex; align-items:center; gap:14px; height:64px;}
+.tk-n{font-family:'Archivo','IBM Plex Sans',sans-serif; font-size:1.18rem; font-weight:400; color:var(--bright); line-height:1.2; white-space:nowrap;}   /* the same type as the company names in the timeline */
+@media (max-width:1100px){.toolkit{grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); grid-template-rows:none; grid-auto-flow:row; gap:14px 24px;}}   /* stacked under the timeline, the icons go back to five to a line (this sits after the rule above so it wins) */
+@media (max-width:480px){.toolkit{grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); column-gap:12px;}}   /* a phone is too narrow for five: as many as fit */
 /* box-sizing:border-box means the 1px sits inside the 64px box rather than
    growing it - an inside stroke, and the frames keep their current size */
 /* box-sizing:border-box means the 1px sits inside the 64px box rather than
@@ -226,15 +317,7 @@ main > section:first-child{padding-top:56px;}   /* gap from the header to the fi
    14.5px is the icon artwork's own corner measured where it crosses the 45deg
    diagonal, which is the part of the curve the eye reads; matching it there
    stops the stroke cutting square across the icons' rounder corners. */
-.toolkit .frame{width:64px; height:64px; flex:0 0 64px; border-radius:14.5px; border-color:var(--toolkit-stroke);}
-
-/* ---------- certification / education rows ---------- */
-.record{
-  display:grid; grid-template-columns:280px 1fr auto; column-gap:24px; align-items:baseline;
-}
-.record .what{font-family:'Archivo','IBM Plex Sans',sans-serif; font-size:1.12rem; font-weight:600; color:var(--bright);}
-.record .detail{font-size:1rem; color:var(--ink);}
-.record .when{font-size:1rem; color:var(--ink); white-space:nowrap;}
+.toolkit .frame{width:56px; height:56px; flex:0 0 56px; border-radius:12.7px; border-color:var(--toolkit-stroke);}   /* 56px icons (the corner scaled with them: 14.5 x 56/64). Each still sits centred in its 64px row, so the rows keep their place beside the timeline entries and the arrows keep their place */
 
 /* ---------- footer + contact banner ---------- */
 /* The banner used to sit 140px of padding plus a 40px margin below the last
@@ -253,6 +336,8 @@ footer::before{
 /* bottom-anchored variant of the hero's decorative grid, so the banner sits on
    the same ground as the top of the page */
 .grid-bg.bottom{
+  /* the footer's grid is the home page's: pale 5% lines straight on the page, with no tile fill (the dark-line, tiled look belongs to the top of this page only) */
+  --grid-line:rgba(231,236,241,.05); background-color:transparent;
   inset:auto 0 0 0; height:760px;
   -webkit-mask-image:linear-gradient(0deg,#000 0%,#000 62%,transparent 100%);
           mask-image:linear-gradient(0deg,#000 0%,#000 62%,transparent 100%);
@@ -264,7 +349,7 @@ footer::before{
 }
 .contact{
   position:relative; z-index:2;
-  display:flex; align-items:flex-end; justify-content:space-between; gap:56px; flex-wrap:wrap;
+  display:flex; align-items:center; justify-content:space-between; gap:56px; flex-wrap:wrap;   /* the email and the social buttons are centred against the title and the paragraphs beside them */
   /* the clearance around this row is the footer's own padding - 76 above, 96
      below - so it lives in one place rather than being split across two
      elements the way it used to be */
@@ -280,7 +365,7 @@ footer::before{
   max-width:44ch; margin:16px 0 0;
 }
 .contact-copy{max-width:620px;}
-.contact-side{display:flex; flex-direction:column; align-items:flex-start; gap:26px; padding-bottom:8px;}
+.contact-side{display:flex; flex-direction:column; align-items:flex-start; gap:26px; padding-bottom:8px; position:relative; top:12px;}   /* 12px below the centre line */
 .email-row{display:flex; align-items:center; gap:12px;}
 .email-row .email{font-size:20px; color:var(--muted); text-decoration:none; transition:color .2s;}
 .email-row .email:hover{color:var(--bright);}
@@ -315,6 +400,7 @@ footer::before{
 .socials .box{
   width:60px; height:60px; display:inline-flex; align-items:center; justify-content:center;
   border:1px solid var(--line); border-radius:15px;
+  -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px);   /* the gridlines behind the icons are blurred so they do not cut across them */
   transition:background .15s ease, color .15s ease, border-color .15s ease;
 }
 .socials .cap{
@@ -328,29 +414,69 @@ footer::before{
 
 /* ---------- responsive ---------- */
 @media (max-width:980px){
-  .nutshell{grid-template-columns:calc((100% - 44px) / 3) 1fr;}
-  .job{grid-template-columns:200px 30px 1fr;}
-  .record{grid-template-columns:1fr auto;}
-  .record .detail{grid-column:1 / -1; margin-top:4px;}
+}
+@media (max-width:900px){
+  /* on narrower screens the pill moves above each entry's text, with the line and dots staying on the left */
+  .job{grid-template-columns:20px 1fr; column-gap:14px; row-gap:10px; grid-template-areas:"rail when" "rail what";}
+  .job .rail{grid-row:1 / span 2;}
 }
 @media (max-width:820px){
+  .nutshell .bio{font-size:18.7px; line-height:28px;}   /* and its smaller setting on narrow screens, as on the home page */
   footer{padding:76px 0 96px;}
   .contact{gap:36px;}
-  .contact-side{padding-bottom:0;}
+  .contact-side{padding-bottom:0; top:0;}
+}
+/* ---------- footer: the last screen (the same as the home page's) ----------
+   A whole window high, less the header: the same tile grid as the top of the page, the same two soft washes and the soft glow along the bottom edge. The text lines up with the first screen of the home page (80px in from the left); the contact box is open on the right. */
+footer#contact{position:relative; z-index:4; overflow:hidden; box-sizing:border-box; min-height:calc(100vh - var(--nav-h)); min-height:calc(100svh - var(--nav-h)); margin:0; padding:0; background:var(--ground); display:flex; flex-direction:column; justify-content:center;}
+footer#contact::before{display:none;}
+footer#contact .grid-bg.bottom{
+  --grid-line:#030107;
+  inset:0; top:0; bottom:0; height:auto;
+  -webkit-mask-image:none; mask-image:none;
+  background-color:var(--grid-tile);
+  background-image:
+    radial-gradient(720px 560px at 88% 6%,var(--glow-a),transparent 65%),
+    radial-gradient(900px 700px at 105% 55%,var(--glow-b),transparent 70%),
+    linear-gradient(var(--grid-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid-line) 1px,transparent 1px);
+  background-size:100% 100%,100% 100%,120.5px 120.5px,120.5px 120.5px;
+  background-position:0 0,0 0,64px 0,64px 0;
+}
+footer#contact .grid-bg.bottom::after{
+  content:""; position:absolute; inset:auto 0 0 0; height:205px; z-index:1; pointer-events:none;
+  background:linear-gradient(90deg,rgb(255,64,88),rgb(236,52,196),rgb(255,112,190),rgb(58,96,255));
+  -webkit-mask-image:linear-gradient(0deg,#000 8%,transparent); mask-image:linear-gradient(0deg,#000 8%,transparent);
+  filter:blur(12px); opacity:.11;
+}
+:root[data-theme="light"] footer#contact .grid-bg.bottom{--grid-line:#EBEDEF;}
+:root[data-theme="light"] footer#contact .grid-bg.bottom::after{opacity:.16;}
+footer#contact .contact{position:relative; z-index:2; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,520px); column-gap:64px; row-gap:40px; align-items:center; justify-content:space-between; width:100%; box-sizing:border-box; max-width:none; margin:0; padding:0 40px 0 80px;}
+footer#contact .contact-copy{max-width:none; position:relative; top:-20px;}
+footer#contact .contact-title{font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif; font-size:40px; font-weight:300; letter-spacing:-.04em; line-height:52px; color:var(--role-ink);}
+footer#contact .contact-lead{max-width:30em; margin:36px 0 0; font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif; font-size:22px; font-weight:300; letter-spacing:-.04em; line-height:32px; color:var(--hero-body);}
+footer#contact .contact-lead + .contact-lead{margin-top:16px;}
+footer#contact .contact-side{position:static; top:auto; margin-top:40px; padding-bottom:0;}
+.ft-form{box-sizing:border-box; width:100%; max-width:520px; justify-self:end; border:1px solid var(--line); border-radius:22px; background:color-mix(in srgb,var(--ground) 70%,transparent); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); box-shadow:0 24px 80px rgba(0,0,0,.25);}
+@media (max-width:820px){
+  footer#contact{padding:48px 0; justify-content:flex-start;}
+  footer#contact .contact{grid-template-columns:minmax(0,1fr); padding:0 24px; row-gap:40px;}
+  footer#contact .contact-copy{top:0;}
+  footer#contact .contact-title{font-size:34px; line-height:40.1667px;}
+  footer#contact .contact-lead{font-size:18.7px; line-height:28px;}
+  .ft-form{justify-self:stretch; max-width:none;}
 }
 @media (max-width:680px){
-  /* full width on a phone - a 52px pill floating in a wide column is easy to
-     miss, and the row is the most reliable thing to hit with a thumb */
-  .cv-btn{display:flex; width:100%; justify-content:center;}
   body{font-size:16px;}
-  .topbar .bar{height:76px; gap:16px;}
-  .topbar .endgrp{gap:16px;}
-  .topbar .tabs{gap:22px;}
-  .topbar .logo img{height:30px;}   /* the type stays 20px; the wordmark gives way instead */
+  :root{--nav-h:76px;}
+  .topbar{--navgap:8px;}
+  .topbar .bar{padding:0 12px;}
+  .nav-logo{--av:36px; gap:0;}
+  .nav-logo .lg-name{display:none;}
+  .topbar .tabs a, .topbar .nav-btn{font-size:13px; white-space:nowrap;}
+  .topbar .themetoggle{width:32px; height:32px;}
   .nutshell{grid-template-columns:1fr; gap:26px;}
-  .nutshell .portrait{width:calc((100% - 22px) / 2);}
-  .job{grid-template-columns:1fr; row-gap:14px;}
-  .job .rail{display:none;}
+  .nutshell .portrait{width:calc((100% - 22px) / 2); height:auto; aspect-ratio:1/1; margin-top:0;}
   section{padding-bottom:56px;}
 }
 /* ---------- touch targets ----------
@@ -359,6 +485,140 @@ footer::before{
   .themetoggle{width:36px; height:36px; border-radius:9px;}
   .themetoggle svg{width:18px; height:18px;}
 }
+/* ---------- phone header: a menu button on the right that opens a drawer from the side ----------
+   Up to 820px wide the four links go into the drawer (the script at the end of the page builds it and adds .nav-js; without the script the links stay in the bar). The same drawer as the home page. */
+.nav-burger{display:none; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-14px; padding:0; background:none; border:0; border-radius:10px; color:var(--ink); cursor:pointer;}   /* the three lines end 24px from the edge */
+.nav-burger svg,.drawer-x svg{width:24px; height:24px; display:block; fill:none; stroke:currentColor; stroke-width:1.6; stroke-linecap:round;}
+.nav-burger:hover,.nav-burger:focus-visible,.drawer-x:hover,.drawer-x:focus-visible{color:var(--bright);}
+@media (max-width:820px){
+  .topbar .bar{padding:0 24px;}
+  html.nav-js .topbar .tabs{display:none;}
+  html.nav-js .nav-burger{display:flex;}
+}
+.drawer-back{position:fixed; inset:0; z-index:70; background:rgba(3,1,7,.6); -webkit-backdrop-filter:blur(4px); backdrop-filter:blur(4px); opacity:0; visibility:hidden; transition:opacity .3s ease, visibility 0s linear .3s;}
+.drawer{position:fixed; top:0; right:0; bottom:0; z-index:71; box-sizing:border-box; width:min(84vw,340px); padding:19px 24px 32px; display:flex; flex-direction:column; overflow-y:auto; background:var(--ground); border-left:1px solid var(--line); box-shadow:-24px 0 60px rgba(0,0,0,.35); transform:translateX(100%); visibility:hidden; transition:transform .32s cubic-bezier(.22,1,.36,1), visibility 0s linear .32s;}
+html.drawer-open{overflow:hidden;}
+html.drawer-open .drawer-back{opacity:1; visibility:visible; transition:opacity .3s ease;}
+html.drawer-open .drawer{transform:none; visibility:visible; transition:transform .32s cubic-bezier(.22,1,.36,1);}
+.drawer-x{align-self:flex-end; display:flex; align-items:center; justify-content:center; width:44px; height:44px; margin-right:-16px; padding:0; background:none; border:0; border-radius:10px; color:var(--ink); cursor:pointer;}
+.drawer-links{display:flex; flex-direction:column; margin-top:20px;}
+.drawer-links a,.drawer-links button{display:block; width:100%; box-sizing:border-box; text-align:left; font-family:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif; font-size:28px; font-weight:300; line-height:1.2; letter-spacing:-.02em; color:var(--ink); background:none; border:0; border-bottom:1px solid var(--line); padding:18px 0; text-decoration:none; cursor:pointer; transition:color .2s;}
+.drawer-links a:first-child,.drawer-links button:first-child{border-top:1px solid var(--line);}
+.drawer-links a.active{color:var(--bright); font-weight:400;}
+.drawer-links a:hover,.drawer-links button:hover,.drawer-links a:focus-visible,.drawer-links button:focus-visible{color:var(--bright);}
+@media (min-width:821px){.drawer,.drawer-back{display:none;}}
+@media (prefers-reduced-motion:reduce){.drawer,.drawer-back,html.drawer-open .drawer,html.drawer-open .drawer-back{transition:none;}}
+/* ---------- contact / feedback modal (same one as the home page) ---------- */
+dialog.mdl{
+  margin:auto; padding:0; border:1px solid var(--line); border-radius:22px; background:var(--ground); color:var(--ink);
+  width:min(520px,calc(100vw - 48px)); max-height:min(86vh,720px); overflow:auto; box-shadow:0 24px 80px rgba(0,0,0,.35);
+}
+dialog.mdl::backdrop{background:rgba(10,8,20,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);}
+.mdl-in{padding:26px 28px; display:flex; flex-direction:column; gap:18px;}
+.mdl-top{display:flex; align-items:center; justify-content:space-between; gap:12px;}
+.mdl-eyebrow{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.18em; text-transform:uppercase; color:var(--accent-text); margin:0; display:flex; align-items:center; gap:10px;}
+.mdl-eyebrow::before{content:""; width:26px; height:1px; background:currentColor; opacity:.6;}
+.mdl-x{width:32px; height:32px; display:grid; place-items:center; padding:0; cursor:pointer; border:1px solid var(--line); border-radius:9px; background:transparent; color:var(--ink); transition:background .15s ease,color .15s ease,border-color .15s ease;}
+.mdl-x:hover,.mdl-x:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.mdl-x svg{width:15px; height:15px; display:block; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round;}
+.mdl-title{font-family:'Archivo','IBM Plex Sans',sans-serif; font-size:clamp(26px,4vw,32px); font-weight:500; line-height:1.12; letter-spacing:-.02em; color:var(--heading); margin:0;}
+.mdl-text{font-size:16px; line-height:1.6; color:var(--ink); margin:0;}
+.mdl-form{display:flex; flex-direction:column; gap:14px;}
+.mdl-field{display:flex; flex-direction:column; gap:6px;}
+.mdl-field label{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink);}
+/* the fields are the home page's: a faint white tint (not the grey panel colour), bright type */
+:root{--tile:rgba(255,255,255,.030);}
+:root[data-theme="light"]{--tile:#FFFFFF;}
+.mdl-field input,.mdl-field textarea{font:400 16px/1.5 'IBM Plex Sans',sans-serif; color:var(--bright); background:var(--tile); border:1px solid var(--line); border-radius:12px; padding:11px 14px; width:100%;}
+.mdl-field textarea{min-height:120px; resize:vertical;}
+.mdl-field input:focus,.mdl-field textarea:focus{outline:none; border-color:var(--accent);}
+.mdl-field input[aria-invalid="true"],.mdl-field textarea[aria-invalid="true"]{border-color:#E5605B;}   /* a missing or invalid field: red edge, no wording */
+.mdl-field input[readonly]{color:var(--ink);}
+.mdl-row{display:flex; gap:10px;}
+.mdl-row input{flex:1;}
+.mdl-btn{display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:44px; padding:0 18px; cursor:pointer; font:500 15px 'IBM Plex Sans',sans-serif; color:var(--muted); border:1px solid var(--line); border-radius:12px; background:transparent; transition:background .15s ease,color .15s ease,border-color .15s ease;}
+.mdl-btn:hover,.mdl-btn:focus-visible{background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent);}
+.mdl-btn.primary{background:var(--ink); background:color-mix(in srgb,var(--ink) 70%,var(--bright)); color:var(--ground); border-color:transparent;}   /* a solid button: the old outline colour (a touch lightened) as the fill, and the modal's own background colour for the label */
+.mdl-btn.primary:hover, .mdl-btn.primary:focus-visible{background:var(--ink); background:color-mix(in srgb,var(--ink) 30%,var(--bright)); color:var(--ground); border-color:transparent;}   /* lighter again on hover */
+.mdl-note{font-size:13px; line-height:1.5; color:var(--ink); margin:0;}
+@media (max-width:480px){ .mdl-in{padding:20px 18px;} }
+
+
+/* ---------- My Library ---------- */
+.lib-title{font-size:clamp(2rem,4.6vw,3.2rem); font-weight:700; letter-spacing:-.015em; line-height:1.1; margin:0 0 16px;}
+.lib-sub{font-size:20px; line-height:1.55; color:var(--ink); max-width:56ch;}
+#library-intro{padding-bottom:8px;}
+
+/* filter bar: one row of pills and a live count */
+.lib-bar{display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:14px 24px; margin:30px 0 4px;}
+.lib-filters{display:flex; flex-wrap:wrap; gap:10px;}
+.lib-filter{
+  display:inline-flex; align-items:center; gap:8px; padding:8px 16px; cursor:pointer;
+  font:500 15px 'IBM Plex Sans',sans-serif; color:var(--muted);
+  border:1px solid var(--line); border-radius:999px; background:transparent;
+  transition:background .2s ease,color .2s ease,border-color .2s ease,transform .2s ease;
+}
+.lib-filter .n{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:12px; opacity:.7;}
+.lib-filter:hover,.lib-filter:focus-visible{border-color:var(--accent); color:var(--accent-text); background:var(--accent-soft);}
+.lib-filter[aria-pressed="true"]{color:var(--bright); border-color:var(--bright); background:var(--panel);}
+.lib-count{font-family:'IBM Plex Mono',ui-monospace,monospace; font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--muted);}
+
+/* the wall: a masonry of the pieces at their own proportions (nothing is cropped) */
+#gallery{position:relative;}
+.lib-wall{position:relative; z-index:1; column-count:3; column-gap:20px; margin-top:0; transition:opacity .22s ease,transform .22s ease;}
+.lib-wall.swap{opacity:0; transform:translateY(8px);}
+@media (max-width:999px){ .lib-wall{column-count:2;} }
+@media (max-width:480px){ .lib-wall{column-gap:12px;} }
+.piece{
+  --tint:#688DCA; margin:0 0 20px; break-inside:avoid;
+  opacity:0; transform:translateY(24px) scale(.975);
+  transition:opacity .7s ease,transform .8s cubic-bezier(.22,1,.36,1);
+  transition-delay:calc(var(--d,0) * 80ms);
+}
+.piece.in{opacity:1; transform:none;}
+.piece[hidden]{display:none;}
+@media (max-width:480px){ .piece{margin-bottom:12px;} }
+.piece-btn{
+  position:relative; display:block; width:100%; padding:0; cursor:zoom-in; border:0; border-radius:16px; overflow:hidden; background:var(--panel);   /* no stroke, no pill, no glow: the picture just grows inside its frame on hover */
+}
+.piece-btn img{display:block; width:100%; height:auto; transition:transform .8s cubic-bezier(.22,1,.36,1);}
+@media (hover:hover){
+  .piece-btn:hover img{transform:scale(1.05);}
+}
+
+/* lightbox: arrows, counter, keys and swipe */
+dialog.lb{margin:0; padding:0; border:0; background:transparent; width:100vw; height:100vh; max-width:none; max-height:none; overflow:hidden; color:#fff;}
+dialog.lb::backdrop{background:rgba(10,8,20,.86); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);}
+.lb-stage{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:56px 76px 28px;}
+.lb-stage img{display:block; max-width:100%; max-height:calc(100vh - 150px); width:auto; height:auto; border-radius:12px; box-shadow:0 30px 80px rgba(0,0,0,.5); opacity:0; transform:scale(.985); transition:opacity .35s ease,transform .45s cubic-bezier(.22,1,.36,1);}
+.lb-stage img.ready{opacity:1; transform:none;}
+.lb-cap{display:flex; gap:14px; align-items:center; margin-top:16px; font:500 12px/1 'IBM Plex Mono',ui-monospace,monospace; letter-spacing:.14em; text-transform:uppercase; color:rgba(255,255,255,.85);}
+.lb-cap i{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--lbtint,#688DCA); font-style:normal;}
+.lb-btn{
+  position:absolute; width:46px; height:46px; display:grid; place-items:center; padding:0; cursor:pointer;
+  border:1px solid rgba(255,255,255,.35); border-radius:50%; background:rgba(0,0,0,.3); color:#fff; font:400 22px/1 'IBM Plex Sans',sans-serif;
+  transition:background .2s ease,border-color .2s ease,transform .2s ease;
+}
+.lb-btn:hover,.lb-btn:focus-visible{background:rgba(255,255,255,.18); border-color:#fff;}
+.lb-x{top:16px; right:16px;}
+.lb-prev,.lb-next{top:50%; margin-top:-23px;}
+.lb-prev{left:16px;} .lb-next{right:16px;}
+.lb-prev:hover{transform:translateX(-2px);} .lb-next:hover{transform:translateX(2px);}
+@media (max-width:680px){
+  .lib-sub{font-size:18px;}
+  .lb-stage{padding:60px 12px 84px;}
+  .lb-prev,.lb-next{top:auto; bottom:18px; margin-top:0;}
+  .lb-prev{left:calc(50% - 56px);} .lb-next{right:calc(50% - 56px);}
+}
+@media (prefers-reduced-motion: reduce){
+  .piece{opacity:1; transform:none; transition:none;}
+  .piece-btn,.piece-btn img,.lib-glow,.lib-wall,.lb-stage img{transition:none;}
+}
+
+/* the pointer is a Figma-style arrowhead (black fill, 0.5px white edge) instead of the system arrow. Links keep the hand, text keeps the text cursor, and the drag and zoom cursors stay as they are. */
+:root{--cursor-arrow:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M3 3L19 12.4L11.6 13.9L8 20.9Z' fill='%23000' stroke='%23fff' stroke-width='.5' stroke-linejoin='round'/%3E%3C/svg%3E") 3 3,default}
+html{cursor:var(--cursor-arrow)}
+button,summary{cursor:var(--cursor-arrow)}
 </style>
 
 <script>
@@ -367,187 +627,212 @@ footer::before{
    only a remembered explicit choice of "light" moves it. */
 (function(){
   var t;
-  try{ t = localStorage.getItem('eeman-theme'); }catch(e){}
-  document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : 'dark');
+  try{ t = localStorage.getItem('eeman-theme-v3'); }catch(e){}
+  document.documentElement.setAttribute('data-theme', 'dark');   /* the main pages are made for dark mode and have no toggle: always dark, whatever was chosen on the case studies */
 })();
 </script>
 </head>
 <body>
 
-<div class="grid-bg" aria-hidden="true"></div>
+<div class="grid-bg top" aria-hidden="true"></div>
 
 <header class="topbar">
   <div class="bar">
-    <a class="logo" href="index.html" aria-label="Eeman – home"><img src="assets/logo-eeman.png" alt="eeman"></a>
+    <a class="nav-logo" href="index.html" aria-label="Eeman, home">
+      <span class="lg-bubble"><span class="lg-shot"><img src="assets/dp-photo.png" alt="" width="40" height="40"></span></span>
+      <span class="lg-name">Eeman</span>
+    </a>
     <span class="endgrp">
       <nav class="tabs" aria-label="Primary">
-        <a href="index.html#work">Work</a>
+        <a href="index.html#syntax-ds">Work</a>
         <a href="about.html" class="active" aria-current="page">About</a>
+        <a href="assets/Eeman-Butt-Product-Designer.pdf" target="_blank" rel="noopener">Resume</a>
+        <button type="button" class="nav-btn" id="sayHi" aria-haspopup="dialog">Contact</button>
       </nav>
-      <button type="button" class="themetoggle" id="themeToggle" aria-label="Switch to light theme" title="Switch theme">
-        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.6v2.2M12 19.2v2.2M2.6 12h2.2M19.2 12h2.2M5.4 5.4l1.6 1.6M17 17l1.6 1.6M18.6 5.4L17 7M7 17l-1.6 1.6"/></svg>
-        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 14.6A8.6 8.6 0 0 1 9.4 3.5a8.6 8.6 0 1 0 11.1 11.1z"/></svg>
-      </button>
     </span>
   </div>
 </header>
 
-<main class="wrap">
+<main class="zone">
+<div class="intro">
+<div class="wrap">
 
   <!-- ================= ME IN A NUTSHELL ================= -->
   <section id="nutshell">
-    <p class="eyebrow">Me; In a Nutshell</p>
     <div class="nutshell">
       <div class="frame portrait"><img src="assets/about-dp.png" alt="Eeman"></div>
-      <p>I&rsquo;m Eeman, a product designer with <strong>4+ yrs experience</strong>. I specialize in design
+      <div class="nutshell-text">
+      <p class="eyebrow">Me; In a Nutshell</p>
+      <p class="bio">I&rsquo;m Eeman, a product designer with <strong>4+ yrs experience</strong>. I specialize in design
       systems, usability audits, and analyzing data trends to craft end-to-end UXD
       for web, mobile, and SaaS platforms. With a background in architecture and
       <strong>UX certifications</strong>, I bring a strong blend of creative, analytical, and cross-functional
       collaboration skills.</p>
+      </div>
     </div>
   </section>
 
 
-  <!-- ================= EXPERIENCE ================= -->
+  <!-- ================= EXPERIENCE + TOOLKIT, side by side ================= -->
+  <div class="duo">
   <section id="experience">
-    <p class="eyebrow">Experience</p>
-
-    <div class="job">
-      <div>
-        <div class="org">Educative</div>
+    <p class="eyebrow">Background:</p>
+    <ol class="timeline">
+      <li class="job now">
         <div class="when">Nov&rsquo;24 - Present</div>
-      </div>
-      <div class="rail"><span class="dot now" aria-hidden="true"></span></div>
-      <div>
-        <h3>Product Designer &bull; Full-time</h3>
-        <ul>
-          <li>Refined design system components, widgets, colours &amp; typography across all media platforms.</li>
-          <li>Utilized user feedback and testing to define crucial KRs</li>
-          <li>Improved signup rate by 2.5% and purchase rate by 9%, through product audits and UI tweaks.</li>
-          <li>Worked in an agile system with PMs and devs to ensure seamless delivery and live updates.</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="job">
-      <div>
-        <div class="org">Tkxel</div>
+        <div class="rail"><span class="dot now" aria-hidden="true"></span></div>
+        <div class="what">
+          <div class="org">Educative</div>
+          <h3 class="role">Product Designer &bull; Full-time</h3>
+        </div>
+      </li>
+      <li class="job">
         <div class="when">Jul&rsquo;23 - Oct&rsquo;24</div>
-      </div>
-      <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
-      <div>
-        <h3>UX Associate &bull; Full-time</h3>
-        <ul>
-          <li>Designed web apps, mobile apps, websites, and responsive mobile websites for 5+ projects.</li>
-          <li>Created web &amp; mobile apps which resulted in a 72% improvement in performance, and 95% user satisfaction.</li>
-          <li>Explored various aspects of UX, such as research, audits, usability testing, UX assurance, competitive analysis, affinity mapping, user personas, user journeys, interactive prototyping, etc.</li>
-          <li>Gained experience in different business softwares, including ERP, CRM, LMS &amp; HRM systems.</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="job">
-      <div>
-        <div class="org">AIPixel</div>
+        <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+        <div class="what">
+          <div class="org">Tkxel</div>
+          <h3 class="role">UX/UI Designer &bull; Full-time</h3>
+        </div>
+      </li>
+      <li class="job">
         <div class="when">Feb&rsquo;23 - Jul&rsquo;23</div>
-      </div>
-      <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
-      <div>
-        <h3>UX Designer &bull; Full-time</h3>
-        <ul>
-          <li>Led a team of 2 to create entire app / web design from wireframes to interactive mockups.</li>
-          <li>Redesigned the company website and successfully completed 5 client projects, with positive feedback.</li>
-          <li>Collaborated closely with frontend &amp; backend developers, project managers, stakeholders, and clients to ensure seamless workflow.</li>
-        </ul>
-      </div>
-    </div>
-
-    <a class="cv-btn" href="assets/Eeman-Butt-Product-Designer.pdf" target="_blank" rel="noopener">
-      <span class="cv-ico" aria-hidden="true">
-        <svg viewBox="0 0 24 24"><path d="M14 3H7.5A2.5 2.5 0 0 0 5 5.5v13A2.5 2.5 0 0 0 7.5 21h9a2.5 2.5 0 0 0 2.5-2.5V8z"/><path d="M14 3v4.5A1.5 1.5 0 0 0 15.5 9H19"/></svg>
-      </span>
-      <span class="cv-label">View Full CV</span>
-      <span class="cv-meta">PDF &middot; 238&nbsp;KB</span>
-    </a>
+        <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+        <div class="what">
+          <div class="org">AIPixal</div>
+          <h3 class="role">UX Designer &bull; Full-time</h3>
+        </div>
+      </li>
+      <li class="job">
+        <div class="when">Sep&rsquo;22 - Jan&rsquo;23</div>
+        <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+        <div class="what">
+          <div class="org">Google UX Design</div>
+          <h3 class="role">7 course certification offered by coursera</h3>
+        </div>
+      </li>
+      <li class="job">
+        <div class="when">Sep&rsquo;17 - Jan&rsquo;22</div>
+        <div class="rail"><span class="dot" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span></div>
+        <div class="what">
+          <div class="org">Bilkent University</div>
+          <h3 class="role">Bachelors in Architecture (B.Arch)</h3>
+        </div>
+      </li>
+    </ol>
   </section>
 
   <!-- ================= TOOLKIT ================= -->
   <section id="toolkit">
-    <p class="eyebrow">Toolkit</p>
+    <p class="eyebrow">Toolkit:</p>
     <div class="toolkit">
-      <div class="frame"><img src="assets/toolkit-1.png" alt="Figma"></div>
-      <div class="frame"><img src="assets/toolkit-2.png" alt="Claude"></div>
-      <div class="frame"><img src="assets/toolkit-3.png" alt="Miro"></div>
-      <div class="frame"><img src="assets/toolkit-4.png" alt="GitHub"></div>
-      <div class="frame"><img src="assets/toolkit-5.png" alt="ChatGPT"></div>
-      <div class="frame"><img src="assets/toolkit-6.png" alt="Spline"></div>
-      <div class="frame"><img src="assets/toolkit-7.png" alt="Framer"></div>
-      <div class="frame"><img src="assets/toolkit-8.png" alt="Gemini"></div>
-      <div class="frame"><img src="assets/toolkit-9.png" alt="Canva"></div>
-      <div class="frame"><img src="assets/toolkit-10.png" alt="Pinterest"></div>
-      <div class="frame"><img src="assets/toolkit-11.png" alt="Maze"></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-1.png" alt=""></div><span class="tk-n">Figma</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-2.png" alt=""></div><span class="tk-n">Claude</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-3.png" alt=""></div><span class="tk-n">Miro</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-4.png" alt=""></div><span class="tk-n">GitHub</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-5.png" alt=""></div><span class="tk-n">ChatGPT</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-6.png" alt=""></div><span class="tk-n">Lottie</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-7.png" alt=""></div><span class="tk-n">Vercel</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-8.png" alt=""></div><span class="tk-n">Gemini</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-9.png" alt=""></div><span class="tk-n">Canva</span></div>
+      <div class="tk"><div class="frame"><img src="assets/toolkit-11.png" alt=""></div><span class="tk-n">Replit</span></div>
     </div>
+    <a class="scroll-hint" href="#library" aria-label="My Library: scroll down to the paintings and drawings"><span class="sh-t" aria-hidden="true">My Library</span><span class="sh-c"><svg viewBox="0 0 24 11" aria-hidden="true"><path d="M2 2l10 7 10-7"/></svg><svg viewBox="0 0 24 11" aria-hidden="true"><path d="M2 2l10 7 10-7"/></svg></span></a>
   </section>
+  </div>
+</div>
+</div>
 
-  <!-- ================= CERTIFICATION ================= -->
-  <section id="certification">
-    <p class="eyebrow">Certification</p>
-    <div class="record">
-      <div class="what">Google UX Design</div>
-      <div class="detail">7 course certification offered by coursera</div>
-      <div class="when">Sep&rsquo;22 - Jan&rsquo;23</div>
+<!-- ================= THE LIBRARY: paintings and drawings ================= -->
+<section class="libpanel" id="library">
+<div class="wrap">
+  <!-- ================= THE WALL ================= -->
+  <section id="gallery" aria-label="Paintings and drawings">
+    <!-- TODO(eeman): titles, media and years. I only know what each piece looks like, so there
+         are no titles, media or dates here; the labels (Painting / Drawing) are my
+         reading of each image, so move a piece between them by changing its data-cat and the counts.
+         To add one: save a ~800px-wide copy as assets/library/NAME-thumb.jpg and a larger one as
+         assets/library/NAME.jpg, then copy any <figure class="piece"> below. -->
+    <div class="lib-wall" id="libWall">
+      <figure class="piece" data-cat="painting" style="--tint:#E0436B">
+        <button type="button" class="piece-btn" data-full="assets/library/mosque-painting.jpg" data-label="Painting" data-alt="Painting of a red mosque with white domes and tall minarets against a dusk sky of deep blue, orange and pink">
+          <img src="assets/library/mosque-painting-thumb.jpg" width="800" height="800" alt="Painting of a red mosque with white domes and tall minarets against a dusk sky of deep blue, orange and pink" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="drawing" style="--tint:#9A98A8">
+        <button type="button" class="piece-btn" data-full="assets/library/lion-drawing.jpg" data-label="Drawing" data-alt="Black ink drawing of a lion in profile, its mane made of dense flowing lines and patterned shapes">
+          <img src="assets/library/lion-drawing-thumb.jpg" width="800" height="1121" alt="Black ink drawing of a lion in profile, its mane made of dense flowing lines and patterned shapes" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="painting" style="--tint:#2F8FE0">
+        <button type="button" class="piece-btn" data-full="assets/library/waterfall-painting.jpg" data-label="Painting" data-alt="Painting of waterfalls pouring over brown cliffs into a bright blue sea, with green hills on the horizon">
+          <img src="assets/library/waterfall-painting-thumb.jpg" width="800" height="800" alt="Painting of waterfalls pouring over brown cliffs into a bright blue sea, with green hills on the horizon" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="drawing" style="--tint:#9A98A8">
+        <button type="button" class="piece-btn" data-full="assets/library/heroes-pencil-drawing.jpg" data-label="Drawing" data-alt="Pencil drawing of a round Heroes chocolate tin beside crumpled foil wrappers and flowers">
+          <img src="assets/library/heroes-pencil-drawing-thumb.jpg" width="800" height="533" alt="Pencil drawing of a round Heroes chocolate tin beside crumpled foil wrappers and flowers" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="painting" style="--tint:#F08A24">
+        <button type="button" class="piece-btn" data-full="assets/library/autumn-bridge-painting.jpg" data-label="Painting" data-alt="Painting of a small stone bridge over still water between orange and yellow autumn trees, mirrored in the stream">
+          <img src="assets/library/autumn-bridge-painting-thumb.jpg" width="800" height="1382" alt="Painting of a small stone bridge over still water between orange and yellow autumn trees, mirrored in the stream" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="painting" style="--tint:#D9805F">
+        <button type="button" class="piece-btn" data-full="assets/library/marbles-children-painting.jpg" data-label="Painting" data-alt="Watercolour-style painting of three children crouched over a game of marbles, with a bag of marbles spilling at the bottom left">
+          <img src="assets/library/marbles-children-painting-thumb.jpg" width="800" height="1286" alt="Watercolour-style painting of three children crouched over a game of marbles, with a bag of marbles spilling at the bottom left" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="drawing" style="--tint:#3FA0E0">
+        <button type="button" class="piece-btn" data-full="assets/library/marble-sheet-music-drawing.jpg" data-label="Drawing" data-alt="Colour pencil drawing of a glass marble in front of crumpled sheet music, in deep blues">
+          <img src="assets/library/marble-sheet-music-drawing-thumb.jpg" width="800" height="700" alt="Colour pencil drawing of a glass marble in front of crumpled sheet music, in deep blues" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="painting" style="--tint:#D43C4A">
+        <button type="button" class="piece-btn" data-full="assets/library/roses-heroes-painting.jpg" data-label="Painting" data-alt="Painting of a bouquet of red roses next to a purple Heroes chocolate tin and a crinkled blue wrapper">
+          <img src="assets/library/roses-heroes-painting-thumb.jpg" width="800" height="799" alt="Painting of a bouquet of red roses next to a purple Heroes chocolate tin and a crinkled blue wrapper" loading="lazy" decoding="async">
+        </button>
+      </figure>
+      <figure class="piece" data-cat="drawing" style="--tint:#E8955A">
+        <button type="button" class="piece-btn" data-full="assets/library/desk-lamp-drawing.jpg" data-label="Drawing" data-alt="Colour pencil drawing of a person resting their head on an arm over open notebooks, with a coffee cup and a green desk lamp">
+          <img src="assets/library/desk-lamp-drawing-thumb.jpg" width="800" height="736" alt="Colour pencil drawing of a person resting their head on an arm over open notebooks, with a coffee cup and a green desk lamp" loading="lazy" decoding="async">
+        </button>
+      </figure>
     </div>
   </section>
-
-  <!-- ================= EDUCATION ================= -->
-  <section id="education">
-    <p class="eyebrow">Education</p>
-    <div class="record">
-      <div class="what">Bilkent University</div>
-      <div class="detail">Bachelors in Architecture (B.Arch)</div>
-      <div class="when">Sep&rsquo;17 - Jan&rsquo;22</div>
-    </div>
-  </section>
+</div>
+</section>
 
 </main>
 
 <footer id="contact">
   <div class="grid-bg bottom" aria-hidden="true"></div>
-  <div class="contact wrap">
+  <div class="contact">
     <div class="contact-copy">
-      <h2 class="contact-title">Contact Me</h2>
+      <h2 class="contact-title">Thank you for the visit!</h2>
       <p class="contact-lead">If you&rsquo;re looking for a collab on your next big project, drop me a message. I&rsquo;d love to chat or meet up over coffee!</p>
-    </div>
-    <div class="contact-side">
-      <div class="email-row">
-        <span class="email-ico" aria-hidden="true">
-          <svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M3.6 7.2l7.3 5.1a2 2 0 0 0 2.2 0l7.3-5.1"/></svg>
-        </span>
-        <a class="email" href="mailto:ebutt732@gmail.com">ebutt732@gmail.com</a>
-        <button type="button" class="copybtn" data-copy="ebutt732@gmail.com" aria-label="Copy email address" title="Copy email address">
-          <svg class="i-copy" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11.5" height="11.5" rx="2.5"/><path d="M15.5 5.8V6a2.5 2.5 0 0 0-2.5-2.5H6A2.5 2.5 0 0 0 3.5 6v7a2.5 2.5 0 0 0 2.5 2.5h.2"/></svg>
-          <svg class="i-check" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 12.5l5 5 10-10"/></svg>
-        </button>
-        <span class="copied-note" role="status" aria-live="polite">Copied</span>
-      </div>
-      <div class="socials">
-        <a href="https://www.linkedin.com/in/eeman-butt" target="_blank" rel="noopener noreferrer" title="LinkedIn">
-          <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.3 10.7V17M7.3 7.5v.02M11.3 17v-6.3M11.3 13.6a2.6 2.6 0 0 1 5.2 0V17"/></svg></span>
-          <span class="cap">LinkedIn</span>
-        </a>
-        <a href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer" title="Topmate">
-          <!-- Topmate's mark abstracted to the page's stroke language: the outer
-               ring, and inside it the disc with a right-facing wedge notched in
-               to the centre. -->
-          <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M16.36 14.83A5.2 5.2 0 1 1 16.36 9.17L12 12Z"/></svg></span>
-          <span class="cap">Topmate</span>
-        </a>
-        <a href="https://www.instagram.com/_allaboutart__" target="_blank" rel="noopener noreferrer" title="Instagram">
-          <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.02"/></svg></span>
-          <span class="cap">Instagram</span>
-        </a>
+      <p class="contact-lead">Open to product design roles. I specialize in AI-automated workflows and design system management.</p>
+      <div class="contact-side">
+        <div class="socials">
+          <a href="https://www.linkedin.com/in/eeman-butt" target="_blank" rel="noopener noreferrer" title="LinkedIn">
+            <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7.3 10.7V17M7.3 7.5v.02M11.3 17v-6.3M11.3 13.6a2.6 2.6 0 0 1 5.2 0V17"/></svg></span>
+            <span class="cap">LinkedIn</span>
+          </a>
+          <a href="https://topmate.io/eeman_butt" target="_blank" rel="noopener noreferrer" title="Topmate">
+            <!-- Topmate's mark abstracted to the page's stroke language: the outer
+                 ring, and inside it the disc with a right-facing wedge notched in
+                 to the centre. -->
+            <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9.2"/><path d="M16.36 14.83A5.2 5.2 0 1 1 16.36 9.17L12 12Z"/></svg></span>
+            <span class="cap">Topmate</span>
+          </a>
+          <a href="https://www.instagram.com/_allaboutart__" target="_blank" rel="noopener noreferrer" title="Instagram">
+            <span class="box"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><path d="M17.2 6.8v.02"/></svg></span>
+            <span class="cap">Instagram</span>
+          </a>
+        </div>
       </div>
     </div>
+    <div class="ft-form" id="ftForm"></div>
   </div>
 </footer>
 
@@ -601,7 +886,7 @@ footer::before{
   }
   function apply(theme){
     root.setAttribute('data-theme', theme);
-    try{ localStorage.setItem('eeman-theme', theme); }catch(e){}
+    try{ localStorage.setItem('eeman-theme-v3', theme); }catch(e){}
     label();
   }
   // dark is the default and the page never follows the OS on its own; the
@@ -610,6 +895,292 @@ footer::before{
     apply(root.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
   });
   label();
+})();
+</script>
+<script>
+/* phone header: the four links go into a drawer that slides in from the right, opened by a menu button at the right end of the bar (shown up to 820px wide). The drawer is built here from the bar's own links, so the two always match. */
+(function(){
+  var links=document.querySelector('.topbar .tabs'), end=links&&links.parentNode; if(!links||!end) return;
+  var root=document.documentElement, mq=matchMedia('(max-width:820px)'), NS='http://www.w3.org/2000/svg', opener=null;
+  function el(t,c){var e=document.createElement(t);if(c)e.className=c;return e}
+  function icon(d){var sv=document.createElementNS(NS,'svg');sv.setAttribute('viewBox','0 0 24 24');sv.setAttribute('aria-hidden','true');sv.setAttribute('focusable','false');var pa=document.createElementNS(NS,'path');pa.setAttribute('d',d);sv.appendChild(pa);return sv}
+  var burger=el('button','nav-burger'); burger.type='button'; burger.setAttribute('aria-label','Open menu'); burger.setAttribute('aria-expanded','false'); burger.setAttribute('aria-controls','navDrawer'); burger.setAttribute('aria-haspopup','dialog');
+  burger.appendChild(icon('M4 7h16M4 12h16M4 17h16')); end.appendChild(burger);
+  var back=el('div','drawer-back'); back.setAttribute('aria-hidden','true');
+  var dr=el('div','drawer'); dr.id='navDrawer'; dr.setAttribute('role','dialog'); dr.setAttribute('aria-modal','true'); dr.setAttribute('aria-label','Menu'); dr.setAttribute('aria-hidden','true');
+  var x=el('button','drawer-x'); x.type='button'; x.setAttribute('aria-label','Close menu'); x.appendChild(icon('M6 6l12 12M18 6L6 18')); dr.appendChild(x);
+  var list=el('div','drawer-links'); list.setAttribute('role','group'); list.setAttribute('aria-label','Main menu');
+  [].slice.call(links.children).forEach(function(n){
+    var c;
+    if(n.tagName==='A'){ c=el('a',n.classList.contains('active')?'active':''); c.href=n.getAttribute('href'); c.textContent=n.textContent; ['target','rel'].forEach(function(k){if(n.getAttribute(k)) c.setAttribute(k,n.getAttribute(k))}); if(n.getAttribute('aria-current')) c.setAttribute('aria-current',n.getAttribute('aria-current')); c.addEventListener('click',function(){setOpen(false,true)}) }
+    else { c=el('button'); c.type='button'; c.textContent=n.textContent; c.addEventListener('click',function(){ setOpen(false,true); setTimeout(function(){n.click()},60) }) }   /* "Contact" closes the drawer, then opens the message window */
+    list.appendChild(c);
+  });
+  dr.appendChild(list); document.body.appendChild(back); document.body.appendChild(dr); root.classList.add('nav-js');
+  function focusables(){return [].slice.call(dr.querySelectorAll('a[href],button'))}
+  function setOpen(v,keepFocus){
+    if(v===root.classList.contains('drawer-open')) return;
+    root.classList.toggle('drawer-open',v); burger.setAttribute('aria-expanded',v?'true':'false'); dr.setAttribute('aria-hidden',v?'false':'true');
+    if(v){ opener=document.activeElement; x.focus() } else if(!keepFocus&&opener&&opener.focus){ opener.focus() }
+  }
+  burger.addEventListener('click',function(){setOpen(true)});
+  x.addEventListener('click',function(){setOpen(false)});
+  back.addEventListener('click',function(){setOpen(false)});
+  document.addEventListener('keydown',function(e){
+    if(!root.classList.contains('drawer-open')) return;
+    if(e.key==='Escape'){ e.preventDefault(); setOpen(false) }
+    else if(e.key==='Tab'){ var f=focusables(), a=f[0], z=f[f.length-1]; if(e.shiftKey&&document.activeElement===a){e.preventDefault();z.focus()} else if(!e.shiftKey&&document.activeElement===z){e.preventDefault();a.focus()} }
+  });
+  var close=function(){ if(!mq.matches) setOpen(false,true) };
+  if(mq.addEventListener) mq.addEventListener('change',close); else if(mq.addListener) mq.addListener(close);
+})();
+</script>
+<dialog class="mdl" id="mdl" aria-labelledby="mdlTitle"></dialog>
+<script>
+/* "Say Hi" opens this modal. The form sends the message straight to the inbox, with no email app in between.
+   A static site has no server of its own, so it hands the message to Web3Forms (web3forms.com), which emails it to you.
+   The access key below is Web3Forms' public key for your inbox; it is meant to sit in a page's code. If messages stop
+   arriving, check that address is still confirmed at web3forms.com. */
+(function(){
+  var ACCESS_KEY='5f5f6821-1d62-4fa2-aa39-121e2c7f0bc7', FORM_ENDPOINT='https://api.web3forms.com/submit', NS='http://www.w3.org/2000/svg';
+  var dlg=document.getElementById('mdl'); if(!dlg) return;
+  var closeTimer=0, inlineTimer=0;   /* closeTimer closes the window 3 seconds after a message is sent; inlineTimer puts the footer's form back to blank a few seconds after one is sent */
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e}
+  function field(id,label){var f=el('div','mdl-field'),l=el('label',null,label);l.htmlFor=id;f.appendChild(l);return f}
+  function input(id,label,type,auto){var f=field(id,label),i=el('input');i.id=id;i.type=type;if(auto)i.autocomplete=auto;f.appendChild(i);return {f:f,i:i}}
+  function open(){ render(dlg,false) }
+  /* the same form in two places: in the modal (host = the dialog) and open in the footer (inline) */
+  function render(host,inline){
+    var P=inline?'ftf':'mdl';
+    clearTimeout(inline?inlineTimer:closeTimer); host.textContent='';
+    var inn=el('div','mdl-in'), top=el('div','mdl-top');
+    var h=el('h2','mdl-title','Say Hi'); h.id=inline?'ftTitle':'mdlTitle'; top.appendChild(h);
+    var x=el('button','mdl-x'); x.type='button'; x.setAttribute('aria-label','Close');
+    var sv=document.createElementNS(NS,'svg'); sv.setAttribute('viewBox','0 0 24 24'); sv.setAttribute('aria-hidden','true');
+    var pa=document.createElementNS(NS,'path'); pa.setAttribute('d','M5 5l14 14M19 5L5 19'); sv.appendChild(pa); x.appendChild(sv);
+    x.addEventListener('click',function(){dlg.close()}); if(!inline) top.appendChild(x); inn.appendChild(top);
+    var form=el('form','mdl-form'); form.setAttribute('novalidate','');
+    var EMAIL_OK=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var em=input(P+'Email','Your email','email','email'), sb=input(P+'Subject','Subject','text');
+    /* the email is checked as it is typed: if the address looks complete but its domain cannot receive email, the field is marked red (no wording). The domain (only the part after the @) is looked up with a public DNS service; if that lookup cannot be made, nothing is flagged. A mailbox itself cannot be checked from a web page, so there is no "verified" state. */
+    var verdict='', seq=0, timer=0, cache={};
+    function dns(name,type){
+      var c=window.AbortController?new AbortController():null, t=c?setTimeout(function(){c.abort()},4000):0;
+      return fetch('https://cloudflare-dns.com/dns-query?name='+encodeURIComponent(name)+'&type='+type,{headers:{Accept:'application/dns-json'},signal:c?c.signal:undefined})
+        .then(function(r){return r.json()}).then(function(d){clearTimeout(t);return d},function(e){clearTimeout(t);throw e});
+    }
+    function lookup(domain){
+      if(cache[domain]) return cache[domain];
+      return cache[domain]=dns(domain,'MX').then(function(d){
+        var a=(d.Answer||[]).filter(function(x){return x.type===15});
+        if(a.length) return a.every(function(x){return /^\d+\s+\.?$/.test(String(x.data).trim())})?'bad':'ok';   /* a "null MX" says the domain takes no mail */
+        if(d.Status===3) return 'bad';                                                                           /* no such domain */
+        return dns(domain,'A').then(function(d2){return (d2.Answer&&d2.Answer.length)?'ok':'bad'});             /* no MX records: mail may go to the domain itself */
+      }).catch(function(){return 'unknown'});
+    }
+    function mark(){
+      var v=em.i.value.trim(), id=++seq; clearTimeout(timer); verdict='';
+      if(!EMAIL_OK.test(v)) return;
+      timer=setTimeout(function(){
+        lookup(v.split('@')[1].toLowerCase()).then(function(r){
+          if(id!==seq) return; verdict=r;
+          if(r==='bad') em.i.setAttribute('aria-invalid','true');
+        });
+      },350);
+    }
+    em.i.addEventListener('input',mark); em.i.addEventListener('change',mark);
+    form.appendChild(em.f); form.appendChild(sb.f);
+    var ms=field(P+'Msg','Message'), mi=el('textarea'); mi.id=P+'Msg'; mi.placeholder='What would you like to talk about?'; ms.appendChild(mi); form.appendChild(ms);
+    var hp=el('input'); hp.type='text'; hp.name='_honey'; hp.tabIndex=-1; hp.autocomplete='off'; hp.setAttribute('aria-hidden','true'); hp.style.cssText='position:absolute;left:-9999px;opacity:0;height:0;width:0'; form.appendChild(hp);   /* a trap for bots: people never fill this in */
+    var go=el('button','mdl-btn primary','Send message'); go.type='submit'; form.appendChild(go);
+    var st=el('p','mdl-note'); st.setAttribute('role','status'); form.appendChild(st);
+    /* a missing or invalid field is marked with a red edge and focused: no wording */
+    function bad(i){i.setAttribute('aria-invalid','true');i.focus();return false}
+    [em.i,mi].forEach(function(i){i.addEventListener('input',function(){i.removeAttribute('aria-invalid')})});
+    form.addEventListener('submit',function(e){
+      e.preventDefault(); if(hp.value) return;
+      var mail=em.i.value.trim(), subj=sb.i.value.trim()||'Hi from your portfolio', msg=mi.value.trim();
+      st.textContent='';
+      if(!EMAIL_OK.test(mail)||verdict==='bad') return bad(em.i);
+      if(!msg) return bad(mi);
+      go.disabled=true; go.textContent='Sending…';
+      /* the email app never opens: if the message cannot be sent, the form says so and stays as it is */
+      function fail(why){
+        if(window.console) console.warn('Say Hi: the message was not sent.',why);
+        st.textContent='I could not send that just now. Please try again in a moment.';
+        go.disabled=false; go.textContent='Send message';
+      }
+      if(!ACCESS_KEY) return fail('The Web3Forms access key has not been added yet (see the note above this script).');
+      if(!window.fetch) return fail('no fetch');
+      fetch(FORM_ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({access_key:ACCESS_KEY,email:mail,subject:subj+' (from your portfolio)',from_name:'Portfolio Say Hi',message:msg})})
+        .then(function(r){return r.json()})
+        .then(function(d){
+          if(d&&(d.success===true||d.success==='true')){
+            /* sent: "Thanks!" in italics with an upright emoji, no cross, no button; the window closes by itself after 3 seconds */
+            h.textContent=''; var tw=el('em',null,'Thanks!'); var em2=el('span',null,' \uD83D\uDE4C'); em2.style.fontStyle='normal'; h.appendChild(tw); h.appendChild(em2);
+            x.remove();
+            form.textContent=''; form.appendChild(el('p','mdl-text','I\u2019ve received your message, and will get back to you shortly. Have a nice day!'));
+            if(inline) inlineTimer=setTimeout(function(){render(host,true)},6000); else closeTimer=setTimeout(function(){dlg.close()},3000);
+          } else fail(d);
+        },fail);
+    });
+    inn.appendChild(form); host.appendChild(inn);
+    if(!inline){ if(!dlg.open) dlg.showModal(); em.i.focus() }
+  }
+  var hi=document.getElementById('sayHi');
+  if(hi) hi.addEventListener('click',open);
+  var ftHost=document.getElementById('ftForm'); if(ftHost) render(ftHost,true);   /* the footer's contact box is open for anyone to use */
+  dlg.addEventListener('click',function(e){if(e.target===dlg)dlg.close()});
+})();
+</script>
+<script>
+/* the page's blocks ("Me; In a Nutshell", and the timeline with the toolkit beside it) all start at the word "Eeman" in the header: the shift is measured, so it holds at every width; on a phone the word is hidden and nothing moves */
+(function(){
+  var secs=[].slice.call(document.querySelectorAll('.wrap > section, .wrap > .duo')), nm=document.querySelector('.nav-logo .lg-name'); if(!secs.length||!nm) return;
+  function align(){
+    var i, d;
+    for(i=0;i<secs.length;i++) secs[i].style.marginLeft='';
+    if(getComputedStyle(nm).display==='none') return;
+    d=nm.getBoundingClientRect().left-secs[0].getBoundingClientRect().left;
+    if(Math.abs(d)>.5) for(i=0;i<secs.length;i++) secs[i].style.marginLeft=d.toFixed(1)+'px';
+  }
+  function grid(){ document.documentElement.style.setProperty('--gx',(Math.round(secs[0].getBoundingClientRect().left)-16)+'px') }   /* the page grid hangs off the text's left edge, 16px out, as the home page's does */
+  function both(){ align(); grid() }
+  window.addEventListener('resize',both); window.addEventListener('load',both);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(both);
+  both();
+})();
+/* Parallax on the first screen, as on the home page: while you scroll, the first screen stays exactly where it is and only fades, and the library slides up over it. When the first screen is taller than the window it cannot be held in place, so it simply scrolls away and fades as it goes. Nothing happens for visitors who asked for less motion. */
+(function(){
+  var intro=document.querySelector('.intro'); if(!intro) return;
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  function update(){
+    var vh=window.innerHeight, nav=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'))||82, h=intro.offsetHeight, y=window.pageYOffset||document.documentElement.scrollTop||0, pin=h<=vh-nav+1;
+    intro.classList.toggle('pinned',pin);
+    var span=Math.max(260,(pin?vh-nav:h)*.7), p=Math.min(1,Math.max(0,y/span));
+    intro.style.setProperty('--fade',(1-p).toFixed(3));   /* the parts inside fade, rather than the whole box */
+    intro.style.pointerEvents=p>.85?'none':'';
+  }
+  window.addEventListener('scroll',update,{passive:true}); window.addEventListener('resize',update); window.addEventListener('load',update);
+  if(window.ResizeObserver) new ResizeObserver(update).observe(intro);   /* the first screen can change height after load (the photo is sized to the text), so work out again whether it fits */
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(update);
+  update();
+})();
+/* sections settle by themselves, as on the home page: the page never rests half way between the first screen and the library, or between the library and the footer.
+   When scrolling stops inside one of those moves, the page carries on by itself: going down it finishes the move once a fifth of the way in, going up once it is a fifth of the way back; short of that it returns to where it was.
+   Several short scrolls in a row add up, so a slow mouse wheel still gets through. Inside the library you scroll freely. Not on a phone, nor for visitors who asked for less motion. */
+(function(){
+  var lib=document.getElementById('library'), ft=document.getElementById('contact'); if(!lib||!ft) return;
+  var root=document.documentElement, mob=matchMedia('(max-width:820px)'), calm=matchMedia('(prefers-reduced-motion: reduce)');
+  var lastY=window.pageYOffset||root.scrollTop, dir=0, idle=0, pushed=0, pushedAt=0;
+  function snap(){
+    if(mob.matches||calm.matches||document.querySelector('dialog[open]')) return;
+    var y=window.pageYOffset||root.scrollTop, vh=window.innerHeight, nav=parseFloat(getComputedStyle(root).getPropertyValue('--nav-h'))||82;
+    [lib,ft].some(function(el){
+      var top=el.getBoundingClientRect().top+y, a=Math.max(0,top-vh), b=Math.min(top-nav,root.scrollHeight-vh), len=b-a;   /* from the screen you are leaving to this section resting just under the header */
+      if(!(len>1)||y<=a+2||y>=b-2) return false;
+      var from=dir>0?a:b, to=dir>0?b:a, now=Date.now();
+      var moved=Math.abs(y-from)+(now-pushedAt<1500?pushed:0);
+      if(moved>=len*.2){ pushed=0 } else { pushed=moved; pushedAt=now; to=from }
+      window.scrollTo({top:to,behavior:'smooth'});
+      return true;
+    });
+  }
+  window.addEventListener('scroll',function(){
+    var y=window.pageYOffset||root.scrollTop; if(y!==lastY){dir=y>lastY?1:-1;lastY=y}
+    clearTimeout(idle); idle=setTimeout(snap,120);
+  },{passive:true});
+})();
+/* the header is 70% opaque on the first screen and 90% once the library has reached it */
+(function(){
+  var bar=document.querySelector('.topbar'), lib=document.getElementById('library'); if(!bar||!lib) return;
+  function set(){ var n=parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'))||82; bar.classList.toggle('over',lib.getBoundingClientRect().top<=n+1) }
+  window.addEventListener('scroll',set,{passive:true}); window.addEventListener('resize',set); set();
+})();
+/* the photo is as tall as the text beside it: a square from the top of the "Me; In a Nutshell" label to the bottom of the paragraph. It is measured here (and again when the paragraph re-wraps) and passed to the CSS as --ph (size) and --pt (how far down it starts). On a phone the photo stays half the width of the page. */
+(function(){
+  var n=document.querySelector('.nutshell'), p=n&&n.querySelector('.portrait'), l=n&&n.querySelector('.eyebrow'), b=n&&n.querySelector('.bio'); if(!p||!l||!b) return;
+  function fit(){
+    if(innerWidth<=680){ n.style.removeProperty('--ph'); n.style.removeProperty('--pt'); return }
+    var g=n.getBoundingClientRect(), t=l.getBoundingClientRect(), r=b.getBoundingClientRect();
+    var h=Math.round(r.bottom-t.top), top=Math.max(0,Math.round(t.top-g.top));
+    if(Math.abs((parseFloat(n.style.getPropertyValue('--ph'))||0)-h)>1) n.style.setProperty('--ph',h+'px');
+    if(Math.abs((parseFloat(n.style.getPropertyValue('--pt'))||0)-top)>1) n.style.setProperty('--pt',top+'px');
+  }
+  window.addEventListener('resize',fit); window.addEventListener('load',fit);
+  if(document.fonts&&document.fonts.ready) document.fonts.ready.then(fit);
+  if(window.ResizeObserver) new ResizeObserver(fit).observe(b);
+  fit();
+})();
+/* header: add .scrolled once the page has moved, so it becomes the frosted bar */
+(function(){var h=document.querySelector('.topbar');if(!h)return;function set(){h.classList.toggle('scrolled',(window.scrollY||document.documentElement.scrollTop)>8)}window.addEventListener('scroll',set,{passive:true});set();})();
+</script>
+<dialog class="lb" id="lb" aria-label="Enlarged piece">
+  <button type="button" class="lb-btn lb-x" id="lbX" aria-label="Close">&times;</button>
+  <button type="button" class="lb-btn lb-prev" id="lbPrev" aria-label="Previous piece">&#8249;</button>
+  <button type="button" class="lb-btn lb-next" id="lbNext" aria-label="Next piece">&#8250;</button>
+  <div class="lb-stage"><img id="lbImg" alt=""><p class="lb-cap"><i></i><span id="lbLab"></span><span id="lbNum"></span></p></div>
+</dialog>
+<script>
+/* The wall: fade each piece up as it scrolls into view, filter by kind (the filter is kept in the
+   address as #painting or #drawing), let a pool of the hovered piece's colour drift
+   behind the wall, and open pieces in a lightbox that steps through whatever is showing. */
+(function(){
+  var wall=document.getElementById('libWall'); if(!wall) return;
+  var pieces=[].slice.call(wall.querySelectorAll('.piece')), filters=[].slice.call(document.querySelectorAll('.lib-filter')),
+      count=document.getElementById('libCount'), section=document.getElementById('gallery'),
+      calm=matchMedia('(prefers-reduced-motion: reduce)'), cur='all', t=0;
+  var NAMES={all:'pieces',painting:'paintings',drawing:'drawings'};
+  function shown(){return pieces.filter(function(p){return !p.hidden})}
+
+  /* reveal on scroll */
+  var io='IntersectionObserver' in window ? new IntersectionObserver(function(es){
+    var i=0; es.forEach(function(e){ if(e.isIntersecting){ e.target.style.setProperty('--d',i++); e.target.classList.add('in'); } });
+  },{rootMargin:'0px 0px -6% 0px',threshold:.08}) : null;
+  pieces.forEach(function(p){ if(io&&!calm.matches) io.observe(p); else p.classList.add('in'); });
+
+
+  /* filter */
+  function setFilter(f,quick){
+    if(f===cur) return; cur=f;
+    filters.forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-f')===f?'true':'false')});
+    function apply(){
+      pieces.forEach(function(p){var on=f==='all'||p.getAttribute('data-cat')===f; p.hidden=!on; if(!on) p.classList.remove('in'); else if(io&&!calm.matches) p.classList.remove('in'); });
+      var n=shown().length; if(count) count.textContent=n+' '+(n===1&&f!=='all'?NAMES[f].replace(/s$/,''):NAMES[f]);
+      wall.classList.remove('swap');
+      if(!io||calm.matches) pieces.forEach(function(p){p.classList.add('in')});
+    }
+    if(quick||calm.matches){apply(); return}
+    wall.classList.add('swap'); clearTimeout(t); t=setTimeout(apply,230);
+  }
+  filters.forEach(function(b){b.addEventListener('click',function(){
+    var f=b.getAttribute('data-f'); setFilter(f); try{history.replaceState(null,'',f==='all'?location.pathname:'#'+f)}catch(e){}
+  })});
+  var h=(location.hash||'').replace('#',''); if(NAMES[h]&&h!=='all') setFilter(h,true);
+
+  /* lightbox */
+  var d=document.getElementById('lb'), img=document.getElementById('lbImg'), lab=document.getElementById('lbLab'), num=document.getElementById('lbNum'), at=0, list=[], x0=null;
+  function show(i){
+    list=shown(); if(!list.length) return; at=(i+list.length)%list.length;
+    var p=list[at], b=p.querySelector('.piece-btn');
+    img.classList.remove('ready'); img.alt=b.getAttribute('data-alt')||'';
+    img.onload=function(){img.classList.add('ready')}; img.src=b.getAttribute('data-full');
+    if(img.complete&&img.naturalWidth) img.classList.add('ready');
+    lab.textContent=b.getAttribute('data-label'); num.textContent=(at+1)+' / '+list.length;
+    d.style.setProperty('--lbtint',getComputedStyle(p).getPropertyValue('--tint'));
+    [1,-1].forEach(function(k){var q=list[(at+k+list.length)%list.length]; if(q){var im=new Image(); im.src=q.querySelector('.piece-btn').getAttribute('data-full')}});
+  }
+  wall.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.piece-btn'); if(!b) return;
+    show(shown().indexOf(b.parentNode)); if(!d.open) d.showModal();
+  });
+  document.getElementById('lbX').addEventListener('click',function(){d.close()});
+  document.getElementById('lbPrev').addEventListener('click',function(){show(at-1)});
+  document.getElementById('lbNext').addEventListener('click',function(){show(at+1)});
+  d.addEventListener('click',function(e){if(e.target===d||e.target.classList.contains('lb-stage'))d.close()});
+  d.addEventListener('keydown',function(e){if(e.key==='ArrowRight'){show(at+1)}else if(e.key==='ArrowLeft'){show(at-1)}});
+  d.addEventListener('touchstart',function(e){x0=e.touches[0].clientX},{passive:true});
+  d.addEventListener('touchend',function(e){if(x0===null)return; var dx=e.changedTouches[0].clientX-x0; x0=null; if(Math.abs(dx)>50) show(at+(dx<0?1:-1))},{passive:true});
 })();
 </script>
 </body>
