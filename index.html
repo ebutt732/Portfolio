@@ -390,14 +390,14 @@
   .ai-case .case-mark{flex:0 0 auto;height:26px;width:auto;display:block}   /* the project's logomark before its title; each keeps its own colours */
   .ai-case .ai-over{margin:0;font-style:italic;font-family:var(--font-ui);font-size:17px;font-weight:300;line-height:28px;letter-spacing:-.01em;color:var(--hero-body)}
   .ai-case ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0}
-  .ai-case li{position:relative;padding-left:20px;font-family:var(--font-ui);font-size:17px;font-weight:300;line-height:28px;letter-spacing:-.01em;color:var(--role-ink)}
-  .ai-case li::before{content:"";position:absolute;left:0;top:14px;width:8px;height:1px;background:var(--hero-body)}
+  .ai-case li{position:relative;font-family:var(--font-ui);font-size:17px;font-weight:300;line-height:28px;letter-spacing:-.01em;color:var(--role-ink)}
+  .ai-case li::before{content:"\2022";position:absolute;left:-18px;top:0;width:18px;text-align:center;color:color-mix(in srgb,var(--hero-body) 70%,transparent)}   /* the bullet hangs to the left, so the outcomes start on the same vertical line as the roles above them */
   .ai-case .ai-tag{color:var(--hero-body)}   /* the bracketed note after an outcome */
   .ai-vh{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}   /* the "Overview" and "Key outcomes" headings are no longer shown, but screen readers still hear them */
   /* my role: the words above the key outcomes, in the label grey, each item set off from the next by a bullet. Each item has an 18px strip on its left that holds the bullet; the first item of every row is pulled 18px out to the left, where the box clips its bullet, so a bullet never starts a row. */
   .ai-case .ai-roles{display:flex;flex-direction:row;flex-wrap:wrap;gap:4px 0;margin:0;padding:0;overflow:hidden}
   .ai-case .ai-roles li{position:relative;margin-left:-18px;padding:0 18px;font-size:14px;font-weight:300;line-height:20px;letter-spacing:0;color:var(--hero-body)}
-  .ai-case .ai-roles li::before{content:"\2022";position:absolute;left:0;top:0;width:18px;height:auto;background:none;text-align:center;color:color-mix(in srgb,var(--hero-body) 70%,transparent)}
+  .ai-case .ai-roles li::before{left:0}   /* among the roles the bullet sits inside each item, between it and the one before */
   .ai-case .ai-roles,.ai-case .ai-b ul:not(.ai-roles){margin-left:64px}   /* the roles and the key outcomes sit 64px in from their column's edge */
   .ai-case .ai-roles{margin-right:-32px}   /* and the roles reach 32px past the column, so they still fit in two lines */
   /* the picture: two phone screens, the same size as each other in both case studies. The front one (right) is in a phone mockup; the second (left) is just the screen with rounded corners, a little lower and tucked behind it.
@@ -423,6 +423,7 @@
   @media (max-width:1280px){
     .ai-text{grid-template-columns:minmax(0,1fr);row-gap:16px}   /* too narrow for two columns of words beside the picture: stack them */
     .ai-case h3,.ai-case .ai-over,.ai-case .ai-roles,.ai-case .ai-b ul:not(.ai-roles){grid-area:auto;margin-left:0;margin-right:0}
+    .ai-case .ai-roles,.ai-case .ai-b ul:not(.ai-roles){margin-left:18px}   /* room for the outcome bullets, so they stay inside the page margin; the roles are indented to match */
   }
   @media (max-width:1000px){
     .ai-case{grid-template-columns:minmax(0,1fr);gap:28px;--ai-pad:36px}
